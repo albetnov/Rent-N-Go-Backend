@@ -5,6 +5,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
+	"os"
 )
 
 /**
@@ -16,7 +17,8 @@ func init() {
 	viper.SetConfigType("env")
 	viper.AddConfigPath(".")
 	viper.OnConfigChange(func(e fsnotify.Event) {
-		fmt.Println("Config file changed, restarting:", e.Name)
+		fmt.Println("Config file changed, please re run:", e.Name)
+		os.Exit(1)
 	})
 	viper.WatchConfig()
 	if err := viper.ReadInConfig(); err != nil {
@@ -31,6 +33,9 @@ func main() {
 	app := fiber.New()
 
 	app.Get("/", func(c *fiber.Ctx) error {
+		fmt.Println("Logging Middleware!")
+		return c.Next()
+	}, func(c *fiber.Ctx) error {
 		c.SendStatus(200)
 
 		return c.JSON(fiber.Map{
