@@ -1,16 +1,13 @@
 package routes
 
-import "github.com/gofiber/fiber/v2"
-
-var globalRouter fiber.Router
-
-func register(fn func(r fiber.Router)) {
-	fn(globalRouter)
-}
+import (
+	"github.com/gofiber/fiber/v2"
+	"rent-n-go-backend/utils"
+)
 
 func ApiRoutes(r fiber.Router) {
 	// set default global router
-	globalRouter = r
+	utils.SetGlobalRouter(r)
 
-	register(AuthRoutes)
+	utils.RegisterWithPrefix(AuthRoutes, "/auth")
 }
