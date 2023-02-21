@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html"
 	"github.com/spf13/viper"
 	"rent-n-go-backend/routes"
 	"rent-n-go-backend/utils"
@@ -17,7 +18,11 @@ as well as close unused instance.
 This function will also register all defined routes.
 */
 func main() {
-	app := fiber.New()
+	engine := html.New("./views", ".gohtml")
+
+	app := fiber.New(fiber.Config{
+		Views: engine,
+	})
 
 	if viper.GetString("APP_ENV") == "production" {
 		defer beforeHook(app).Close()
@@ -32,6 +37,8 @@ func main() {
 	api := app.Group("/api/v1")
 
 	routes.ApiRoutes(api)
+
+	routes.WebRoutes(app)
 
 	afterHook(app)
 
