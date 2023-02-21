@@ -35,12 +35,18 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.44.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/mod v0.8.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/text v0.5.0 // indirect
+	golang.org/x/tools v0.6.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gorm.io/datatypes v1.1.0 // indirect
 	gorm.io/driver/mysql v1.4.7 // indirect
+	gorm.io/gen v0.3.21 // indirect
 	gorm.io/gorm v1.24.5 // indirect
+	gorm.io/hints v1.1.1 // indirect
+	gorm.io/plugin/dbresolver v1.4.1 // indirect
 )
 
 replace rent-n-go-backend/logs => ./Logs/

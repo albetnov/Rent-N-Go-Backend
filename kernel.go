@@ -80,6 +80,8 @@ func registerGlobalMiddlewares(app *fiber.App) *os.File {
 func beforeHook(app *fiber.App) *os.File {
 	// Satisfy database connection
 	utils.SatisfiesDbConnection()
+	generateQuery()
+
 	// register the global middleware
 	file := registerGlobalMiddlewares(app)
 
