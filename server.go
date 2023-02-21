@@ -2,35 +2,22 @@ package main
 
 import (
 	"fmt"
-	"github.com/fsnotify/fsnotify"
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
-	"os"
 )
 
-/**
-* Load configuration
- */
-func init() {
-	// load from file
-	viper.SetConfigName(".env")
-	viper.SetConfigType("env")
-	viper.AddConfigPath(".")
-	viper.OnConfigChange(func(e fsnotify.Event) {
-		fmt.Println("Config file changed, please re run:", e.Name)
-		os.Exit(1)
-	})
-	viper.WatchConfig()
-	if err := viper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error regrading config file: %w", err))
-	}
+/*
+*
+The Rent-N-Go-Backend Entrypoint
+This function loads kernel middlewares
+as well as close unused instance.
 
-	// set default
-	viper.SetDefault("PORT", 3000)
-}
-
+This function will also register all defined routes.
+*/
 func main() {
 	app := fiber.New()
+
+	defer registerGlobalMiddlewares(app).Close()
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		fmt.Println("Logging Middleware!")
