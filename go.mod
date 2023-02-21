@@ -49,5 +49,3 @@ require (
 	gorm.io/hints v1.1.1 // indirect
 	gorm.io/plugin/dbresolver v1.4.1 // indirect
 )
-
-replace rent-n-go-backend/logs => ./Logs/

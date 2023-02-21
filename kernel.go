@@ -8,9 +8,11 @@ import (
 	fiberRecover "github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/spf13/viper"
+	"log"
 	"os"
 	"path"
 	"rent-n-go-backend/utils"
+	"runtime"
 )
 
 /*
@@ -78,6 +80,9 @@ func registerGlobalMiddlewares(app *fiber.App) *os.File {
 }
 
 func beforeHook(app *fiber.App) *os.File {
+	log.Println("Welcome to Rent-N-Go Backend!")
+	log.Println("Running in:", runtime.Version(), "Using:", runtime.GOOS)
+
 	// Satisfy database connection
 	utils.SatisfiesDbConnection()
 	generateQuery()
