@@ -63,9 +63,18 @@ func registerGlobalMiddlewares(app *fiber.App) *os.File {
 
 	// Load logger middleware
 	app.Use(logger.New(logger.Config{
-		Format: "[${ip}]:${port} ${status}:${method} -> ${path} ::${locals:requestid}",
+		Format: "[${ip}]:${port} ${status}:${method} -> ${path} ::${locals:requestid} \n",
 		Output: file,
 	}))
+
+	// set up 404 handler
+	app.Use(func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"context": "Rent-N-Go Backend",
+			"message": "Ups, can't find that!",
+			"status":  fiber.StatusNotFound,
+		})
+	})
 
 	// Only if in production, then recover the app.
 	if viper.GetString("APP_ENV") == "production" {

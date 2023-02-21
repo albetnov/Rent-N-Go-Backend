@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
+	"rent-n-go-backend/routes"
 )
 
 /*
@@ -23,17 +24,9 @@ func main() {
 		registerGlobalMiddlewares(app)
 	}
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		fmt.Println("Logging Middleware!")
-		return c.Next()
-	}, func(c *fiber.Ctx) error {
-		c.SendStatus(200)
+	api := app.Group("/api/v1")
 
-		return c.JSON(fiber.Map{
-			"message": "Welcome to Rent-N-Go Backend Entrypoint",
-			"status":  200,
-		})
-	})
+	routes.ApiRoutes(api)
 
 	app.Listen(fmt.Sprintf(":%d", viper.GetInt("PORT")))
 }
