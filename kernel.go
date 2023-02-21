@@ -99,7 +99,7 @@ func afterHook(app *fiber.App) {
 	// set up 404 handler
 	app.Use(func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"context": "Rent-N-Go Backend",
+			"app":     utils.GetApp(),
 			"message": "Ups, can't find that!",
 			"status":  fiber.StatusNotFound,
 		})

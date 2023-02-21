@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
 	"rent-n-go-backend/routes"
+	"rent-n-go-backend/utils"
 )
 
 /*
@@ -23,6 +24,10 @@ func main() {
 	} else {
 		beforeHook(app)
 	}
+
+	app.Get("/", func(ctx *fiber.Ctx) error {
+		return ctx.JSON(utils.GetApp())
+	})
 
 	api := app.Group("/api/v1")
 
