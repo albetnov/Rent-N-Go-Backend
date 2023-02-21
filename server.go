@@ -28,5 +28,7 @@ func main() {
 
 	routes.ApiRoutes(api)
 
+	afterHook(app)
+
 	app.Listen(fmt.Sprintf(":%d", viper.GetInt("PORT")))
 }

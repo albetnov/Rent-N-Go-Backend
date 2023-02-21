@@ -49,6 +49,8 @@ func getLogOutput() *os.File {
 /*
 Register all application globals middleware.
 return file instance to be deferred by server entry point.
+
+Initiated at beginning of routing.
 */
 func registerGlobalMiddlewares(app *fiber.App) *os.File {
 	// Load encryptCookie middleware
@@ -67,6 +69,19 @@ func registerGlobalMiddlewares(app *fiber.App) *os.File {
 		Output: file,
 	}))
 
+	// Only if in production, then recover the app.
+	if viper.GetString("APP_ENV") == "production" {
+		app.Use(fiberRecover.New())
+	}
+
+	return file
+}
+
+/*
+*
+An global middleware that initiated at the end of routing.
+*/
+func afterHook(app *fiber.App) {
 	// set up 404 handler
 	app.Use(func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -75,11 +90,4 @@ func registerGlobalMiddlewares(app *fiber.App) *os.File {
 			"status":  fiber.StatusNotFound,
 		})
 	})
-
-	// Only if in production, then recover the app.
-	if viper.GetString("APP_ENV") == "production" {
-		app.Use(fiberRecover.New())
-	}
-
-	return file
 }
