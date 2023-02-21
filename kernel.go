@@ -91,7 +91,7 @@ func beforeHook(app *fiber.App) *os.File {
 	file := registerGlobalMiddlewares(app)
 
 	// migrate all tables to database.
-	migrate()
+	migrate(utils.GetDb())
 
 	return file
 }

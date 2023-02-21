@@ -1,8 +1,8 @@
 package main
 
 import (
+	"gorm.io/gorm"
 	"rent-n-go-backend/models"
-	"rent-n-go-backend/utils"
 )
 
 /*
@@ -10,6 +10,6 @@ import (
 Will be executed by GORM
 in Before Hook
 */
-func migrate() {
-	utils.GetDb().AutoMigrate(&models.User{})
+func migrate(db *gorm.DB) {
+	db.AutoMigrate(&models.User{})
 }
