@@ -16,6 +16,12 @@ func setDefaultGlobalConfig() {
 	}
 
 	viper.SetDefault("APP_ENV", "production")
+
+	viper.SetDefault("DB_NAME", "rent-n-go")
+	viper.SetDefault("DB_USER", "root")
+	viper.SetDefault("DB_PASS", "")
+	viper.SetDefault("DB_HOST", "localhost")
+	viper.SetDefault("DB_PORT", 3306)
 }
 
 /**

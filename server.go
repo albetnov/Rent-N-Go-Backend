@@ -19,9 +19,9 @@ func main() {
 	app := fiber.New()
 
 	if viper.GetString("APP_ENV") == "production" {
-		defer registerGlobalMiddlewares(app).Close()
+		defer beforeHook(app).Close()
 	} else {
-		registerGlobalMiddlewares(app)
+		beforeHook(app)
 	}
 
 	api := app.Group("/api/v1")

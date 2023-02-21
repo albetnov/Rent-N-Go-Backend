@@ -77,6 +77,18 @@ func registerGlobalMiddlewares(app *fiber.App) *os.File {
 	return file
 }
 
+func beforeHook(app *fiber.App) *os.File {
+	// Satisfy database connection
+	utils.SatisfiesDbConnection()
+	// register the global middleware
+	file := registerGlobalMiddlewares(app)
+
+	// migrate all tables to database.
+	migrate()
+
+	return file
+}
+
 /*
 *
 An global middleware that initiated at the end of routing.
