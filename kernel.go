@@ -38,9 +38,9 @@ func getLogFile() *os.File {
 Return the corresponding Logger Output based on Application Environment
 Return file if in production, return stdOut otherwise.
 */
-func getLogOutput(file *os.File) *os.File {
+func getLogOutput() *os.File {
 	if viper.GetString("APP_ENV") == "production" {
-		return file
+		return getLogFile()
 	}
 
 	return os.Stdout
@@ -59,12 +59,12 @@ func registerGlobalMiddlewares(app *fiber.App) *os.File {
 	// Load requestId middleware
 	app.Use(requestid.New())
 
-	file := getLogFile()
+	file := getLogOutput()
 
 	// Load logger middleware
 	app.Use(logger.New(logger.Config{
 		Format: "[${ip}]:${port} ${status}:${method} -> ${path} ::${locals:requestid}",
-		Output: getLogOutput(file),
+		Output: file,
 	}))
 
 	// Only if in production, then recover the app.

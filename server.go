@@ -17,7 +17,11 @@ This function will also register all defined routes.
 func main() {
 	app := fiber.New()
 
-	defer registerGlobalMiddlewares(app).Close()
+	if viper.GetString("APP_ENV") == "production" {
+		defer registerGlobalMiddlewares(app).Close()
+	} else {
+		registerGlobalMiddlewares(app)
+	}
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		fmt.Println("Logging Middleware!")
