@@ -44,7 +44,7 @@ Return the corresponding Logger Output based on Application Environment
 Return file if in production, return stdOut otherwise.
 */
 func getLogOutput() *os.File {
-	if viper.GetString("APP_ENV") == "production" {
+	if utils.IsProduction() {
 		return getLogFile()
 	}
 
@@ -75,7 +75,7 @@ func registerGlobalMiddlewares(app *fiber.App) *os.File {
 	}))
 
 	// Only if in production, then recover the app.
-	if viper.GetString("APP_ENV") == "production" {
+	if utils.IsProduction() {
 		app.Use(fiberRecover.New())
 	}
 

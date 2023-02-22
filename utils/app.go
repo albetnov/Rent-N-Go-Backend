@@ -14,7 +14,7 @@ func GetApp() fiber.Map {
 }
 
 func ShouldPanic(err error) {
-	if viper.GetString("APP_ENV") == "production" {
+	if IsProduction() {
 		log.Fatalf("An error occurred: %v\n", err.Error())
 	} else {
 		panic(err)
@@ -25,4 +25,21 @@ func RecordLog(err error) {
 	if err != nil {
 		log.Fatalf("Something went wrong: %v\n", err.Error())
 	}
+}
+
+func IsProduction() bool {
+	return viper.GetString("APP_ENV") == "production"
+}
+
+func SafeThrow(w *fiber.Ctx, err error) error {
+	errorMessage := "Can't proceed your request"
+
+	if !IsProduction() {
+		errorMessage = err.Error()
+	}
+
+	return w.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+		"message": "Something went wrong",
+		"error":   errorMessage,
+	})
 }

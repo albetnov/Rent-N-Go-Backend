@@ -6,5 +6,5 @@ type Querier struct {
 }
 
 func Generate(lists *Generator) {
-	lists.addModel(&models.User{})
+	lists.addModel(models.User{})
 }

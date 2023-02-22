@@ -3,6 +3,7 @@ package main
 import (
 	"gorm.io/gen"
 	"rent-n-go-backend/generator"
+	"rent-n-go-backend/models"
 	"rent-n-go-backend/utils"
 )
 
@@ -18,11 +19,7 @@ func generateQuery() {
 
 	g.UseDB(utils.GetDb())
 
-	g.ApplyBasic(lists.Models...)
-
-	for i, v := range lists.Queries {
-		g.ApplyInterface(i, v.([]interface{})...)
-	}
+	g.ApplyBasic(models.User{})
 
 	g.Execute()
 }

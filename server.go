@@ -22,12 +22,13 @@ func main() {
 	engine := html.New("./views", ".gohtml")
 
 	app := fiber.New(fiber.Config{
-		Views: engine,
+		Views:   engine,
+		AppName: "Rent-N-Go",
 	})
 
 	stream := beforeHook(app)
 
-	if viper.GetString("APP_ENV") == "production" {
+	if utils.IsProduction() {
 		defer func() {
 			err := stream.Close()
 			if err != nil {

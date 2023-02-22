@@ -7,7 +7,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/viper"
 	"rent-n-go-backend/utils"
-	"time"
 )
 
 type Testing struct {
@@ -28,38 +27,6 @@ func ApiRoutes(r fiber.Router) {
 	router.Post("/test", utils.InterceptRequest(new(Testing)), func(ctx *fiber.Ctx) error {
 		return ctx.JSON(fiber.Map{
 			"message": "mantap",
-		})
-	})
-
-	router.Post("/login", func(ctx *fiber.Ctx) error {
-		type User struct {
-			Username string
-			Password string
-		}
-
-		user := new(User)
-
-		if err := ctx.BodyParser(user); err != nil {
-			return ctx.JSON(fiber.Map{
-				"errors": err.Error(),
-			})
-		}
-
-		claims := jwt.MapClaims{
-			"name":  user.Username,
-			"admin": false,
-			"exp":   time.Now().Add(time.Minute * 30).Unix(),
-		}
-
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-		t, err := token.SignedString([]byte(viper.GetString("APP_KEY")))
-		if err != nil {
-			return ctx.SendStatus(fiber.StatusInternalServerError)
-		}
-
-		return ctx.JSON(fiber.Map{
-			"token": t,
 		})
 	})
 

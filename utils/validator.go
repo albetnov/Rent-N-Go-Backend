@@ -13,6 +13,8 @@ type ErrorResponse struct {
 
 var validate = validator.New()
 
+const BODY_DATA = "body_data"
+
 func validateStruct(data any) []*ErrorResponse {
 	var errors []*ErrorResponse
 
@@ -32,7 +34,7 @@ func validateStruct(data any) []*ErrorResponse {
 
 func InterceptRequest(data any) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		if err := c.BodyParser(data); err != nil {
+		if err := c.BodyParser(&data); err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": err.Error(),
 			})
@@ -47,6 +49,14 @@ func InterceptRequest(data any) func(c *fiber.Ctx) error {
 			})
 		}
 
+		c.Locals(BODY_DATA, data)
+
 		return c.Next()
 	}
+}
+
+func GetPayload[T comparable](c *fiber.Ctx) T {
+	payload := *c.Locals(BODY_DATA).(*T)
+
+	return payload
 }
