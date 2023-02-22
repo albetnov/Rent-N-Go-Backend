@@ -20,3 +20,9 @@ func ShouldPanic(err error) {
 		panic(err)
 	}
 }
+
+func RecordLog(err error) {
+	if err != nil {
+		log.Fatalf("Something went wrong: %v\n", err.Error())
+	}
+}
