@@ -24,10 +24,15 @@ func main() {
 		Views: engine,
 	})
 
+	stream := beforeHook(app)
+
 	if viper.GetString("APP_ENV") == "production" {
-		defer beforeHook(app).Close()
-	} else {
-		beforeHook(app)
+		defer func() {
+			err := stream.Close()
+			if err != nil {
+				utils.ShouldPanic(err)
+			}
+		}()
 	}
 
 	app.Get("/", func(ctx *fiber.Ctx) error {
@@ -42,5 +47,9 @@ func main() {
 
 	afterHook(app)
 
-	app.Listen(fmt.Sprintf(":%d", viper.GetInt("PORT")))
+	err := app.Listen(fmt.Sprintf(":%d", viper.GetInt("PORT")))
+
+	if err != nil {
+		utils.ShouldPanic(err)
+	}
 }

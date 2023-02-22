@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -24,12 +23,16 @@ func getLogFile() *os.File {
 
 	fileDir := path.Join(currentDir, "logs")
 
-	os.MkdirAll(fileDir, 0700)
+	err := os.MkdirAll(fileDir, 0700)
+
+	if err != nil {
+		utils.ShouldPanic(err)
+	}
 
 	file, err := os.OpenFile(path.Join(fileDir, "log.txt"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 
 	if err != nil {
-		panic(fmt.Sprintf("Error opening file: %v", err.Error()))
+		utils.ShouldPanic(err)
 	}
 
 	return file

@@ -9,10 +9,7 @@ import (
 
 var db *gorm.DB
 
-/*
-*
-Satisfies connection to database.
-*/
+// SatisfiesDbConnection /*
 func SatisfiesDbConnection() {
 	dbUser := viper.GetString("DB_USER")
 	dbHost := viper.GetString("DB_HOST")
