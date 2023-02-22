@@ -88,7 +88,12 @@ func beforeHook(app *fiber.App) *os.File {
 
 	// Satisfy database connection
 	utils.SatisfiesDbConnection()
-	generateQuery()
+
+	generatePrompt := os.Args[1:]
+
+	if len(generatePrompt) > 0 && generatePrompt[0] == "generate" {
+		generateQuery()
+	}
 
 	// register the global middleware
 	file := registerGlobalMiddlewares(app)
