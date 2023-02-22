@@ -42,7 +42,7 @@ func SatisfiesDbConnection() {
 
 	var err error
 
-	db, err = gorm.Open(mysql.Open(credentials), &gorm.Config{})
+	db, err = gorm.Open(mysql.Open(credentials))
 
 	if err != nil {
 		panic(err)

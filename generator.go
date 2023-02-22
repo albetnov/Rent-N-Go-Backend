@@ -14,7 +14,7 @@ func generateQuery() {
 
 	g := gen.NewGenerator(gen.Config{
 		OutPath: "./query",
-		Mode:    gen.WithoutContext | gen.WithDefaultQuery | gen.WithQueryInterface,
+		Mode:    gen.WithoutContext | gen.WithDefaultQuery,
 	})
 
 	g.UseDB(utils.GetDb())

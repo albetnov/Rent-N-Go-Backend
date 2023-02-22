@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"rent-n-go-backend/query"
 	"rent-n-go-backend/utils"
 	"runtime"
 )
@@ -94,6 +95,9 @@ func beforeHook(app *fiber.App) *os.File {
 	if len(generatePrompt) > 0 && generatePrompt[0] == "generate" {
 		generateQuery()
 	}
+
+	// set default db for query
+	query.SetDefault(utils.GetDb())
 
 	// register the global middleware
 	file := registerGlobalMiddlewares(app)

@@ -11,6 +11,7 @@ import (
 
 func Login(c *fiber.Ctx) error {
 	u := query.User
+
 	payload := utils.GetPayload[RequestPayload](c)
 
 	if _, err := u.Where(u.Username.Eq(payload.Username)).First(); err != nil {
