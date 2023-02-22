@@ -40,6 +40,8 @@ func main() {
 		Title: "Rent N Go Backend Status",
 	}))
 
+	app.Static("/public", "./public")
+
 	api := app.Group("/api/v1")
 
 	routes.ApiRoutes(api)
