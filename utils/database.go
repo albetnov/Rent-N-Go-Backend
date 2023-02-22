@@ -55,6 +55,8 @@ func GetDb() *gorm.DB {
 	return db
 }
 
+// Paginate
+// paging a given resource with Fiber Compatible Context
 func Paginate(c *fiber.Ctx) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		page, err := strconv.Atoi(c.Query("page", "1"))

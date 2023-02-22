@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/template/html"
 	"github.com/spf13/viper"
 	"rent-n-go-backend/routes"
@@ -35,9 +36,9 @@ func main() {
 		}()
 	}
 
-	app.Get("/", func(ctx *fiber.Ctx) error {
-		return ctx.JSON(utils.GetApp())
-	})
+	app.Get("/", monitor.New(monitor.Config{
+		Title: "Rent N Go Backend Status",
+	}))
 
 	api := app.Group("/api/v1")
 
