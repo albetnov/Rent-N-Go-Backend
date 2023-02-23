@@ -80,3 +80,9 @@ func Paginate(c *fiber.Ctx) func(db *gorm.DB) *gorm.DB {
 		return db.Offset(offset).Limit(pageSize)
 	}
 }
+
+// InRandomOrder
+// Yet another Database scope utility to gen an random item from given db instance
+func InRandomOrder(db *gorm.DB) *gorm.DB {
+	return db.Order("RAND()")
+}
