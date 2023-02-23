@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/template/html"
 	"github.com/spf13/viper"
@@ -43,10 +44,9 @@ func main() {
 
 	app.Static("/public", utils.PublicPath())
 
-	api := app.Group("/api/v1")
+	api := app.Group("/api/v1", cors.New())
 
 	routes.ApiRoutes(api)
-
 	routes.WebRoutes(app)
 
 	afterHook(app)
