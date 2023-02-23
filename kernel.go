@@ -119,10 +119,22 @@ An global middleware that initiated at the end of routing.
 func afterHook(app *fiber.App) {
 	// set up 404 handler
 	app.Use(func(c *fiber.Ctx) error {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"app":     utils.GetApp(),
-			"message": "Ups, can't find that!",
-			"status":  fiber.StatusNotFound,
+		statusCode := fiber.StatusNotFound
+		message := "Ups, can't find that!"
+
+		c.Status(statusCode)
+
+		if utils.WantsJson(c) {
+			return c.JSON(fiber.Map{
+				"app":     utils.GetApp(),
+				"message": message,
+				"status":  statusCode,
+			})
+		}
+
+		return c.Render("error", fiber.Map{
+			"Code":    statusCode,
+			"Message": message,
 		})
 	})
 }

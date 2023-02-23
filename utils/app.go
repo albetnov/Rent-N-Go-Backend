@@ -38,8 +38,23 @@ func SafeThrow(w *fiber.Ctx, err error) error {
 		errorMessage = err.Error()
 	}
 
-	return w.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-		"message": "Something went wrong",
-		"error":   errorMessage,
+	statusCode := fiber.StatusInternalServerError
+
+	w.Status(statusCode)
+
+	if WantsJson(w) {
+		return w.JSON(fiber.Map{
+			"message": "Something went wrong",
+			"error":   errorMessage,
+		})
+	}
+
+	return w.Render("error", fiber.Map{
+		"Code":    statusCode,
+		"Message": errorMessage,
 	})
+}
+
+func WantsJson(c *fiber.Ctx) bool {
+	return c.Get("Content-Type") == "application/json"
 }

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{.Code}} {{.Message}}</title>
+    <link rel="stylesheet" href="/public/main.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tilt+Neon&display=swap');
+        * {
+            font-family: 'Tilt Neon', cursive;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex items-center flex-col gap-3 justify-center min-h-screen w-full">
+        <h1 class="text-8xl font-bold">{{.Code}}</h1>
+        <p class="text-md text-slate-700">{{.Message}}</p>
+    </div>
+</body>
+</html>
