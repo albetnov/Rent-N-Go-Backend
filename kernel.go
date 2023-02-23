@@ -94,12 +94,6 @@ func beforeHook(app *fiber.App) *os.File {
 	// Satisfy database connection
 	utils.SatisfiesDbConnection()
 
-	generatePrompt := os.Args[1:]
-
-	if len(generatePrompt) > 0 && generatePrompt[0] == "generate" {
-		generateQuery()
-	}
-
 	// set default db for query
 	query.SetDefault(utils.GetDb())
 

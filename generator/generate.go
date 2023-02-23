@@ -1,7 +1,7 @@
-package generator
+package main
 
 import "rent-n-go-backend/models"
 
-func Generate(lists *Generator) {
+func generate(lists *Generator) {
 	lists.addModel(models.User{})
 }

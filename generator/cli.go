@@ -2,14 +2,17 @@ package main
 
 import (
 	"gorm.io/gen"
-	"rent-n-go-backend/generator"
+	"log"
+	"os"
 	"rent-n-go-backend/utils"
 )
 
-func generateQuery() {
-	var lists generator.Generator
+func main() {
+	var lists Generator
 
-	generator.Generate(&lists)
+	os.MkdirAll("./query", 0700)
+
+	generate(&lists)
 
 	g := gen.NewGenerator(gen.Config{
 		OutPath: "./query",
@@ -27,4 +30,6 @@ func generateQuery() {
 	}
 
 	g.Execute()
+
+	log.Println("Berhasil di generate!")
 }
