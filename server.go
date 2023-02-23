@@ -41,7 +41,7 @@ func main() {
 		Title: "Rent N Go Backend Status",
 	}))
 
-	app.Static("/public", "./public")
+	app.Static("/public", utils.PublicPath())
 
 	api := app.Group("/api/v1")
 

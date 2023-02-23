@@ -14,3 +14,13 @@ func GetCurrentDir() (string, error) {
 
 	return path.Dir(current), nil
 }
+
+func PublicPath() string {
+	currentDir, err := GetCurrentDir()
+
+	if err != nil {
+		ShouldPanic(err)
+	}
+
+	return path.Join(currentDir, "public")
+}

@@ -87,6 +87,10 @@ func beforeHook(app *fiber.App) *os.File {
 	log.Println("Welcome to Rent-N-Go Backend!")
 	log.Println("Running in:", runtime.Version(), "Using:", runtime.GOOS)
 
+	if utils.IsProduction() {
+		log.Println("App is running in production mode.")
+	}
+
 	// Satisfy database connection
 	utils.SatisfiesDbConnection()
 
