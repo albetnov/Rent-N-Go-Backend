@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
+	"gorm.io/gen"
 	"gorm.io/gorm"
 	"strconv"
 )
@@ -58,8 +59,8 @@ func GetDb() *gorm.DB {
 
 // Paginate
 // paging a given resource with Fiber Compatible Context
-func Paginate(c *fiber.Ctx) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
+func Paginate(c *fiber.Ctx) func(db gen.Dao) gen.Dao {
+	return func(db gen.Dao) gen.Dao {
 		page, err := strconv.Atoi(c.Query("page", "1"))
 		RecordLog(err)
 
@@ -83,7 +84,7 @@ func Paginate(c *fiber.Ctx) func(db *gorm.DB) *gorm.DB {
 }
 
 // InRandomOrder
-// Yet another Database scope utility to gen an random item from given db instance
+// Yet another Database scope utility to gen a random item from given db instance
 func InRandomOrder(db *gorm.DB) *gorm.DB {
 	return db.Order("RAND()")
 }

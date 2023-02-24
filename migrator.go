@@ -68,6 +68,8 @@ in Before Hook
 func migrate(db *gorm.DB) {
 	migrateModel(db, &models.User{})
 	migrateModel(db, &models.Nik{})
+	migrateModel(db, models.Sim{})
+	migrateModel(db, models.RefreshToken{})
 }
 
 // Seed a data to a database

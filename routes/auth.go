@@ -8,4 +8,5 @@ import (
 
 func AuthRoutes(r fiber.Router) {
 	r.Post("/login", utils.InterceptRequest(new(auth.LoginPayload)), auth.Login)
+	r.Post("/refresh", utils.InterceptRequest(new(auth.RefreshPayload)), auth.Refresh)
 }
