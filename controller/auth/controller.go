@@ -14,7 +14,9 @@ func Login(c *fiber.Ctx) error {
 
 	payload := utils.GetPayload[LoginPayload](c)
 
-	if _, err := u.Where(u.Email.Eq(payload.Email)).First(); err != nil {
+	user, err := u.Where(u.Email.Eq(payload.Email)).First()
+
+	if err != nil || !utils.ComparePassword(payload.Password, user.Password) {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": "Given Credentials not found",
 		})

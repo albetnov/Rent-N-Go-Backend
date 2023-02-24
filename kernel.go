@@ -104,22 +104,7 @@ func beforeHook(app *fiber.App) *os.File {
 	// get argument of app
 	args := os.Args[1:]
 
-	if len(args) > 0 && args[0] == "migrate" {
-		// migrate all tables to database.
-		migrate(utils.GetDb())
-	}
-
-	if len(args) > 0 && args[0] == "seed" {
-		// check if user want to seed specific module
-		arg := ""
-
-		if len(args) > 1 {
-			arg = args[1]
-		}
-
-		// seed the table based on arguments.
-		seeder(utils.GetDb(), arg)
-	}
+	processMigration(args)
 
 	return file
 }

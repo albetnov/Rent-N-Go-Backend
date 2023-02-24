@@ -24,7 +24,7 @@ func SatisfiesDbConnection() {
 
 	if dbPass != "" {
 		credentials = fmt.Sprintf(
-			"%s:%s@tcp(%s:%d)/%s?charset=utf8mb4",
+			"%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=true",
 			dbUser,
 			dbPass,
 			dbHost,

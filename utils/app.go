@@ -5,7 +5,11 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
 	"log"
+	"math/rand"
+	"time"
 )
+
+var r = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 // GetApp
 // Return the application about boilerplate response in Map.
@@ -77,7 +81,7 @@ func WantsJson(c *fiber.Ctx) bool {
 // HashPassword
 // Hash a given string using bcrypt
 func HashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 
 	return string(bytes), err
 }
@@ -88,4 +92,17 @@ func ComparePassword(knownPassword string, hashedPassword string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(knownPassword))
 
 	return err == nil
+}
+
+// GenerateRandomString
+// Make a random string from given length
+func GenerateRandomString(length int) string {
+	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()_+{}[];:.,/?`~'\"")
+
+	char := make([]rune, length)
+	for word := range char {
+		char[word] = chars[r.Intn(len(chars))]
+	}
+
+	return string(char)
 }

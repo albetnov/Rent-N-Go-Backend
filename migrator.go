@@ -23,6 +23,43 @@ func seedByModule(args string, module string, callback func()) {
 	}
 }
 
+func processMigration(args []string) {
+	if len(args) > 0 {
+		if args[0] == "refresh" {
+			tables, err := utils.GetDb().Migrator().GetTables()
+
+			if err != nil {
+				panic(err)
+			}
+
+			interfaces := make([]interface{}, len(tables))
+
+			for i, v := range tables {
+				interfaces[i] = v
+			}
+
+			utils.GetDb().Migrator().DropTable(interfaces...)
+		}
+
+		if args[0] == "migrate" || args[0] == "refresh" {
+			// migrate all tables to database.
+			migrate(utils.GetDb())
+		}
+
+		if args[0] == "seed" || args[0] == "refresh" {
+			// check if user want to seed specific module
+			arg := ""
+
+			if len(args) > 1 {
+				arg = args[1]
+			}
+
+			// seed the table based on arguments.
+			seeder(utils.GetDb(), arg)
+		}
+	}
+}
+
 /*
 *
 Will be executed by GORM
