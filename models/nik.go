@@ -7,6 +7,6 @@ import "gorm.io/gorm"
 type Nik struct {
 	gorm.Model
 	UserID     uint
-	Nik        string
+	Nik        string `gorm:"unique"`
 	IsVerified bool
 }

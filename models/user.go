@@ -7,8 +7,9 @@ type User struct {
 	Name         string
 	Password     string
 	Role         string
-	Email        string
+	Email        string `gorm:"unique"`
 	Nik          Nik
 	Sim          Sim
 	RefreshToken RefreshToken
+	PhoneNumber  string `gorm:"unique"`
 }

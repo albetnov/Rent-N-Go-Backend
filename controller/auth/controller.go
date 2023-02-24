@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"rent-n-go-backend/models"
 	"rent-n-go-backend/query"
 	"rent-n-go-backend/utils"
 	"strconv"
@@ -66,4 +67,37 @@ func Refresh(c *fiber.Ctx) error {
 	rt.Where(rt.ID.Eq(refreshToken.ID)).Delete()
 
 	return generateToken(user, c)
+}
+
+func Register(c *fiber.Ctx) error {
+	payload := utils.GetPayload[RegisterPayload](c)
+	u := query.User
+
+	if _, err := u.Where(u.Email.Eq(payload.Email)).Or(u.PhoneNumber.Eq(payload.PhoneNumber)).First(); err == nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Ups, email already exist",
+			"action":  "CHANGE_EMAIL",
+		})
+	}
+
+	password, err := utils.HashPassword(payload.Password)
+
+	if err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
+	user := models.User{
+		Name:        payload.Name,
+		PhoneNumber: payload.PhoneNumber,
+		Email:       payload.Email,
+		Role:        "user",
+		Password:    password,
+	}
+
+	u.Create(&user)
+
+	return c.JSON(fiber.Map{
+		"message": "User created successfully!",
+		"user":    user,
+	})
 }
