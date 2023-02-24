@@ -22,10 +22,12 @@ generate:
 	go run ./generator/*.go
 
 migrate:
+	echo "Migrating database..."
 	go run *.go migrate
 
 seed:
-	go run *.go seed
+	echo "Seeding database..."
+	go run *.go seed $(module)
 
 windows:
 	echo "Installing Project..."

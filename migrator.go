@@ -9,11 +9,17 @@ import (
 // migrateModel
 // A simple wrapper around GORM Auto Migrate that will automatically complain if error
 // based on app state.
-func migrateModel(db *gorm.DB, userModel any) {
-	err := db.AutoMigrate(userModel)
+func migrateModel(db *gorm.DB, model any) {
+	err := db.AutoMigrate(model)
 
 	if err != nil {
 		utils.ShouldPanic(err)
+	}
+}
+
+func seedByModule(args string, module string, callback func()) {
+	if args == "" || args == module {
+		callback()
 	}
 }
 
@@ -30,15 +36,17 @@ func migrate(db *gorm.DB) {
 // Seed a data to a database
 // produce fake data that will only be seeded under development state
 // Will be executed in Before Hook.
-func seeder(db *gorm.DB) {
-	password, _ := utils.HashPassword("admin12345")
+func seeder(db *gorm.DB, args string) {
+	seedByModule(args, "user", func() {
+		password, _ := utils.HashPassword("admin12345")
 
-	user := models.User{
-		Name:     "Sang Admin",
-		Email:    "admin@mail.com",
-		Role:     "admin",
-		Password: password,
-	}
+		user := models.User{
+			Name:     "Sang Admin",
+			Email:    "admin@mail.com",
+			Role:     "admin",
+			Password: password,
+		}
 
-	db.Create(&user)
+		db.Create(&user)
+	})
 }

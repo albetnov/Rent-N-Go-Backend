@@ -110,8 +110,15 @@ func beforeHook(app *fiber.App) *os.File {
 	}
 
 	if len(args) > 0 && args[0] == "seed" {
-		// seed all fake data to tables
-		seeder(utils.GetDb())
+		// check if user want to seed specific module
+		arg := ""
+
+		if len(args) > 1 {
+			arg = args[1]
+		}
+
+		// seed the table based on arguments.
+		seeder(utils.GetDb(), arg)
 	}
 
 	return file
