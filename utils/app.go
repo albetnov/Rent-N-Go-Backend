@@ -3,9 +3,12 @@ package utils
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 )
 
+// GetApp
+// Return the application about boilerplate response in Map.
 func GetApp() fiber.Map {
 	return fiber.Map{
 		"name":   "Rent-N-Go Backend",
@@ -13,6 +16,9 @@ func GetApp() fiber.Map {
 	}
 }
 
+// ShouldPanic
+// Determine whenever the app should panic or not (Depend on application state)
+// Do not panic in production, log them instead.
 func ShouldPanic(err error) {
 	if IsProduction() {
 		log.Fatalf("An error occurred: %v\n", err.Error())
@@ -21,16 +27,23 @@ func ShouldPanic(err error) {
 	}
 }
 
+// RecordLog
+// Smartly record any log if error occur.
 func RecordLog(err error) {
 	if err != nil {
 		log.Fatalf("Something went wrong: %v\n", err.Error())
 	}
 }
 
+// IsProduction
+// Determine the application state if it's running in production mode or not.
 func IsProduction() bool {
 	return viper.GetString("APP_ENV") == "production"
 }
 
+// SafeThrow
+// Safely throw an error to end user in production
+// Safely throw an error complete with the message in development mode.
 func SafeThrow(w *fiber.Ctx, err error) error {
 	errorMessage := "Can't proceed your request"
 
@@ -55,6 +68,24 @@ func SafeThrow(w *fiber.Ctx, err error) error {
 	})
 }
 
+// WantsJson
+// Determine if the user wanted json response or an html response.
 func WantsJson(c *fiber.Ctx) bool {
 	return c.Get("Content-Type") == "application/json"
+}
+
+// HashPassword
+// Hash a given string using bcrypt
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+
+	return string(bytes), err
+}
+
+// ComparePassword
+// Check whenever the hashed and known password is the same.
+func ComparePassword(knownPassword string, hashedPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(knownPassword))
+
+	return err == nil
 }

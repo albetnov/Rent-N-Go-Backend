@@ -84,6 +84,7 @@ func registerGlobalMiddlewares(app *fiber.App) *os.File {
 }
 
 func beforeHook(app *fiber.App) *os.File {
+	// Log some welcome message
 	log.Println("Welcome to Rent-N-Go Backend!")
 	log.Println("Running in:", runtime.Version(), "Using:", runtime.GOOS)
 
@@ -100,8 +101,18 @@ func beforeHook(app *fiber.App) *os.File {
 	// register the global middleware
 	file := registerGlobalMiddlewares(app)
 
-	// migrate all tables to database.
-	migrate(utils.GetDb())
+	// get argument of app
+	args := os.Args[1:]
+
+	if len(args) > 0 && args[0] == "migrate" {
+		// migrate all tables to database.
+		migrate(utils.GetDb())
+	}
+
+	if len(args) > 0 && args[0] == "seed" {
+		// seed all fake data to tables
+		seeder(utils.GetDb())
+	}
 
 	return file
 }

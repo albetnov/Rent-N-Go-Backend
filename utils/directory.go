@@ -49,6 +49,9 @@ func devCurrentDir() (string, error) {
 	return dirname, nil
 }
 
+// GetCurrentDir
+// Get an executable current directory intelligently based on application state.
+// Return workspace in production / executable in development.
 func GetCurrentDir() (string, error) {
 	if IsProduction() {
 		return prodCurrentDir()
@@ -57,6 +60,8 @@ func GetCurrentDir() (string, error) {
 	return devCurrentDir()
 }
 
+// PublicPath
+// Return an public path which smartly can guess the correct folder based on application state.
 func PublicPath() string {
 	currentDir, err := GetCurrentDir()
 

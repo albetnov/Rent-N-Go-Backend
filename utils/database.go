@@ -11,7 +11,8 @@ import (
 
 var db *gorm.DB
 
-// SatisfiesDbConnection /*
+// SatisfiesDbConnection
+// Create a connection to MySQL.
 func SatisfiesDbConnection() {
 	dbUser := viper.GetString("DB_USER")
 	dbHost := viper.GetString("DB_HOST")

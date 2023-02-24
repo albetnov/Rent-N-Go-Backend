@@ -12,16 +12,16 @@ import (
 func Login(c *fiber.Ctx) error {
 	u := query.User
 
-	payload := utils.GetPayload[RequestPayload](c)
+	payload := utils.GetPayload[LoginPayload](c)
 
-	if _, err := u.Where(u.Username.Eq(payload.Username)).First(); err != nil {
+	if _, err := u.Where(u.Email.Eq(payload.Email)).First(); err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": "Given Credentials not found",
 		})
 	}
 
 	claims := jwt.MapClaims{
-		"name":  payload.Username,
+		"name":  payload.Email,
 		"admin": false,
 		"exp":   time.Now().Add(time.Minute * 30).Unix(),
 	}

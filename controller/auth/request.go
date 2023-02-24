@@ -1,6 +1,6 @@
 package auth
 
-type RequestPayload struct {
-	Username string `validate:"required"`
+type LoginPayload struct {
+	Email    string `validate:"required,email"`
 	Password string `validate:"required"`
 }

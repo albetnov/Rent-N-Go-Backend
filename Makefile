@@ -18,6 +18,15 @@ define posix_install
 	echo "Installation finish."
 endef
 
+generate:
+	go run ./generator/*.go
+
+migrate:
+	go run *.go migrate
+
+seed:
+	go run *.go seed
+
 windows:
 	echo "Installing Project..."
 	echo "Running pnpm install"
@@ -46,9 +55,6 @@ install_npm:
 	npm install
 	$(call basic_install)
 	$(call unix_install)
-
-windows_run:
-	go run "*.go"
 
 run:
 	go run *.go

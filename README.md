@@ -31,9 +31,10 @@ a complete lists and their equivalent:
 
 - `make windows` -> `make`
 - `make windows_install_npm` -> `make install_npm`
-- `make windows_run` -> `make run`
 
-> Other command should work in both OS.
+> Other command may or may not work in Windows.
+
+It's just better to install `bash` as well on windows. See: https://git-scm.com/download/win
 
 ## Manual Install
 
@@ -57,3 +58,8 @@ And you're set.
 - Edit configuration as you need
 - Create a new database in your MySQL that match your `DB_NAME`
 - Simply run the project by performing `make run` and you're set.
+
+# Code Generation
+
+Rent-N-Go takes an advantages and fully relies on Gorm Gen. A code generation package provided
+by Gorm. Whenever you'll need to regenerate a code, simply run `make generate`.
