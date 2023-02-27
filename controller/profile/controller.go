@@ -72,6 +72,21 @@ func UpdateSim(c *fiber.Ctx) error {
 		return utils.SafeThrow(c, err)
 	}
 
+	reader, err := file.Open()
+	if err != nil {
+		utils.SafeThrow(c, err)
+	}
+
+	defer reader.Close()
+
+	err = utils.CheckMimes(c, reader, []string{"image/jpg", "image/png", "image/jpeg"})
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
 	salt := uuid.New().String()
 
 	c.SaveFile(file, path.Join(utils.PublicPath(), salt+file.Filename))

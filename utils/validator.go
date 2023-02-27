@@ -1,8 +1,12 @@
 package utils
 
 import (
+	"errors"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/exp/slices"
+	"io"
 )
 
 type ErrorResponse struct {
@@ -67,4 +71,16 @@ func GetPayload[T comparable](c *fiber.Ctx) T {
 	payload := *c.Locals(BODY_DATA).(*T)
 
 	return payload
+}
+
+// CheckMimes
+// Check uploaded files mimes to avoid file injection.
+func CheckMimes(c *fiber.Ctx, reader io.Reader, acceptedTypes []string) error {
+	mtype, err := mimetype.DetectReader(reader)
+
+	if !slices.Contains(acceptedTypes, mtype.String()) || err != nil {
+		return errors.New("ups, file not allowed... perhaps, better luck next time")
+	}
+
+	return nil
 }
