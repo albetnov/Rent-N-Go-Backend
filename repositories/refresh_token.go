@@ -20,3 +20,7 @@ func UpdateOrCreateTokenByUserId(id uint, payload *models.RefreshToken) {
 		rt.Create(payload)
 	}
 }
+
+func DeleteTokenByUserId(userId uint) (gen.ResultInfo, error) {
+	return query.RefreshToken.Where(query.RefreshToken.UserID.Eq(userId)).Delete()
+}

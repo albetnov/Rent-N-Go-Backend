@@ -3,8 +3,10 @@ package profile
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"os"
 	"path"
 	"rent-n-go-backend/models"
+	"rent-n-go-backend/query"
 	"rent-n-go-backend/repositories"
 	"rent-n-go-backend/utils"
 	"strconv"
@@ -91,5 +93,31 @@ func UpdateSim(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "SIM updated successfully",
 		"data":    simPayload,
+	})
+}
+
+func DeleteAccount(c *fiber.Ctx) error {
+	auth := utils.GetUser(c)
+	authId := uint(auth["id"].(float64))
+
+	u := query.User
+
+	user, _ := repositories.GetUserById(authId)
+
+	u.Select(u.Nik.Field()).Delete(user)
+
+	if user.Sim.FilePath != "" {
+		os.Remove(path.Join(utils.PublicPath(), user.Sim.FilePath))
+	}
+
+	u.Select(u.Sim.Field()).Delete(user)
+
+	u.Where(u.ID.Eq(user.ID)).Delete()
+
+	// Yes even though the account has been removed in both storage and database, their JWT is still active
+	// out there, and the JWT itself is not associated with database, therefore we just said "scheduled" :v
+	// since it will expire anyway.
+	return c.JSON(fiber.Map{
+		"message": "Your account has been scheduled for deletion.",
 	})
 }
