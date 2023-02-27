@@ -24,12 +24,14 @@ func generateToken(user *models.User, c *fiber.Ctx) error {
 	repositories.UpdateOrCreateTokenByUserId(user.ID, &refreshToken)
 
 	claims := jwt.MapClaims{
-		"name": user.Name,
-		"role": user.Role,
-		"id":   user.ID,
-		"exp":  tokenExpiredAt,
-		"nik":  user.Nik,
-		"sim":  user.Sim,
+		"name":  user.Name,
+		"role":  user.Role,
+		"id":    user.ID,
+		"exp":   tokenExpiredAt,
+		"nik":   user.Nik,
+		"sim":   user.Sim,
+		"phone": user.PhoneNumber,
+		"email": user.Email,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

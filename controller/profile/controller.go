@@ -21,9 +21,7 @@ func CurrentUser(c *fiber.Ctx) error {
 }
 
 func CompletionStatus(c *fiber.Ctx) error {
-	user := utils.GetUser(c)
-
-	userId := uint(user["id"].(float64))
+	userId := utils.GetUserId(c)
 
 	status := 0
 
@@ -51,8 +49,7 @@ func CompletionStatus(c *fiber.Ctx) error {
 func UpdateNik(c *fiber.Ctx) error {
 	payload := utils.GetPayload[CompleteNikPayload](c)
 
-	auth := utils.GetUser(c)
-	authId := uint(auth["id"].(float64))
+	authId := utils.GetUserId(c)
 
 	nikPayload := models.Nik{
 		Nik:        strconv.FormatInt(payload.Nik, 10),
@@ -79,8 +76,7 @@ func UpdateSim(c *fiber.Ctx) error {
 
 	c.SaveFile(file, path.Join(utils.PublicPath(), salt+file.Filename))
 
-	auth := utils.GetUser(c)
-	authId := uint(auth["id"].(float64))
+	authId := utils.GetUserId(c)
 
 	simPayload := models.Sim{
 		UserID:     authId,
@@ -96,9 +92,29 @@ func UpdateSim(c *fiber.Ctx) error {
 	})
 }
 
+func UpdateProfile(c *fiber.Ctx) error {
+	payload := utils.GetPayload[UpdateProfilePayload](c)
+
+	authId := utils.GetUserId(c)
+
+	updatePayload := models.User{
+		Name:        payload.Name,
+		Email:       payload.Email,
+		PhoneNumber: payload.PhoneNumber,
+	}
+
+	if err := repositories.UpdateUserByUserId(c, authId, &updatePayload); err != nil {
+		return err
+	}
+	
+	return c.JSON(fiber.Map{
+		"message": "Successfully update user info.",
+		"action":  "REFRESH_TOKEN",
+	})
+}
+
 func DeleteAccount(c *fiber.Ctx) error {
-	auth := utils.GetUser(c)
-	authId := uint(auth["id"].(float64))
+	authId := utils.GetUserId(c)
 
 	u := query.User
 

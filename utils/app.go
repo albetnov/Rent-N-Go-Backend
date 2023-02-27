@@ -117,3 +117,15 @@ func GetUser(c *fiber.Ctx) jwt.MapClaims {
 
 	return nil
 }
+
+func GetUserId(c *fiber.Ctx) uint {
+	auth := GetUser(c)
+
+	if auth == nil {
+		return 0
+	}
+
+	authId := uint(auth["id"].(float64))
+
+	return authId
+}

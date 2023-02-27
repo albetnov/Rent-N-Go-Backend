@@ -80,10 +80,11 @@ func seeder(db *gorm.DB, args string) {
 		password, _ := utils.HashPassword("admin12345")
 
 		user := models.User{
-			Name:     "Sang Admin",
-			Email:    "admin@mail.com",
-			Role:     "admin",
-			Password: password,
+			Name:        "Sang Admin",
+			Email:       "admin@mail.com",
+			Role:        "admin",
+			Password:    password,
+			PhoneNumber: "0829849434",
 		}
 
 		db.Create(&user)
