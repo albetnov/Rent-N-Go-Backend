@@ -2,6 +2,7 @@ package utils
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -105,4 +106,14 @@ func GenerateRandomString(length int) string {
 	}
 
 	return string(char)
+}
+
+func GetUser(c *fiber.Ctx) jwt.MapClaims {
+	user := c.Locals("user")
+
+	if user != nil {
+		return user.(*jwt.Token).Claims.(jwt.MapClaims)
+	}
+
+	return nil
 }

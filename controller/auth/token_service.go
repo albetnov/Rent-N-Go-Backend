@@ -6,7 +6,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/viper"
 	"rent-n-go-backend/models"
-	"rent-n-go-backend/query"
+	"rent-n-go-backend/repositories"
 	"rent-n-go-backend/utils"
 	"time"
 )
@@ -21,11 +21,7 @@ func generateToken(user *models.User, c *fiber.Ctx) error {
 		UserID:    user.ID,
 	}
 
-	rt := query.RefreshToken
-
-	if result, _ := rt.Where(rt.UserID.Eq(user.ID)).Updates(refreshToken); result.RowsAffected <= 0 {
-		rt.Create(&refreshToken)
-	}
+	repositories.UpdateOrCreateTokenByUserId(user.ID, &refreshToken)
 
 	claims := jwt.MapClaims{
 		"name": user.Name,
@@ -44,9 +40,10 @@ func generateToken(user *models.User, c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"message":          "Authenticated Successfully!",
-		"token":            t,
-		"token_expired_at": refreshTokenExpiredAt.Unix(),
-		"refresh_token":    fmt.Sprintf("%d|%s", user.ID, refreshToken.Token),
+		"message":                  "Authenticated Successfully!",
+		"token":                    t,
+		"token_expired_at":         tokenExpiredAt,
+		"refresh_token_expired_at": refreshTokenExpiredAt.Unix(),
+		"refresh_token":            fmt.Sprintf("%d|%s", user.ID, refreshToken.Token),
 	})
 }
