@@ -106,10 +106,40 @@ func UpdateProfile(c *fiber.Ctx) error {
 	if err := repositories.UpdateUserByUserId(c, authId, &updatePayload); err != nil {
 		return err
 	}
-	
+
 	return c.JSON(fiber.Map{
 		"message": "Successfully update user info.",
 		"action":  "REFRESH_TOKEN",
+	})
+}
+
+func UpdatePassword(c *fiber.Ctx) error {
+	payload := utils.GetPayload[UpdatePasswordPayload](c)
+	authId := utils.GetUserId(c)
+
+	user, _ := repositories.GetUserById(authId)
+
+	if !utils.ComparePassword(payload.OldPassword, user.Password) {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Nah, wrong password bro",
+		})
+	}
+
+	password, err := utils.HashPassword(payload.Password)
+
+	if err != nil {
+		utils.SafeThrow(c, err)
+	}
+
+	passwordPayload := models.User{
+		Password: password,
+	}
+
+	repositories.UpdateUserPasswordByUserId(authId, &passwordPayload)
+
+	return c.JSON(fiber.Map{
+		"message": "Password updated successfully",
+		"action":  "LOGOUT",
 	})
 }
 

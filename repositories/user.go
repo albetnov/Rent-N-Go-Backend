@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gen"
 	"rent-n-go-backend/models"
 	"rent-n-go-backend/query"
 )
@@ -45,4 +46,9 @@ func UpdateUserByUserId(c *fiber.Ctx, userId uint, user *models.User) error {
 	query.User.Where(query.User.ID.Eq(userId)).Updates(user)
 
 	return nil
+}
+
+func UpdateUserPasswordByUserId(userId uint, payload *models.User) (gen.ResultInfo, error) {
+	DeleteTokenByUserId(userId)
+	return query.User.Where(query.User.ID.Eq(userId)).Updates(payload)
 }

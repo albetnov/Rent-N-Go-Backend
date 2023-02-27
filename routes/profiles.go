@@ -12,5 +12,6 @@ func ProfileRoutes(r fiber.Router) {
 	r.Put("/update", utils.InterceptRequest(new(profile.UpdateProfilePayload)), profile.UpdateProfile)
 	r.Put("/update/nik", utils.InterceptRequest(new(profile.CompleteNikPayload)), profile.UpdateNik)
 	r.Post("/update/sim", profile.UpdateSim)
+	r.Put("/update/password", utils.InterceptRequest(new(profile.UpdatePasswordPayload)), profile.UpdatePassword)
 	r.Delete("/delete", profile.DeleteAccount)
 }

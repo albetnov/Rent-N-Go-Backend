@@ -13,6 +13,6 @@ type RegisterPayload struct {
 	Name            string `validate:"required"`
 	Email           string `validate:"required,email"`
 	PhoneNumber     string `json:"phone_number" validate:"required"`
-	Password        string `validate:"required,eqfield=ConfirmPassword"`
+	Password        string `validate:"required,eqfield=ConfirmPassword,min=8"`
 	ConfirmPassword string `json:"confirm_password" validate:"required"`
 }

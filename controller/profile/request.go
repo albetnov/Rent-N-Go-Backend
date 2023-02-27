@@ -9,3 +9,9 @@ type UpdateProfilePayload struct {
 	Email       string `validate:"required,email"`
 	PhoneNumber string `json:"phone_number" validate:"required"`
 }
+
+type UpdatePasswordPayload struct {
+	OldPassword     string `json:"old_password" validate:"required"`
+	Password        string `validate:"required,eqfield=ConfirmPassword,min=8"`
+	ConfirmPassword string `json:"confirm_password" validate:"required"`
+}
