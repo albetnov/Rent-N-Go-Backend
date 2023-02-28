@@ -27,6 +27,21 @@ func main() {
 	app := fiber.New(fiber.Config{
 		Views:   engine,
 		AppName: "Rent-N-Go",
+		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
+			if err == fiber.ErrRequestEntityTooLarge {
+				if utils.WantsJson(ctx) {
+					return ctx.Status(fiber.StatusRequestEntityTooLarge).JSON(fiber.Map{
+						"message": "Payload is too large, rejecting.",
+					})
+				}
+				return ctx.Status(fiber.StatusRequestEntityTooLarge).Render("error", fiber.Map{
+					"Code":    fiber.StatusRequestEntityTooLarge,
+					"Message": "Your file is too large. Rejecting.",
+				})
+			}
+
+			return fiber.DefaultErrorHandler(ctx, err)
+		},
 	})
 
 	// run beforeHook of kernel.go
