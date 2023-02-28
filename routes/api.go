@@ -13,7 +13,7 @@ func ApiRoutes(r fiber.Router) {
 	r.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(viper.GetString("APP_KEY")),
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
-			return ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"app":     utils.GetApp(),
 				"message": "Invalid Credentials",
 				"error":   err.Error(),

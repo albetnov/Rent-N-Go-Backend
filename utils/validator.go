@@ -22,7 +22,7 @@ const BODY_DATA = "body_data"
 // validateStruct
 // Validate an payload to a given struct, return error if something wrong, and return empty if all passed.
 func validateStruct(data any) []*ErrorResponse {
-	var errors []*ErrorResponse
+	var errorResponses []*ErrorResponse
 
 	err := validate.Struct(data)
 	if err != nil {
@@ -31,11 +31,11 @@ func validateStruct(data any) []*ErrorResponse {
 			element.FailedFields = err.StructNamespace()
 			element.Tag = err.Tag()
 			element.Value = err.Param()
-			errors = append(errors, &element)
+			errorResponses = append(errorResponses, &element)
 		}
 	}
 
-	return errors
+	return errorResponses
 }
 
 // InterceptRequest
@@ -50,12 +50,13 @@ func InterceptRequest(data any) func(c *fiber.Ctx) error {
 			})
 		}
 
-		errors := validateStruct(data)
+		errorResponses := validateStruct(data)
 
-		if errors != nil {
+		if errorResponses != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"message": "Given payload is invalid!",
-				"errors":  errors,
+				"errors":  errorResponses,
+				"action":  "INVALID_PAYLOAD",
 			})
 		}
 
