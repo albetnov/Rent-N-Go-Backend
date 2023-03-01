@@ -2,7 +2,6 @@ package profile
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"os"
 	"path"
 	"rent-n-go-backend/models"
@@ -66,37 +65,18 @@ func UpdateNik(c *fiber.Ctx) error {
 }
 
 func UpdateSim(c *fiber.Ctx) error {
-	file, err := c.FormFile("file_name")
+	fileName, err := utils.SaveFileFromPayload(c, "file_name")
 
 	if err != nil {
 		return utils.SafeThrow(c, err)
 	}
-
-	reader, err := file.Open()
-	if err != nil {
-		utils.SafeThrow(c, err)
-	}
-
-	defer reader.Close()
-
-	err = utils.CheckMimes(c, reader, []string{"image/jpg", "image/png", "image/jpeg"})
-
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": err.Error(),
-		})
-	}
-
-	salt := uuid.New().String()
-
-	c.SaveFile(file, path.Join(utils.PublicPath(), salt+file.Filename))
 
 	authId := utils.GetUserId(c)
 
 	simPayload := models.Sim{
 		UserID:     authId,
 		IsVerified: false,
-		FilePath:   salt + file.Filename,
+		FilePath:   fileName,
 	}
 
 	repositories.Sim.UpdateOrCreate(authId, &simPayload)
@@ -180,5 +160,22 @@ func DeleteAccount(c *fiber.Ctx) error {
 	// since it will expire anyway.
 	return c.JSON(fiber.Map{
 		"message": "Your account has been scheduled for deletion.",
+	})
+}
+
+func UpdatePhoto(c *fiber.Ctx) error {
+	fileName, err := utils.SaveFileFromPayload(c, "file_name")
+
+	if err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
+	authId := utils.GetUserId(c)
+
+	repositories.User.UpdateUserPhoto(authId, fileName)
+
+	return c.JSON(fiber.Map{
+		"message":   "Profile picture updated successfully",
+		"file_name": fileName,
 	})
 }

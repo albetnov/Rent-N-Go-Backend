@@ -3,8 +3,12 @@ package repositories
 import (
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gen"
+	"gorm.io/gen/field"
+	"os"
+	"path"
 	"rent-n-go-backend/models"
 	"rent-n-go-backend/query"
+	"rent-n-go-backend/utils"
 )
 
 type userRepository struct {
@@ -15,7 +19,7 @@ func (ur userRepository) GetByEmail(email string) (*models.User, error) {
 }
 
 func (ur userRepository) GetById(id uint) (*models.User, error) {
-	return query.User.Where(query.User.ID.Eq(id)).First()
+	return query.User.Preload(field.Associations).Where(query.User.ID.Eq(id)).First()
 }
 
 func (ur userRepository) GetByEmailOrPhone(email string, phone string) (*models.User, error) {
@@ -54,4 +58,18 @@ func (ur userRepository) UpdateById(c *fiber.Ctx, userId uint, user *models.User
 func (ur userRepository) UpdatePasswordById(userId uint, payload *models.User) (gen.ResultInfo, error) {
 	RefreshToken.DeleteByUserId(userId)
 	return query.User.Where(query.User.ID.Eq(userId)).Updates(payload)
+}
+
+func (ur userRepository) UpdateUserPhoto(userId uint, fileName string) {
+	qup := query.UserPhoto
+
+	preCond := qup.Where(qup.UserID.Eq(userId))
+
+	if result, err := preCond.First(); err == nil {
+		os.Remove(path.Join(utils.PublicPath(), result.PhotoPath))
+		preCond.Update(qup.PhotoPath, fileName)
+		return
+	}
+
+	qup.Create(&models.UserPhoto{PhotoPath: fileName, UserID: userId})
 }

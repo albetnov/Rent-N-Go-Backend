@@ -3,10 +3,12 @@ package utils
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"math/rand"
+	"path"
 	"time"
 )
 
@@ -76,7 +78,7 @@ func SafeThrow(w *fiber.Ctx, err error) error {
 // WantsJson
 // Determine if the user wanted json response or an html response.
 func WantsJson(c *fiber.Ctx) bool {
-	return c.Get("Content-Type") == "application/json"
+	return c.Get("Accept") == "application/json"
 }
 
 // HashPassword
@@ -128,4 +130,33 @@ func GetUserId(c *fiber.Ctx) uint {
 	authId := uint(auth["id"].(float64))
 
 	return authId
+}
+
+func SaveFileFromPayload(c *fiber.Ctx, payload string) (string, error) {
+	file, err := c.FormFile(payload)
+
+	if err != nil {
+		return "", err
+	}
+
+	reader, err := file.Open()
+	if err != nil {
+		return "", err
+	}
+
+	defer reader.Close()
+
+	err = CheckMimes(reader, []string{"image/jpg", "image/png", "image/jpeg"})
+
+	if err != nil {
+		return "", err
+	}
+
+	salt := uuid.New().String()
+
+	fileName := salt + file.Filename
+
+	c.SaveFile(file, path.Join(PublicPath(), fileName))
+
+	return fileName, nil
 }

@@ -70,6 +70,7 @@ func migrate(db *gorm.DB) {
 	migrateModel(db, &models.Nik{})
 	migrateModel(db, models.Sim{})
 	migrateModel(db, models.RefreshToken{})
+	migrateModel(db, models.UserPhoto{})
 }
 
 // Seed a data to a database

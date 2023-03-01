@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/exp/slices"
 	"io"
+	"strings"
 )
 
 type ErrorResponse struct {
@@ -76,11 +77,11 @@ func GetPayload[T comparable](c *fiber.Ctx) T {
 
 // CheckMimes
 // Check uploaded files mimes to avoid file injection.
-func CheckMimes(c *fiber.Ctx, reader io.Reader, acceptedTypes []string) error {
+func CheckMimes(reader io.Reader, acceptedTypes []string) error {
 	mtype, err := mimetype.DetectReader(reader)
 
 	if !slices.Contains(acceptedTypes, mtype.String()) || err != nil {
-		return errors.New("ups, file not allowed... perhaps, better luck next time")
+		return errors.New("ups, file not allowed... only allow: " + strings.Join(acceptedTypes, ", "))
 	}
 
 	return nil

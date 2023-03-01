@@ -6,6 +6,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/viper"
 	"rent-n-go-backend/models"
+	"rent-n-go-backend/query"
 	"rent-n-go-backend/repositories"
 	"rent-n-go-backend/utils"
 	"time"
@@ -23,15 +24,20 @@ func generateToken(user *models.User, c *fiber.Ctx) error {
 
 	repositories.RefreshToken.UpdateOrCreateByUserId(user.ID, &refreshToken)
 
+	photo, _ := query.User.Photo.Model(user).Find()
+	nik, _ := query.User.Nik.Model(user).Find()
+	sim, _ := query.User.Sim.Model(user).Find()
+
 	claims := jwt.MapClaims{
 		"name":  user.Name,
 		"role":  user.Role,
 		"id":    user.ID,
 		"exp":   tokenExpiredAt,
-		"nik":   user.Nik,
-		"sim":   user.Sim,
+		"nik":   nik,
+		"sim":   sim,
 		"phone": user.PhoneNumber,
 		"email": user.Email,
+		"photo": photo,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
