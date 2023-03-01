@@ -3,7 +3,7 @@ package auth
 import (
 	"github.com/gofiber/fiber/v2"
 	"rent-n-go-backend/models/user"
-	user2 "rent-n-go-backend/repositories/user"
+	userRepository "rent-n-go-backend/repositories/user"
 	"rent-n-go-backend/utils"
 	"strconv"
 	"strings"
@@ -13,16 +13,16 @@ import (
 func Login(c *fiber.Ctx) error {
 	payload := utils.GetPayload[LoginPayload](c)
 
-	user, err := user2.User.GetByEmail(payload.Email)
+	currentUser, err := userRepository.User.GetByEmail(payload.Email)
 
-	if err != nil || !utils.ComparePassword(payload.Password, user.Password) {
+	if err != nil || !utils.ComparePassword(payload.Password, currentUser.Password) {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": "Given Credentials not found",
 			"action":  "NOT_FOUND",
 		})
 	}
 
-	return generateToken(user, c)
+	return generateToken(currentUser, c)
 }
 
 func Refresh(c *fiber.Ctx) error {
@@ -41,9 +41,9 @@ func Refresh(c *fiber.Ctx) error {
 		})
 	}
 
-	refreshToken, err := user2.RefreshToken.GetByUserId(id)
+	refreshToken, err := userRepository.RefreshToken.GetByUserId(id)
 
-	user2.RefreshToken.DeleteByTokenId(refreshToken.ID)
+	userRepository.RefreshToken.DeleteByTokenId(refreshToken.ID)
 
 	if refreshToken.ExpiredAt.Before(time.Now()) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -52,7 +52,7 @@ func Refresh(c *fiber.Ctx) error {
 		})
 	}
 
-	user, err := user2.User.GetById(id)
+	currentUser, err := userRepository.User.GetById(id)
 
 	if refreshToken.Token != parsedString[1] || err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -61,12 +61,12 @@ func Refresh(c *fiber.Ctx) error {
 		})
 	}
 
-	return generateToken(user, c)
+	return generateToken(currentUser, c)
 }
 
 func Register(c *fiber.Ctx) error {
 	payload := utils.GetPayload[RegisterPayload](c)
-	if _, err := user2.User.GetByEmailOrPhone(payload.Email, payload.PhoneNumber); err == nil {
+	if _, err := userRepository.User.GetByEmailOrPhone(payload.Email, payload.PhoneNumber); err == nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Ups, email already exist",
 			"action":  "CHANGE_EMAIL",
@@ -79,18 +79,18 @@ func Register(c *fiber.Ctx) error {
 		return utils.SafeThrow(c, err)
 	}
 
-	user := user.User{
+	currentUser := user.User{
 		Name:        payload.Name,
 		PhoneNumber: payload.PhoneNumber,
 		Email:       payload.Email,
-		Role:        "user",
+		Role:        "currentUser",
 		Password:    password,
 	}
 
-	user2.User.Create(&user)
+	userRepository.User.Create(&currentUser)
 
 	return c.JSON(fiber.Map{
-		"message": "User created successfully!",
-		"user":    user,
+		"message":     "User created successfully!",
+		"currentUser": currentUser,
 	})
 }
