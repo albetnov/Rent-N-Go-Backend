@@ -1,4 +1,4 @@
-package repositories
+package user
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -6,7 +6,7 @@ import (
 	"gorm.io/gen/field"
 	"os"
 	"path"
-	"rent-n-go-backend/models"
+	"rent-n-go-backend/models/user"
 	"rent-n-go-backend/query"
 	"rent-n-go-backend/utils"
 )
@@ -14,24 +14,24 @@ import (
 type userRepository struct {
 }
 
-func (ur userRepository) GetByEmail(email string) (*models.User, error) {
+func (ur userRepository) GetByEmail(email string) (*user.User, error) {
 	return query.User.Where(query.User.Email.Eq(email)).First()
 }
 
-func (ur userRepository) GetById(id uint) (*models.User, error) {
+func (ur userRepository) GetById(id uint) (*user.User, error) {
 	return query.User.Preload(field.Associations).Where(query.User.ID.Eq(id)).First()
 }
 
-func (ur userRepository) GetByEmailOrPhone(email string, phone string) (*models.User, error) {
+func (ur userRepository) GetByEmailOrPhone(email string, phone string) (*user.User, error) {
 	u := query.User
 	return u.Where(u.Email.Eq(email)).Or(u.PhoneNumber.Eq(phone)).First()
 }
 
-func (ur userRepository) Create(user *models.User) error {
+func (ur userRepository) Create(user *user.User) error {
 	return query.User.Create(user)
 }
 
-func (ur userRepository) UpdateById(c *fiber.Ctx, userId uint, user *models.User) error {
+func (ur userRepository) UpdateById(c *fiber.Ctx, userId uint, user *user.User) error {
 	current, _ := query.User.Where(query.User.ID.Eq(userId)).First()
 
 	if current.Email != user.Email {
@@ -55,7 +55,7 @@ func (ur userRepository) UpdateById(c *fiber.Ctx, userId uint, user *models.User
 	return nil
 }
 
-func (ur userRepository) UpdatePasswordById(userId uint, payload *models.User) (gen.ResultInfo, error) {
+func (ur userRepository) UpdatePasswordById(userId uint, payload *user.User) (gen.ResultInfo, error) {
 	RefreshToken.DeleteByUserId(userId)
 	return query.User.Where(query.User.ID.Eq(userId)).Updates(payload)
 }
@@ -71,5 +71,5 @@ func (ur userRepository) UpdateUserPhoto(userId uint, fileName string) {
 		return
 	}
 
-	qup.Create(&models.UserPhoto{PhotoPath: fileName, UserID: userId})
+	qup.Create(&user.UserPhoto{PhotoPath: fileName, UserID: userId})
 }

@@ -5,38 +5,38 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/viper"
-	"rent-n-go-backend/models"
+	"rent-n-go-backend/models/user"
 	"rent-n-go-backend/query"
-	"rent-n-go-backend/repositories"
+	userRepository "rent-n-go-backend/repositories/user"
 	"rent-n-go-backend/utils"
 	"time"
 )
 
-func generateToken(user *models.User, c *fiber.Ctx) error {
+func generateToken(currentUser *user.User, c *fiber.Ctx) error {
 	tokenExpiredAt := time.Now().Add(time.Hour * 24).Unix()
 	refreshTokenExpiredAt := time.Now().Add(time.Hour * 720)
 
-	refreshToken := models.RefreshToken{
+	refreshToken := user.RefreshToken{
 		Token:     utils.GenerateRandomString(100),
 		ExpiredAt: refreshTokenExpiredAt,
-		UserID:    user.ID,
+		UserID:    currentUser.ID,
 	}
 
-	repositories.RefreshToken.UpdateOrCreateByUserId(user.ID, &refreshToken)
+	userRepository.RefreshToken.UpdateOrCreateByUserId(currentUser.ID, &refreshToken)
 
-	photo, _ := query.User.Photo.Model(user).Find()
-	nik, _ := query.User.Nik.Model(user).Find()
-	sim, _ := query.User.Sim.Model(user).Find()
+	photo, _ := query.User.Photo.Model(currentUser).Find()
+	nik, _ := query.User.Nik.Model(currentUser).Find()
+	sim, _ := query.User.Sim.Model(currentUser).Find()
 
 	claims := jwt.MapClaims{
-		"name":  user.Name,
-		"role":  user.Role,
-		"id":    user.ID,
+		"name":  currentUser.Name,
+		"role":  currentUser.Role,
+		"id":    currentUser.ID,
 		"exp":   tokenExpiredAt,
 		"nik":   nik,
 		"sim":   sim,
-		"phone": user.PhoneNumber,
-		"email": user.Email,
+		"phone": currentUser.PhoneNumber,
+		"email": currentUser.Email,
 		"photo": photo,
 	}
 
@@ -52,6 +52,6 @@ func generateToken(user *models.User, c *fiber.Ctx) error {
 		"token":                    t,
 		"token_expired_at":         tokenExpiredAt,
 		"refresh_token_expired_at": refreshTokenExpiredAt.Unix(),
-		"refresh_token":            fmt.Sprintf("%d|%s", user.ID, refreshToken.Token),
+		"refresh_token":            fmt.Sprintf("%d|%s", currentUser.ID, refreshToken.Token),
 	})
 }

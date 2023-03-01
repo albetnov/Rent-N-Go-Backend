@@ -1,15 +1,15 @@
-package repositories
+package user
 
 import (
 	"gorm.io/gen"
-	"rent-n-go-backend/models"
+	"rent-n-go-backend/models/user"
 	"rent-n-go-backend/query"
 )
 
 type refreshTokenRepository struct {
 }
 
-func (rtr refreshTokenRepository) GetByUserId(userId uint) (*models.RefreshToken, error) {
+func (rtr refreshTokenRepository) GetByUserId(userId uint) (*user.RefreshToken, error) {
 	return query.RefreshToken.Where(query.RefreshToken.UserID.Eq(userId)).First()
 }
 
@@ -17,7 +17,7 @@ func (rtr refreshTokenRepository) DeleteByTokenId(id uint) (gen.ResultInfo, erro
 	return query.RefreshToken.Where(query.RefreshToken.ID.Eq(id)).Delete()
 }
 
-func (rtr refreshTokenRepository) UpdateOrCreateByUserId(id uint, payload *models.RefreshToken) {
+func (rtr refreshTokenRepository) UpdateOrCreateByUserId(id uint, payload *user.RefreshToken) {
 	rt := query.RefreshToken
 	if result, _ := rt.Where(rt.UserID.Eq(id)).Updates(payload); result.RowsAffected <= 0 {
 		rt.Create(payload)

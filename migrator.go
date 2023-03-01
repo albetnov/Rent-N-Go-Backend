@@ -2,7 +2,7 @@ package main
 
 import (
 	"gorm.io/gorm"
-	"rent-n-go-backend/models"
+	"rent-n-go-backend/models/user"
 	"rent-n-go-backend/utils"
 )
 
@@ -60,17 +60,21 @@ func processMigration(args []string) {
 	}
 }
 
+func migrateUserModule(db *gorm.DB) {
+	usersModels := []any{&user.User{}, &user.Nik{}, &user.Sim{}, &user.RefreshToken{}, &user.UserPhoto{}}
+
+	for _, v := range usersModels {
+		migrateModel(db, v)
+	}
+}
+
 /*
 *
 Will be executed by GORM
 in Before Hook
 */
 func migrate(db *gorm.DB) {
-	migrateModel(db, &models.User{})
-	migrateModel(db, &models.Nik{})
-	migrateModel(db, models.Sim{})
-	migrateModel(db, models.RefreshToken{})
-	migrateModel(db, models.UserPhoto{})
+	migrateUserModule(db)
 }
 
 // Seed a data to a database
@@ -80,7 +84,7 @@ func seeder(db *gorm.DB, args string) {
 	seedByModule(args, "user", func() {
 		password, _ := utils.HashPassword("admin12345")
 
-		user := models.User{
+		user := user.User{
 			Name:        "Sang Admin",
 			Email:       "admin@mail.com",
 			Role:        "admin",

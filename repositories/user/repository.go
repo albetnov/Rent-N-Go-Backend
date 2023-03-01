@@ -1,4 +1,4 @@
-package repositories
+package user
 
 var (
 	Nik          = nikRepository{}

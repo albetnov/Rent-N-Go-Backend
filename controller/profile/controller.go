@@ -4,18 +4,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"os"
 	"path"
-	"rent-n-go-backend/models"
+	"rent-n-go-backend/models/user"
 	"rent-n-go-backend/query"
-	"rent-n-go-backend/repositories"
+	userRepository "rent-n-go-backend/repositories/user"
 	"rent-n-go-backend/utils"
 	"strconv"
 )
 
 func CurrentUser(c *fiber.Ctx) error {
-	user := utils.GetUser(c)
+	currentUser := utils.GetUser(c)
 
 	return c.JSON(fiber.Map{
-		"data": user,
+		"data": currentUser,
 	})
 }
 
@@ -24,14 +24,14 @@ func CompletionStatus(c *fiber.Ctx) error {
 
 	status := 0
 
-	if data, err := repositories.Nik.GetFromUserId(userId); err == nil {
+	if data, err := userRepository.Nik.GetFromUserId(userId); err == nil {
 		if data.IsVerified {
 			status += 10
 		}
 		status += 40
 	}
 
-	if data, err := repositories.Sim.GetByUserId(userId); err == nil {
+	if data, err := userRepository.Sim.GetByUserId(userId); err == nil {
 		if data.IsVerified {
 			status += 10
 		}
@@ -50,13 +50,13 @@ func UpdateNik(c *fiber.Ctx) error {
 
 	authId := utils.GetUserId(c)
 
-	nikPayload := models.Nik{
+	nikPayload := user.Nik{
 		Nik:        strconv.FormatInt(payload.Nik, 10),
 		UserID:     authId,
 		IsVerified: false,
 	}
 
-	repositories.Nik.UpdateOrCreate(authId, &nikPayload)
+	userRepository.Nik.UpdateOrCreate(authId, &nikPayload)
 
 	return c.JSON(fiber.Map{
 		"message": "NIK updated successfully",
@@ -73,13 +73,13 @@ func UpdateSim(c *fiber.Ctx) error {
 
 	authId := utils.GetUserId(c)
 
-	simPayload := models.Sim{
+	simPayload := user.Sim{
 		UserID:     authId,
 		IsVerified: false,
 		FilePath:   fileName,
 	}
 
-	repositories.Sim.UpdateOrCreate(authId, &simPayload)
+	userRepository.Sim.UpdateOrCreate(authId, &simPayload)
 
 	return c.JSON(fiber.Map{
 		"message": "SIM updated successfully",
@@ -92,13 +92,13 @@ func UpdateProfile(c *fiber.Ctx) error {
 
 	authId := utils.GetUserId(c)
 
-	updatePayload := models.User{
+	updatePayload := user.User{
 		Name:        payload.Name,
 		Email:       payload.Email,
 		PhoneNumber: payload.PhoneNumber,
 	}
 
-	if err := repositories.User.UpdateById(c, authId, &updatePayload); err != nil {
+	if err := userRepository.User.UpdateById(c, authId, &updatePayload); err != nil {
 		return err
 	}
 
@@ -112,9 +112,9 @@ func UpdatePassword(c *fiber.Ctx) error {
 	payload := utils.GetPayload[UpdatePasswordPayload](c)
 	authId := utils.GetUserId(c)
 
-	user, _ := repositories.User.GetById(authId)
+	currentUser, _ := userRepository.User.GetById(authId)
 
-	if !utils.ComparePassword(payload.OldPassword, user.Password) {
+	if !utils.ComparePassword(payload.OldPassword, currentUser.Password) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Nah, wrong password bro",
 		})
@@ -126,11 +126,11 @@ func UpdatePassword(c *fiber.Ctx) error {
 		utils.SafeThrow(c, err)
 	}
 
-	passwordPayload := models.User{
+	passwordPayload := user.User{
 		Password: password,
 	}
 
-	repositories.User.UpdatePasswordById(authId, &passwordPayload)
+	userRepository.User.UpdatePasswordById(authId, &passwordPayload)
 
 	return c.JSON(fiber.Map{
 		"message": "Password updated successfully",
@@ -143,7 +143,7 @@ func DeleteAccount(c *fiber.Ctx) error {
 
 	u := query.User
 
-	user, _ := repositories.User.GetById(authId)
+	user, _ := userRepository.User.GetById(authId)
 
 	u.Select(u.Nik.Field()).Delete(user)
 
@@ -172,7 +172,7 @@ func UpdatePhoto(c *fiber.Ctx) error {
 
 	authId := utils.GetUserId(c)
 
-	repositories.User.UpdateUserPhoto(authId, fileName)
+	userRepository.User.UpdateUserPhoto(authId, fileName)
 
 	return c.JSON(fiber.Map{
 		"message":   "Profile picture updated successfully",
