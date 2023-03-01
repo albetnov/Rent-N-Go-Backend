@@ -2,7 +2,7 @@ package user
 
 import "gorm.io/gorm"
 
-type UserPhoto struct {
+type Photo struct {
 	gorm.Model
 	PhotoPath string
 	UserID    uint

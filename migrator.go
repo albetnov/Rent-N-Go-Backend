@@ -61,7 +61,7 @@ func processMigration(args []string) {
 }
 
 func migrateUserModule(db *gorm.DB) {
-	usersModels := []any{&user.User{}, &user.Nik{}, &user.Sim{}, &user.RefreshToken{}, &user.UserPhoto{}}
+	usersModels := []any{&user.User{}, &user.Nik{}, &user.Sim{}, &user.RefreshToken{}, &user.Photo{}}
 
 	for _, v := range usersModels {
 		migrateModel(db, v)

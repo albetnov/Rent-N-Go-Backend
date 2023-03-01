@@ -143,17 +143,17 @@ func DeleteAccount(c *fiber.Ctx) error {
 
 	u := query.User
 
-	user, _ := userRepository.User.GetById(authId)
+	currentUser, _ := userRepository.User.GetById(authId)
 
-	u.Select(u.Nik.Field()).Delete(user)
+	u.Select(u.Nik.Field()).Delete(currentUser)
 
-	if user.Sim.FilePath != "" {
-		os.Remove(path.Join(utils.PublicPath(), user.Sim.FilePath))
+	if sim, err := u.Sim.Model(currentUser).Find(); err != nil {
+		os.Remove(path.Join(utils.PublicPath(), sim.FilePath))
 	}
 
-	u.Select(u.Sim.Field()).Delete(user)
+	u.Select(u.Sim.Field()).Delete(currentUser)
 
-	u.Where(u.ID.Eq(user.ID)).Delete()
+	u.Where(u.ID.Eq(currentUser.ID)).Delete()
 
 	// Yes even though the account has been removed in both storage and database, their JWT is still active
 	// out there, and the JWT itself is not associated with database, therefore we just said "scheduled" :v

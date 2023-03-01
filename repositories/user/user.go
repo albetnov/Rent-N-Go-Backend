@@ -71,5 +71,5 @@ func (ur userRepository) UpdateUserPhoto(userId uint, fileName string) {
 		return
 	}
 
-	qup.Create(&user.UserPhoto{PhotoPath: fileName, UserID: userId})
+	qup.Create(&user.Photo{PhotoPath: fileName, UserID: userId})
 }

@@ -32,7 +32,7 @@ func Refresh(c *fiber.Ctx) error {
 
 	userId, err := strconv.ParseUint(parsedString[0], 10, 64)
 
-	var id uint = uint(userId)
+	var id = uint(userId)
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
