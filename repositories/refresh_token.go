@@ -6,21 +6,24 @@ import (
 	"rent-n-go-backend/query"
 )
 
-func GetTokenByUserId(userId uint) (*models.RefreshToken, error) {
+type refreshTokenRepository struct {
+}
+
+func (rtr refreshTokenRepository) GetByUserId(userId uint) (*models.RefreshToken, error) {
 	return query.RefreshToken.Where(query.RefreshToken.UserID.Eq(userId)).First()
 }
 
-func DeleteTokenByTokenId(id uint) (gen.ResultInfo, error) {
+func (rtr refreshTokenRepository) DeleteByTokenId(id uint) (gen.ResultInfo, error) {
 	return query.RefreshToken.Where(query.RefreshToken.ID.Eq(id)).Delete()
 }
 
-func UpdateOrCreateTokenByUserId(id uint, payload *models.RefreshToken) {
+func (rtr refreshTokenRepository) UpdateOrCreateByUserId(id uint, payload *models.RefreshToken) {
 	rt := query.RefreshToken
 	if result, _ := rt.Where(rt.UserID.Eq(id)).Updates(payload); result.RowsAffected <= 0 {
 		rt.Create(payload)
 	}
 }
 
-func DeleteTokenByUserId(userId uint) (gen.ResultInfo, error) {
+func (rtr refreshTokenRepository) DeleteByUserId(userId uint) (gen.ResultInfo, error) {
 	return query.RefreshToken.Where(query.RefreshToken.UserID.Eq(userId)).Delete()
 }

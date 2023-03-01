@@ -25,14 +25,14 @@ func CompletionStatus(c *fiber.Ctx) error {
 
 	status := 0
 
-	if data, err := repositories.GetNikFromUserId(userId); err == nil {
+	if data, err := repositories.Nik.GetFromUserId(userId); err == nil {
 		if data.IsVerified {
 			status += 10
 		}
 		status += 40
 	}
 
-	if data, err := repositories.GetSimByUserId(userId); err == nil {
+	if data, err := repositories.Sim.GetByUserId(userId); err == nil {
 		if data.IsVerified {
 			status += 10
 		}
@@ -57,7 +57,7 @@ func UpdateNik(c *fiber.Ctx) error {
 		IsVerified: false,
 	}
 
-	repositories.UpdateOrCreateNik(authId, &nikPayload)
+	repositories.Nik.UpdateOrCreate(authId, &nikPayload)
 
 	return c.JSON(fiber.Map{
 		"message": "NIK updated successfully",
@@ -99,7 +99,7 @@ func UpdateSim(c *fiber.Ctx) error {
 		FilePath:   salt + file.Filename,
 	}
 
-	repositories.UpdateOrCrateSim(authId, &simPayload)
+	repositories.Sim.UpdateOrCreate(authId, &simPayload)
 
 	return c.JSON(fiber.Map{
 		"message": "SIM updated successfully",
@@ -118,7 +118,7 @@ func UpdateProfile(c *fiber.Ctx) error {
 		PhoneNumber: payload.PhoneNumber,
 	}
 
-	if err := repositories.UpdateUserByUserId(c, authId, &updatePayload); err != nil {
+	if err := repositories.User.UpdateById(c, authId, &updatePayload); err != nil {
 		return err
 	}
 
@@ -132,7 +132,7 @@ func UpdatePassword(c *fiber.Ctx) error {
 	payload := utils.GetPayload[UpdatePasswordPayload](c)
 	authId := utils.GetUserId(c)
 
-	user, _ := repositories.GetUserById(authId)
+	user, _ := repositories.User.GetById(authId)
 
 	if !utils.ComparePassword(payload.OldPassword, user.Password) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -150,7 +150,7 @@ func UpdatePassword(c *fiber.Ctx) error {
 		Password: password,
 	}
 
-	repositories.UpdateUserPasswordByUserId(authId, &passwordPayload)
+	repositories.User.UpdatePasswordById(authId, &passwordPayload)
 
 	return c.JSON(fiber.Map{
 		"message": "Password updated successfully",
@@ -163,7 +163,7 @@ func DeleteAccount(c *fiber.Ctx) error {
 
 	u := query.User
 
-	user, _ := repositories.GetUserById(authId)
+	user, _ := repositories.User.GetById(authId)
 
 	u.Select(u.Nik.Field()).Delete(user)
 

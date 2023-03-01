@@ -21,7 +21,7 @@ func generateToken(user *models.User, c *fiber.Ctx) error {
 		UserID:    user.ID,
 	}
 
-	repositories.UpdateOrCreateTokenByUserId(user.ID, &refreshToken)
+	repositories.RefreshToken.UpdateOrCreateByUserId(user.ID, &refreshToken)
 
 	claims := jwt.MapClaims{
 		"name":  user.Name,

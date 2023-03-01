@@ -13,7 +13,7 @@ import (
 func Login(c *fiber.Ctx) error {
 	payload := utils.GetPayload[LoginPayload](c)
 
-	user, err := repositories.GetUserByEmail(payload.Email)
+	user, err := repositories.User.GetByEmail(payload.Email)
 
 	if err != nil || !utils.ComparePassword(payload.Password, user.Password) {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -41,9 +41,9 @@ func Refresh(c *fiber.Ctx) error {
 		})
 	}
 
-	refreshToken, err := repositories.GetTokenByUserId(id)
+	refreshToken, err := repositories.RefreshToken.GetByUserId(id)
 
-	repositories.DeleteTokenByTokenId(refreshToken.ID)
+	repositories.RefreshToken.DeleteByTokenId(refreshToken.ID)
 
 	if refreshToken.ExpiredAt.Before(time.Now()) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -52,7 +52,7 @@ func Refresh(c *fiber.Ctx) error {
 		})
 	}
 
-	user, err := repositories.GetUserById(id)
+	user, err := repositories.User.GetById(id)
 
 	if refreshToken.Token != parsedString[1] || err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -66,7 +66,7 @@ func Refresh(c *fiber.Ctx) error {
 
 func Register(c *fiber.Ctx) error {
 	payload := utils.GetPayload[RegisterPayload](c)
-	if _, err := repositories.GetUserByEmailOrPhone(payload.Email, payload.PhoneNumber); err == nil {
+	if _, err := repositories.User.GetByEmailOrPhone(payload.Email, payload.PhoneNumber); err == nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Ups, email already exist",
 			"action":  "CHANGE_EMAIL",
@@ -87,7 +87,7 @@ func Register(c *fiber.Ctx) error {
 		Password:    password,
 	}
 
-	repositories.CreateUser(&user)
+	repositories.User.Create(&user)
 
 	return c.JSON(fiber.Map{
 		"message": "User created successfully!",

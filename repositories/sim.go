@@ -8,11 +8,14 @@ import (
 	"rent-n-go-backend/utils"
 )
 
-func GetSimByUserId(userId uint) (*models.Sim, error) {
+type simRepository struct {
+}
+
+func (s simRepository) GetByUserId(userId uint) (*models.Sim, error) {
 	return query.Sim.Where(query.Sim.UserID.Eq(userId)).First()
 }
 
-func UpdateOrCrateSim(userId uint, payload *models.Sim) {
+func (sr simRepository) UpdateOrCreate(userId uint, payload *models.Sim) {
 	s := query.Sim
 
 	preCond := s.Where(s.UserID.Eq(userId))

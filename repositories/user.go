@@ -7,24 +7,27 @@ import (
 	"rent-n-go-backend/query"
 )
 
-func GetUserByEmail(email string) (*models.User, error) {
+type userRepository struct {
+}
+
+func (ur userRepository) GetByEmail(email string) (*models.User, error) {
 	return query.User.Where(query.User.Email.Eq(email)).First()
 }
 
-func GetUserById(id uint) (*models.User, error) {
+func (ur userRepository) GetById(id uint) (*models.User, error) {
 	return query.User.Where(query.User.ID.Eq(id)).First()
 }
 
-func GetUserByEmailOrPhone(email string, phone string) (*models.User, error) {
+func (ur userRepository) GetByEmailOrPhone(email string, phone string) (*models.User, error) {
 	u := query.User
 	return u.Where(u.Email.Eq(email)).Or(u.PhoneNumber.Eq(phone)).First()
 }
 
-func CreateUser(user *models.User) error {
+func (ur userRepository) Create(user *models.User) error {
 	return query.User.Create(user)
 }
 
-func UpdateUserByUserId(c *fiber.Ctx, userId uint, user *models.User) error {
+func (ur userRepository) UpdateById(c *fiber.Ctx, userId uint, user *models.User) error {
 	current, _ := query.User.Where(query.User.ID.Eq(userId)).First()
 
 	if current.Email != user.Email {
@@ -48,7 +51,7 @@ func UpdateUserByUserId(c *fiber.Ctx, userId uint, user *models.User) error {
 	return nil
 }
 
-func UpdateUserPasswordByUserId(userId uint, payload *models.User) (gen.ResultInfo, error) {
-	DeleteTokenByUserId(userId)
+func (ur userRepository) UpdatePasswordById(userId uint, payload *models.User) (gen.ResultInfo, error) {
+	RefreshToken.DeleteByUserId(userId)
 	return query.User.Where(query.User.ID.Eq(userId)).Updates(payload)
 }
