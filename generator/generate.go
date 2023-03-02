@@ -1,11 +1,11 @@
 package main
 
 import (
-	"rent-n-go-backend/models/user"
+	"rent-n-go-backend/models/UserModels"
 )
 
 func generateUserModel(lists *Generator) {
-	users := []any{user.User{}, user.Nik{}, user.Sim{}, user.RefreshToken{}, user.Photo{}}
+	users := []any{UserModels.User{}, UserModels.Nik{}, UserModels.Sim{}, UserModels.RefreshToken{}, UserModels.Photo{}}
 
 	for _, v := range users {
 		lists.addModel(v)
@@ -13,6 +13,6 @@ func generateUserModel(lists *Generator) {
 }
 
 func generate(lists *Generator) {
-	// user models module
+	// UserModels models module
 	generateUserModel(lists)
 }

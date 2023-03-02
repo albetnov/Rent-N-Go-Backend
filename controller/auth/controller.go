@@ -2,8 +2,8 @@ package auth
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"rent-n-go-backend/models/user"
-	userRepository "rent-n-go-backend/repositories/user"
+	"rent-n-go-backend/models/UserModels"
+	"rent-n-go-backend/repositories/UserRepositories"
 	"rent-n-go-backend/utils"
 	"strconv"
 	"strings"
@@ -13,7 +13,7 @@ import (
 func Login(c *fiber.Ctx) error {
 	payload := utils.GetPayload[LoginPayload](c)
 
-	currentUser, err := userRepository.User.GetByEmail(payload.Email)
+	currentUser, err := UserRepositories.User.GetByEmail(payload.Email)
 
 	if err != nil || !utils.ComparePassword(payload.Password, currentUser.Password) {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -41,9 +41,9 @@ func Refresh(c *fiber.Ctx) error {
 		})
 	}
 
-	refreshToken, err := userRepository.RefreshToken.GetByUserId(id)
+	refreshToken, err := UserRepositories.RefreshToken.GetByUserId(id)
 
-	userRepository.RefreshToken.DeleteByTokenId(refreshToken.ID)
+	UserRepositories.RefreshToken.DeleteByTokenId(refreshToken.ID)
 
 	if refreshToken.ExpiredAt.Before(time.Now()) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -52,7 +52,7 @@ func Refresh(c *fiber.Ctx) error {
 		})
 	}
 
-	currentUser, err := userRepository.User.GetById(id)
+	currentUser, err := UserRepositories.User.GetById(id)
 
 	if refreshToken.Token != parsedString[1] || err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -66,7 +66,7 @@ func Refresh(c *fiber.Ctx) error {
 
 func Register(c *fiber.Ctx) error {
 	payload := utils.GetPayload[RegisterPayload](c)
-	if _, err := userRepository.User.GetByEmailOrPhone(payload.Email, payload.PhoneNumber); err == nil {
+	if _, err := UserRepositories.User.GetByEmailOrPhone(payload.Email, payload.PhoneNumber); err == nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Ups, email already exist",
 			"action":  "CHANGE_EMAIL",
@@ -79,7 +79,7 @@ func Register(c *fiber.Ctx) error {
 		return utils.SafeThrow(c, err)
 	}
 
-	currentUser := user.User{
+	currentUser := UserModels.User{
 		Name:        payload.Name,
 		PhoneNumber: payload.PhoneNumber,
 		Email:       payload.Email,
@@ -87,7 +87,7 @@ func Register(c *fiber.Ctx) error {
 		Password:    password,
 	}
 
-	userRepository.User.Create(&currentUser)
+	UserRepositories.User.Create(&currentUser)
 
 	return c.JSON(fiber.Map{
 		"message":     "User created successfully!",

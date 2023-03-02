@@ -1,4 +1,4 @@
-package user
+package UserModels
 
 import (
 	"gorm.io/gorm"

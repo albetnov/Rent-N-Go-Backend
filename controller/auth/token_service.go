@@ -5,24 +5,24 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/viper"
-	"rent-n-go-backend/models/user"
+	"rent-n-go-backend/models/UserModels"
 	"rent-n-go-backend/query"
-	userRepository "rent-n-go-backend/repositories/user"
+	"rent-n-go-backend/repositories/UserRepositories"
 	"rent-n-go-backend/utils"
 	"time"
 )
 
-func generateToken(currentUser *user.User, c *fiber.Ctx) error {
+func generateToken(currentUser *UserModels.User, c *fiber.Ctx) error {
 	tokenExpiredAt := time.Now().Add(time.Hour * 24).Unix()
 	refreshTokenExpiredAt := time.Now().Add(time.Hour * 720)
 
-	refreshToken := user.RefreshToken{
+	refreshToken := UserModels.RefreshToken{
 		Token:     utils.GenerateRandomString(100),
 		ExpiredAt: refreshTokenExpiredAt,
 		UserID:    currentUser.ID,
 	}
 
-	userRepository.RefreshToken.UpdateOrCreateByUserId(currentUser.ID, &refreshToken)
+	UserRepositories.RefreshToken.UpdateOrCreateByUserId(currentUser.ID, &refreshToken)
 
 	photo, _ := query.User.Photo.Model(currentUser).Find()
 	nik, _ := query.User.Nik.Model(currentUser).Find()

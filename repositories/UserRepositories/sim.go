@@ -1,9 +1,9 @@
-package user
+package UserRepositories
 
 import (
 	"os"
 	"path"
-	"rent-n-go-backend/models/user"
+	"rent-n-go-backend/models/UserModels"
 	"rent-n-go-backend/query"
 	"rent-n-go-backend/utils"
 )
@@ -11,11 +11,11 @@ import (
 type simRepository struct {
 }
 
-func (s simRepository) GetByUserId(userId uint) (*user.Sim, error) {
+func (s simRepository) GetByUserId(userId uint) (*UserModels.Sim, error) {
 	return query.Sim.Where(query.Sim.UserID.Eq(userId)).First()
 }
 
-func (sr simRepository) UpdateOrCreate(userId uint, payload *user.Sim) {
+func (sr simRepository) UpdateOrCreate(userId uint, payload *UserModels.Sim) {
 	s := query.Sim
 
 	preCond := s.Where(s.UserID.Eq(userId))

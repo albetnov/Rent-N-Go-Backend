@@ -2,7 +2,7 @@ package main
 
 import (
 	"gorm.io/gorm"
-	"rent-n-go-backend/models/user"
+	"rent-n-go-backend/models/UserModels"
 	"rent-n-go-backend/utils"
 )
 
@@ -47,7 +47,7 @@ func processMigration(args []string) {
 		}
 
 		if args[0] == "seed" || args[0] == "refresh" {
-			// check if user want to seed specific module
+			// check if UserModels want to seed specific module
 			arg := ""
 
 			if len(args) > 1 {
@@ -61,7 +61,7 @@ func processMigration(args []string) {
 }
 
 func migrateUserModule(db *gorm.DB) {
-	usersModels := []any{&user.User{}, &user.Nik{}, &user.Sim{}, &user.RefreshToken{}, &user.Photo{}}
+	usersModels := []any{&UserModels.User{}, &UserModels.Nik{}, &UserModels.Sim{}, &UserModels.RefreshToken{}, &UserModels.Photo{}}
 
 	for _, v := range usersModels {
 		migrateModel(db, v)
@@ -81,10 +81,10 @@ func migrate(db *gorm.DB) {
 // produce fake data that will only be seeded under development state
 // Will be executed in Before Hook.
 func seeder(db *gorm.DB, args string) {
-	seedByModule(args, "user", func() {
+	seedByModule(args, "UserModels", func() {
 		password, _ := utils.HashPassword("admin12345")
 
-		user := user.User{
+		user := UserModels.User{
 			Name:        "Sang Admin",
 			Email:       "admin@mail.com",
 			Role:        "admin",
