@@ -49,7 +49,7 @@ func IsProduction() bool {
 }
 
 // SafeThrow
-// Safely throw an error to end user in production
+// Safely throw an error to end UserModels in production
 // Safely throw an error complete with the message in development mode.
 func SafeThrow(w *fiber.Ctx, err error) error {
 	errorMessage := "Can't proceed your request"
@@ -76,7 +76,7 @@ func SafeThrow(w *fiber.Ctx, err error) error {
 }
 
 // WantsJson
-// Determine if the user wanted json response or an html response.
+// Determine if the UserModels wanted json response or an html response.
 func WantsJson(c *fiber.Ctx) bool {
 	return c.Get("Accept") == "application/json"
 }
@@ -111,7 +111,7 @@ func GenerateRandomString(length int) string {
 }
 
 func GetUser(c *fiber.Ctx) jwt.MapClaims {
-	user := c.Locals("user")
+	user := c.Locals("UserModels")
 
 	if user != nil {
 		return user.(*jwt.Token).Claims.(jwt.MapClaims)

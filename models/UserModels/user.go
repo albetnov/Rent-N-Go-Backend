@@ -1,4 +1,4 @@
-package models
+package UserModels
 
 import "gorm.io/gorm"
 
@@ -12,5 +12,5 @@ type User struct {
 	Sim          Sim
 	RefreshToken RefreshToken
 	PhoneNumber  string `gorm:"unique"`
-	Photo        UserPhoto
+	Photo        Photo
 }
