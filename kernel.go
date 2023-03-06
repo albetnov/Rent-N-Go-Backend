@@ -106,6 +106,8 @@ func beforeHook(app *fiber.App) *os.File {
 
 	processMigration(args)
 
+	utils.Session.InitStore()
+
 	return file
 }
 
