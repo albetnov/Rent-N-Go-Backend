@@ -40,6 +40,9 @@ func validateStruct(data any) []*ErrorResponse {
 	return errorResponses
 }
 
+// validateWebStruct
+// Validate given payload but instead of producing ErrorResponse pointer, instead this function return array
+// of string.
 func validateWebStruct(data any) []string {
 	var errorResponses []string
 
@@ -80,6 +83,8 @@ func InterceptRequest(data any) func(c *fiber.Ctx) error {
 	}
 }
 
+// InterceptWebRequest
+// Just like InterceptRequest, but instead of JSON, this function will intercept form based inputs.
 func InterceptWebRequest(ref any) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		sess := Session.Provide(c)
@@ -122,6 +127,8 @@ func CheckMimes(reader io.Reader, acceptedTypes []string) error {
 	return nil
 }
 
+// GetFailedValidation
+// Get the validated validation from Session Store
 func GetFailedValidation(store SessionStore) (any, any) {
 	return store.GetFlash("error"), store.GetFlash("validation_error")
 }

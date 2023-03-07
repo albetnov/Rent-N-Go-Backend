@@ -111,6 +111,8 @@ func GenerateRandomString(length int) string {
 	return string(char)
 }
 
+// GetUser
+// Get the current logged in user from given context
 func GetUser(c *fiber.Ctx) jwt.MapClaims {
 	user := c.Locals("user")
 
@@ -121,6 +123,8 @@ func GetUser(c *fiber.Ctx) jwt.MapClaims {
 	return nil
 }
 
+// GetUserId
+// Return the UserId of the current user
 func GetUserId(c *fiber.Ctx) uint {
 	auth := GetUser(c)
 
@@ -133,6 +137,8 @@ func GetUserId(c *fiber.Ctx) uint {
 	return authId
 }
 
+// SaveFileFromPayload
+// Simplify image saving by automatic salt and validate the given file.
 func SaveFileFromPayload(c *fiber.Ctx, payload string, assetDirectory string) (string, error) {
 	file, err := c.FormFile(payload)
 
