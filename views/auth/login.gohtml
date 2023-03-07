@@ -54,6 +54,7 @@
                             {{.Message}}
                         </div>
                     {{end}}
+                    {{template "components/error" .}}
                     {{template "components/validation" .}}
                     <h2 class="mt-3 text-center">Sign In</h2>
                     <p class="text-center">Enter your email address and password to access admin panel.</p>

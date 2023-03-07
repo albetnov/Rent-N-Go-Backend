@@ -73,3 +73,8 @@ func (ur userRepository) UpdateUserPhoto(userId uint, fileName string) {
 
 	qup.Create(&UserModels.UserPhoto{PhotoPath: fileName, UserID: userId})
 }
+
+func (ur userRepository) GetAllById(userId uint) (*UserModels.User, error) {
+	qu := query.User
+	return qu.Where(qu.ID.Eq(userId)).Preload(field.Associations).First()
+}
