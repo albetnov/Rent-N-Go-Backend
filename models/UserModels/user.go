@@ -12,5 +12,5 @@ type User struct {
 	Sim          Sim
 	RefreshToken RefreshToken
 	PhoneNumber  string `gorm:"unique"`
-	Photo        Photo
+	Photo        UserPhoto
 }

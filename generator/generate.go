@@ -5,7 +5,7 @@ import (
 )
 
 func generateUserModel(lists *Generator) {
-	users := []any{UserModels.User{}, UserModels.Nik{}, UserModels.Sim{}, UserModels.RefreshToken{}, UserModels.Photo{}}
+	users := []any{UserModels.User{}, UserModels.Nik{}, UserModels.Sim{}, UserModels.RefreshToken{}, UserModels.UserPhoto{}}
 
 	for _, v := range users {
 		lists.addModel(v)

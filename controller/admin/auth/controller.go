@@ -31,8 +31,8 @@ func LoginHandler(c *fiber.Ctx) error {
 		return c.RedirectBack("/auth/login")
 	}
 
-	sess.SetSession("authed", true)
-	return c.Redirect("/dashboard")
+	sess.SetSession("authed", currentUser.ID)
+	return c.Redirect("/admin/dashboard")
 }
 
 func Logout(c *fiber.Ctx) error {

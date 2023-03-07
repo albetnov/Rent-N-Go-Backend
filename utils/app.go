@@ -112,7 +112,7 @@ func GenerateRandomString(length int) string {
 }
 
 func GetUser(c *fiber.Ctx) jwt.MapClaims {
-	user := c.Locals("UserModels")
+	user := c.Locals("user")
 
 	if user != nil {
 		return user.(*jwt.Token).Claims.(jwt.MapClaims)
