@@ -16,6 +16,7 @@ func LoginView(c *fiber.Ctx) error {
 		"Message":    message,
 		"Error":      errors,
 		"Validation": validation,
+		"csrfToken":  c.Locals("token"),
 	})
 }
 

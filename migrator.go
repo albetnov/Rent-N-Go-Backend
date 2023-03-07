@@ -82,7 +82,7 @@ func migrate(db *gorm.DB) {
 // Will be executed in Before Hook.
 func seeder(db *gorm.DB, args string) {
 	seedByModule(args, "UserModels", func() {
-		password, _ := utils.HashPassword("admin12345")
+		password, _ := utils.HashPassword("1")
 
 		user := UserModels.User{
 			Name:        "Sang Admin",

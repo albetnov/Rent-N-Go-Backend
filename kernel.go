@@ -2,11 +2,9 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	fiberRecover "github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"path"
@@ -60,9 +58,9 @@ Initiated at beginning of routing.
 */
 func registerGlobalMiddlewares(app *fiber.App) *os.File {
 	// Load encryptCookie middleware
-	app.Use(encryptcookie.New(encryptcookie.Config{
-		Key: viper.GetString("APP_KEY"),
-	}))
+	//app.Use(encryptcookie.New(encryptcookie.Config{
+	//	Key: viper.GetString("APP_KEY"),
+	//}))
 
 	// Load requestId middleware
 	app.Use(requestid.New())
