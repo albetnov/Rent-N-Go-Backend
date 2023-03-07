@@ -21,7 +21,14 @@ This function will also register all defined routes.
 */
 func main() {
 	// init html engine
-	engine := html.New("./views", ".gohtml")
+	engine := html.New("./views", ".gohtml").AddFunc("when",
+		func(firstCond any, value any, fallback any) any {
+			if firstCond != nil {
+				return value
+			}
+
+			return fallback
+		})
 
 	// init fiber
 	app := fiber.New(fiber.Config{

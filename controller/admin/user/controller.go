@@ -34,6 +34,19 @@ func Index(c *fiber.Ctx) error {
 	})
 }
 
+func showUser(user *UserModels.User) fiber.Map {
+	return fiber.Map{
+		"Name":        user.Name,
+		"Email":       user.Email,
+		"PhoneNumber": user.PhoneNumber,
+		"Role":        user.Role,
+		"SIM":         user.Sim,
+		"NIK":         user.Nik,
+		"Photo":       user.Photo,
+		"ID":          user.ID,
+	}
+}
+
 func Show(c *fiber.Ctx) error {
 	userId, err := strconv.Atoi(c.Params("id"))
 
@@ -53,13 +66,15 @@ func Show(c *fiber.Ctx) error {
 		return c.RedirectBack("/admin/users")
 	}
 
-	return admin.RenderTemplate(c, "users/show", fmt.Sprintf("%s Detail", user.Name), fiber.Map{
-		"Name":        user.Name,
-		"Email":       user.Email,
-		"PhoneNumber": user.PhoneNumber,
-		"Role":        user.Role,
-		"SIM":         user.Sim,
-		"NIK":         user.Nik,
-		"Photo":       user.Photo,
-	})
+	return admin.RenderTemplate(c, "users/show", fmt.Sprintf("%s Detail", user.Name), showUser(user))
+}
+
+func Create(c *fiber.Ctx) error {
+	return admin.RenderTemplate(c, "users/form", "Create", nil)
+}
+
+func Store(c *fiber.Ctx) error {
+	payload := utils.GetPayload[CreateUserPayload](c)
+
+	//utils.SaveFileFromPayload(c, )
 }
