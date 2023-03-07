@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -39,6 +40,18 @@ func validateStruct(data any) []*ErrorResponse {
 	return errorResponses
 }
 
+func validateWebStruct(data any) []string {
+	var errorResponses []string
+
+	if err := validate.Struct(data); err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			errorResponses = append(errorResponses, fmt.Sprintf("%s is %s", err.Field(), err.Tag()))
+		}
+	}
+
+	return errorResponses
+}
+
 // InterceptRequest
 // Check and validate the payload, will intercept if the validation fails.
 // If success, a locals will be set with given payload which can decrease unnecessary use of another
@@ -67,6 +80,28 @@ func InterceptRequest(data any) func(c *fiber.Ctx) error {
 	}
 }
 
+func InterceptWebRequest(ref any) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		sess := Session.Provide(c)
+
+		if err := c.BodyParser(ref); err != nil {
+			sess.SetSession("error", err.Error())
+			return c.RedirectBack("/")
+		}
+
+		errorResponses := validateWebStruct(ref)
+
+		if errorResponses != nil {
+			sess.SetSession("validation_error", errorResponses)
+			return c.RedirectBack("/")
+		}
+
+		c.Locals(BODY_DATA, ref)
+
+		return c.Next()
+	}
+}
+
 // GetPayload
 // Smartly get a payload from locals and map them into given struct.
 func GetPayload[T comparable](c *fiber.Ctx) T {
@@ -85,4 +120,8 @@ func CheckMimes(reader io.Reader, acceptedTypes []string) error {
 	}
 
 	return nil
+}
+
+func GetFailedValidation(store SessionStore) (any, any) {
+	return store.GetFlash("error"), store.GetFlash("validation_error")
 }

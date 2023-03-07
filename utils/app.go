@@ -8,6 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"math/rand"
+	"os"
 	"path"
 	"time"
 )
@@ -132,7 +133,7 @@ func GetUserId(c *fiber.Ctx) uint {
 	return authId
 }
 
-func SaveFileFromPayload(c *fiber.Ctx, payload string) (string, error) {
+func SaveFileFromPayload(c *fiber.Ctx, payload string, assetDirectory string) (string, error) {
 	file, err := c.FormFile(payload)
 
 	if err != nil {
@@ -156,7 +157,13 @@ func SaveFileFromPayload(c *fiber.Ctx, payload string) (string, error) {
 
 	fileName := salt + file.Filename
 
-	c.SaveFile(file, path.Join(PublicPath(), fileName))
+	basePath := path.Join(AssetPath(assetDirectory))
+
+	if err = os.MkdirAll(basePath, 0700); err != nil {
+		return "", err
+	}
+
+	c.SaveFile(file, path.Join(AssetPath(assetDirectory), fileName))
 
 	return fileName, nil
 }

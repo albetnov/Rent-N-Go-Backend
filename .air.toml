@@ -6,7 +6,7 @@ tmp_dir = "tmp"
   args_bin = []
   bin = "./tmp/main"
   cmd = "go build -o ./tmp/main ."
-  delay = 0
+  delay = 10
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []
   exclude_regex = ["_test.go"]
@@ -19,8 +19,8 @@ tmp_dir = "tmp"
   kill_delay = "0s"
   log = "build-errors.log"
   rerun = false
-  rerun_delay = 500
-  send_interrupt = false
+  rerun_delay = 1000
+  send_interrupt = true
   stop_on_error = false
 
 [color]

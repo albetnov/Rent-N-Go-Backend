@@ -1,0 +1,15 @@
+{{if .Error}}
+    <div class="alert alert-danger my-3" role="alert">
+        {{.Error}}
+    </div>
+{{end}}
+{{if .Validation}}
+    <div class="alert alert-danger my-3" role="alert">
+        Failed Validating Fields.
+        <ul>
+            {{range .Validation}}
+                <li>{{.}}</li>
+            {{end}}
+        </ul>
+    </div>
+{{end}}

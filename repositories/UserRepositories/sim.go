@@ -21,7 +21,7 @@ func (sr simRepository) UpdateOrCreate(userId uint, payload *UserModels.Sim) {
 	preCond := s.Where(s.UserID.Eq(userId))
 
 	if result, err := preCond.First(); err == nil {
-		os.Remove(path.Join(utils.PublicPath(), result.FilePath))
+		os.Remove(path.Join(utils.AssetPath("sim"), result.FilePath))
 		preCond.Updates(payload)
 	} else {
 		s.Create(payload)

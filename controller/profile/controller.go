@@ -65,7 +65,7 @@ func UpdateNik(c *fiber.Ctx) error {
 }
 
 func UpdateSim(c *fiber.Ctx) error {
-	fileName, err := utils.SaveFileFromPayload(c, "file_name")
+	fileName, err := utils.SaveFileFromPayload(c, "file_name", "sim")
 
 	if err != nil {
 		return utils.SafeThrow(c, err)
@@ -148,7 +148,7 @@ func DeleteAccount(c *fiber.Ctx) error {
 	u.Select(u.Nik.Field()).Delete(currentUser)
 
 	if sim, err := u.Sim.Model(currentUser).Find(); err != nil {
-		os.Remove(path.Join(utils.PublicPath(), sim.FilePath))
+		os.Remove(path.Join(utils.AssetPath("sim"), sim.FilePath))
 	}
 
 	u.Select(u.Sim.Field()).Delete(currentUser)
@@ -164,7 +164,7 @@ func DeleteAccount(c *fiber.Ctx) error {
 }
 
 func UpdatePhoto(c *fiber.Ctx) error {
-	fileName, err := utils.SaveFileFromPayload(c, "file_name")
+	fileName, err := utils.SaveFileFromPayload(c, "file_name", "user")
 
 	if err != nil {
 		return utils.SafeThrow(c, err)

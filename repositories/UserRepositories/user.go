@@ -66,7 +66,7 @@ func (ur userRepository) UpdateUserPhoto(userId uint, fileName string) {
 	preCond := qup.Where(qup.UserID.Eq(userId))
 
 	if result, err := preCond.First(); err == nil {
-		os.Remove(path.Join(utils.PublicPath(), result.PhotoPath))
+		os.Remove(path.Join(utils.AssetPath("user"), result.PhotoPath))
 		preCond.Update(qup.PhotoPath, fileName)
 		return
 	}

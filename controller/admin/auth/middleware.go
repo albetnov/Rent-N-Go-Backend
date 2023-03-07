@@ -9,7 +9,7 @@ func Guest(c *fiber.Ctx) error {
 	session := utils.Session.Provide(c)
 
 	if session.GetSession("authed") != nil {
-		return c.Redirect("/dashboard")
+		return c.Redirect("/admin/dashboard")
 	}
 
 	return c.Next()
@@ -20,5 +20,5 @@ func Authed(c *fiber.Ctx) error {
 		return c.Next()
 	}
 
-	return c.Redirect("/login")
+	return c.Redirect("/auth/login")
 }

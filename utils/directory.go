@@ -69,5 +69,9 @@ func PublicPath() string {
 		ShouldPanic(err)
 	}
 
-	return path.Join(currentDir, "public", "files")
+	return path.Join(currentDir, "public")
+}
+
+func AssetPath(depth ...string) string {
+	return path.Join(PublicPath(), "files", path.Join(depth...))
 }
