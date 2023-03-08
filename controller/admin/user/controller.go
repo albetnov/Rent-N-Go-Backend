@@ -137,3 +137,25 @@ func Store(c *fiber.Ctx) error {
 	sess.SetSession("message", "User created successfully.")
 	return c.Redirect("/admin/users")
 }
+
+func Edit(c *fiber.Ctx) error {
+	userId, err := strconv.Atoi(c.Params("id"))
+
+	sess := utils.Session.Provide(c)
+
+	if err != nil {
+		sess.SetSession("error", err.Error())
+		return c.RedirectBack("/admin/users")
+	}
+
+	id := uint(userId)
+
+	user, err := UserRepositories.User.GetAllById(id)
+
+	if err != nil {
+		sess.SetSession("error", "Ups user not found")
+		return c.RedirectBack("/admin/users")
+	}
+
+	return admin.RenderTemplate(c, "users/form", fmt.Sprintf("Edit %s", user.Name), showUser(user))
+}

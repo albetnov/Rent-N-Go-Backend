@@ -32,10 +32,10 @@ func RenderTemplate(c *fiber.Ctx, name string, moduleName string, data fiber.Map
 		data = fiber.Map{}
 	}
 
-	data["Name"] = user.Name
-	data["Propic"] = propic
-	data["ModuleName"] = moduleName
-	data["csrf"] = c.Locals("token")
+	data["_Name"] = user.Name
+	data["_Propic"] = propic
+	data["_ModuleName"] = moduleName
+	data["_csrf"] = c.Locals("token")
 
 	return c.Render(name, data, "layout")
 }

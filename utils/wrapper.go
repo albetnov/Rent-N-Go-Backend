@@ -41,8 +41,8 @@ func (w *Wrapper) Wrap(data fiber.Map) *Wrapper {
 // Wrap your fiber map with validation errors. Need sess, deps[1].
 func (w *Wrapper) Validation() *Wrapper {
 	err, validation := GetFailedValidation(w.sess)
-	w.data["Validation"] = validation
-	w.data["Error"] = err
+	w.data["_Validation"] = validation
+	w.data["_Error"] = err
 
 	return w
 }
@@ -50,14 +50,14 @@ func (w *Wrapper) Validation() *Wrapper {
 // Message
 // Need sess, deps[1] parameter. Wrap your response with message component compliance.
 func (w *Wrapper) Message() *Wrapper {
-	w.data["Message"] = w.sess.GetFlash("message")
+	w.data["_Message"] = w.sess.GetFlash("message")
 	return w
 }
 
 // Error
 // Need sess, deps[1] parameter. Wrap your response with error component compliance.
 func (w *Wrapper) Error() *Wrapper {
-	w.data["Error"] = w.sess.GetFlash("error")
+	w.data["_Error"] = w.sess.GetFlash("error")
 	return w
 }
 
@@ -76,8 +76,8 @@ func (w *Wrapper) Pagination(totalRecord int64) *Wrapper {
 		pageSize = 5
 	}
 
-	w.data["pagingTotal"] = int(math.Ceil(float64(totalRecord) / float64(pageSize)))
-	w.data["pagingCurrent"] = page
+	w.data["_pagingTotal"] = int(math.Ceil(float64(totalRecord) / float64(pageSize)))
+	w.data["_pagingCurrent"] = page
 
 	return w
 }
@@ -85,14 +85,14 @@ func (w *Wrapper) Pagination(totalRecord int64) *Wrapper {
 // Search
 // Wrap your fiber data with search value
 func (w *Wrapper) Search(search string) *Wrapper {
-	w.data["search"] = search
+	w.data["_search"] = search
 	return w
 }
 
 // Csrf
 // Wrap your fiber data with csrf, need Ctx, deps[0].
 func (w *Wrapper) Csrf() *Wrapper {
-	w.data["csrf"] = w.c.Locals("token")
+	w.data["_csrf"] = w.c.Locals("token")
 	return w
 }
 

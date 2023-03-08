@@ -33,7 +33,11 @@ func (sr simRepository) UpdateOrCreate(userId uint, payload *UserModels.Sim) {
 func (s simRepository) OptionalCreate(c *fiber.Ctx, payload string, sess utils.SessionStore, userId uint, fallback string) error {
 	simFile, err := utils.SaveFileFromPayload(c, payload, utils.AssetPath("sim"))
 
-	if err != nil && !strings.Contains(err.Error(), utils.NO_UPLOADED_FILE) {
+	if err != nil {
+		if strings.Contains(err.Error(), utils.NO_UPLOADED_FILE) {
+			return nil
+		}
+
 		sess.SetSession("error", utils.GetErrorMessage(err))
 		return c.RedirectBack(fallback)
 	}

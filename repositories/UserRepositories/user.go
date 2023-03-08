@@ -83,7 +83,11 @@ func (ur userRepository) GetAllById(userId uint) (*UserModels.User, error) {
 func (ur userRepository) OptionalCreatePhoto(c *fiber.Ctx, sess utils.SessionStore, payload string, userId uint, fallback string) error {
 	userPhoto, err := utils.SaveFileFromPayload(c, payload, utils.AssetPath("user"))
 
-	if err != nil && !strings.Contains(err.Error(), utils.NO_UPLOADED_FILE) {
+	if err != nil {
+		if strings.Contains(err.Error(), utils.NO_UPLOADED_FILE) {
+			return nil
+		}
+
 		sess.SetSession("error", utils.GetErrorMessage(err))
 		return c.RedirectBack(fallback)
 	}

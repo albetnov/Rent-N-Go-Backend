@@ -6,7 +6,7 @@
         {{template "components/message" .}}
         {{$userId := printf "/admin/users/edit" .ID}}
         <form action="{{when .ID $userId "/admin/users/create"}}" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="_csrf" value="{{.csrf}}">
+            {{template "components/csrf" .}}
             <div class="form-group mb-2">
                 <label for="name">Name:</label>
                 <input id="name" name="name" placeholder="Your name here" value="{{when .ID .Name ""}}"
@@ -33,20 +33,20 @@
             </div>
 
             <div class="form-group mb-2">
-                <label for="photo">Profile Picture</label>
+                <label for="photo">Profile Picture</label><br />
                 {{if .Photo}}
                     {{if gt .Photo.ID 0}}
-                        <img src="/public/files/user/{{.Photo.PhotoPath}}" alt="user"/>
+                        <img src="/public/files/user/{{.Photo.PhotoPath}}" alt="user" class="my-3 w-50 object-fit-cover"/>
                     {{end}}
                 {{end}}
                 <input type="file" name="photo" id="photo" class="form-control">
             </div>
 
             <div class="form-group mb-2">
-                <label for="sim">SIM</label>
+                <label for="sim">SIM</label><br/>
                 {{if .SIM}}
                     {{if gt .SIM.ID 0}}
-                        <img src="/public/files/sim/{{.SIM.FilePath}}" alt="sim"/>
+                        <img src="/public/files/sim/{{.SIM.FilePath}}" alt="sim" class="my-3 w-50 object-fit-cover"/>
                     {{end}}
                 {{end}}
                 <input type="file" name="sim" id="sim" class="form-control">
