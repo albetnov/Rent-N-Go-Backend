@@ -1,10 +1,19 @@
 package user
 
-type CreateUserPayload struct {
+type baseUserPayload struct {
 	Name        string `validate:"required"`
 	Email       string `validate:"required,email"`
 	PhoneNumber int    `validate:"required" form:"phone_number"`
 	Role        string `validate:"required,oneof=admin user"`
 	Nik         int
-	Password    string `validate:"required,min=8"`
+}
+
+type CreateUserPayload struct {
+	baseUserPayload
+	Password string `validate:"required,min=8"`
+}
+
+type UpdateUserPayload struct {
+	baseUserPayload
+	Password string `validate:"passwordable"`
 }

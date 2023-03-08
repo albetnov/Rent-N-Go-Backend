@@ -4,8 +4,7 @@
         {{template "components/validation" .}}
         {{template "components/error" .}}
         {{template "components/message" .}}
-        {{$userId := printf "/admin/users/edit" .ID}}
-        <form action="{{when .ID $userId "/admin/users/create"}}" method="post" enctype="multipart/form-data">
+        <form action="{{when .ID (printf "/admin/users/edit/%d" .ID) "/admin/users/create"}}" method="post" enctype="multipart/form-data">
             {{template "components/csrf" .}}
             <div class="form-group mb-2">
                 <label for="name">Name:</label>

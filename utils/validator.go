@@ -19,6 +19,10 @@ type ErrorResponse struct {
 
 var validate = validator.New()
 
+//func registerValidator() {
+//validate.RegisterValidation()
+//}
+
 const BODY_DATA = "body_data"
 
 // validateStruct
@@ -45,6 +49,13 @@ func validateStruct(data any) []*ErrorResponse {
 // of string.
 func validateWebStruct(data any) []string {
 	var errorResponses []string
+	validate.RegisterValidation("passwordable", func(fl validator.FieldLevel) bool {
+		if fl.Field().String() == "" {
+			return true
+		}
+
+		return len(fl.Field().String()) >= 8
+	})
 
 	if err := validate.Struct(data); err != nil {
 		for _, err := range err.(validator.ValidationErrors) {

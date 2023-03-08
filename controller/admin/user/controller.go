@@ -157,5 +157,69 @@ func Edit(c *fiber.Ctx) error {
 		return c.RedirectBack("/admin/users")
 	}
 
-	return admin.RenderTemplate(c, "users/form", fmt.Sprintf("Edit %s", user.Name), showUser(user))
+	response := utils.Wrap(showUser(user), nil, utils.Session.Provide(c)).Error().Validation().Get()
+
+	return admin.RenderTemplate(c, "users/form", fmt.Sprintf("Edit %s", user.Name), response)
+}
+
+func Update(c *fiber.Ctx) error {
+	userId, err := strconv.Atoi(c.Params("id"))
+
+	if err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
+	formattedUserId := uint(userId)
+
+	if _, err = UserRepositories.User.GetById(formattedUserId); err != nil {
+		return c.Status(fiber.StatusNotFound).Render("error", fiber.Map{
+			"Code":    fiber.StatusNotFound,
+			"Message": "Ups, user not found",
+		})
+	}
+
+	payload := utils.GetPayload[UpdateUserPayload](c)
+
+	userData := UserModels.User{
+		Role:        payload.Role,
+		Email:       payload.Email,
+		Name:        payload.Name,
+		PhoneNumber: strconv.FormatInt(int64(payload.PhoneNumber), 10),
+	}
+
+	if payload.Password != "" {
+		hashed, err := utils.HashPassword(payload.Password)
+		if err != nil {
+			return utils.SafeThrow(c, err)
+		}
+
+		userData.Password = hashed
+	}
+
+	if err := UserRepositories.User.UpdateById(c, formattedUserId, &userData); err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
+	sess := utils.Session.Provide(c)
+
+	if err := UserRepositories.Sim.OptionalCreate(c,
+		"sim",
+		sess,
+		userData.ID,
+		"/admin/users"); err != nil {
+		return err
+	}
+
+	UserRepositories.Nik.OptionalCreate(payload.Nik, userData.ID)
+
+	if err := UserRepositories.User.OptionalCreatePhoto(c,
+		sess,
+		"photo",
+		userData.ID,
+		"/admin/users"); err != nil {
+		return err
+	}
+
+	sess.SetSession("message", "User edited successfully.")
+	return c.Redirect("/admin/users")
 }

@@ -37,17 +37,25 @@ func (ur userRepository) UpdateById(c *fiber.Ctx, userId uint, user *UserModels.
 
 	if current.Email != user.Email {
 		if _, err := query.User.Where(query.User.Email.Eq(user.Email)).First(); err == nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"message": "Ups, email already exist.",
-			})
+			if utils.WantsJson(c) {
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+					"message": "Ups, email already exist.",
+				})
+			}
+			utils.Session.Provide(c).SetSession("error", "Email already exist.")
+			return c.RedirectBack("/admin/dashboard")
 		}
 	}
 
 	if current.PhoneNumber != user.PhoneNumber {
 		if _, err := query.User.Where(query.User.PhoneNumber.Eq(user.PhoneNumber)).First(); err == nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"message": "Ups, phone number already exist.",
-			})
+			if utils.WantsJson(c) {
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+					"message": "Ups, phone number already exist.",
+				})
+			}
+			utils.Session.Provide(c).SetSession("error", "Phone number already exist.")
+			return c.RedirectBack("/admin/dashboard")
 		}
 	}
 
