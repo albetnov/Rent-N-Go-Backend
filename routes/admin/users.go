@@ -12,5 +12,6 @@ func UsersModuleRoutes(r fiber.Router) {
 	r.Post("/create", utils.InterceptWebRequest(new(user.CreateUserPayload)), user.Store)
 	r.Get("/edit/:id<int>", user.Edit)
 	r.Post("/edit/:id<int>", utils.InterceptWebRequest(new(user.UpdateUserPayload)), user.Update)
+	r.Get("/delete/:id<int>", user.Destroy)
 	r.Get("/:id<int>", user.Show)
 }

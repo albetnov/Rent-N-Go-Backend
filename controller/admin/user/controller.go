@@ -223,3 +223,23 @@ func Update(c *fiber.Ctx) error {
 	sess.SetSession("message", "User edited successfully.")
 	return c.Redirect("/admin/users")
 }
+
+func Destroy(c *fiber.Ctx) error {
+	userId, err := strconv.Atoi(c.Params("id"))
+
+	if err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
+	parsedId := uint(userId)
+
+	if err := UserRepositories.User.DeleteById(parsedId); err != nil {
+		return c.Status(fiber.StatusNotFound).Render("error", fiber.Map{
+			"Code":    fiber.StatusNotFound,
+			"Message": "Corresponding user not found",
+		})
+	}
+
+	utils.Session.Provide(c).SetSession("message", "User deleted successfully")
+	return c.RedirectBack("/admin/users")
+}

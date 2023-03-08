@@ -2,10 +2,7 @@ package profile
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"os"
-	"path"
 	"rent-n-go-backend/models/UserModels"
-	"rent-n-go-backend/query"
 	"rent-n-go-backend/repositories/UserRepositories"
 	"rent-n-go-backend/utils"
 	"strconv"
@@ -141,19 +138,11 @@ func UpdatePassword(c *fiber.Ctx) error {
 func DeleteAccount(c *fiber.Ctx) error {
 	authId := utils.GetUserId(c)
 
-	u := query.User
-
-	currentUser, _ := UserRepositories.User.GetById(authId)
-
-	u.Select(u.Nik.Field()).Delete(currentUser)
-
-	if sim, err := u.Sim.Model(currentUser).Find(); err != nil {
-		os.Remove(path.Join(utils.AssetPath("sim"), sim.FilePath))
+	if err := UserRepositories.User.DeleteById(authId); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "User not found, something is wrong...",
+		})
 	}
-
-	u.Select(u.Sim.Field()).Delete(currentUser)
-
-	u.Where(u.ID.Eq(currentUser.ID)).Delete()
 
 	// Yes even though the account has been removed in both storage and database, their JWT is still active
 	// out there, and the JWT itself is not associated with database, therefore we just said "scheduled" :v

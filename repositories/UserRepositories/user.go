@@ -103,3 +103,31 @@ func (ur userRepository) OptionalCreatePhoto(c *fiber.Ctx, sess utils.SessionSto
 	User.UpdateUserPhoto(userId, userPhoto)
 	return nil
 }
+
+func (ur userRepository) DeleteById(userId uint) error {
+	u := query.User
+
+	currentUser, err := User.GetById(userId)
+
+	if err != nil {
+		return err
+	}
+
+	u.Select(u.Nik.Field()).Delete(currentUser)
+
+	if sim, err := u.Sim.Model(currentUser).Find(); err != nil {
+		os.Remove(path.Join(utils.AssetPath("sim"), sim.FilePath))
+	}
+
+	u.Select(u.Sim.Field()).Delete(currentUser)
+
+	if photo, err := u.Photo.Model(currentUser).Find(); err != nil {
+		os.Remove(path.Join(utils.AssetPath("user"), photo.PhotoPath))
+	}
+
+	u.Select(u.Photo.Field()).Delete(currentUser)
+
+	u.Where(u.ID.Eq(currentUser.ID)).Delete()
+
+	return nil
+}
