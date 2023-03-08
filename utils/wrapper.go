@@ -57,7 +57,7 @@ func (w *Wrapper) Message() *Wrapper {
 // Error
 // Need sess, deps[1] parameter. Wrap your response with error component compliance.
 func (w *Wrapper) Error() *Wrapper {
-	w.data["Message"] = w.sess.GetFlash("error")
+	w.data["Error"] = w.sess.GetFlash("error")
 	return w
 }
 

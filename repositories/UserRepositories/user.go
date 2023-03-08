@@ -9,6 +9,7 @@ import (
 	"rent-n-go-backend/models/UserModels"
 	"rent-n-go-backend/query"
 	"rent-n-go-backend/utils"
+	"strings"
 )
 
 type userRepository struct {
@@ -77,4 +78,16 @@ func (ur userRepository) UpdateUserPhoto(userId uint, fileName string) {
 func (ur userRepository) GetAllById(userId uint) (*UserModels.User, error) {
 	qu := query.User
 	return qu.Where(qu.ID.Eq(userId)).Preload(field.Associations).First()
+}
+
+func (ur userRepository) OptionalCreatePhoto(c *fiber.Ctx, sess utils.SessionStore, payload string, userId uint, fallback string) error {
+	userPhoto, err := utils.SaveFileFromPayload(c, payload, utils.AssetPath("user"))
+
+	if err != nil && !strings.Contains(err.Error(), utils.NO_UPLOADED_FILE) {
+		sess.SetSession("error", utils.GetErrorMessage(err))
+		return c.RedirectBack(fallback)
+	}
+
+	User.UpdateUserPhoto(userId, userPhoto)
+	return nil
 }

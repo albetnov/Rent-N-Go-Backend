@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gen"
 	"log"
 	"math/rand"
 	"os"
@@ -52,15 +51,21 @@ func IsProduction() bool {
 	return viper.GetString("APP_ENV") == "production"
 }
 
-// SafeThrow
-// Safely throw an error to end UserModels in production
-// Safely throw an error complete with the message in development mode.
-func SafeThrow(w *fiber.Ctx, err error) error {
+func GetErrorMessage(err error) string {
 	errorMessage := "Can't proceed your request"
 
 	if !IsProduction() {
 		errorMessage = err.Error()
 	}
+
+	return errorMessage
+}
+
+// SafeThrow
+// Safely throw an error to end UserModels in production
+// Safely throw an error complete with the message in development mode.
+func SafeThrow(w *fiber.Ctx, err error) error {
+	errorMessage := GetErrorMessage(err)
 
 	statusCode := fiber.StatusInternalServerError
 
@@ -175,33 +180,4 @@ func SaveFileFromPayload(c *fiber.Ctx, payload string, assetDirectory string) (s
 	c.SaveFile(file, path.Join(AssetPath(assetDirectory), fileName))
 
 	return fileName, nil
-}
-
-type SearchableQuery interface {
-	Where(conds ...interface{}) SearchableQuery
-	Or(conds ...interface{}) SearchableQuery
-	Scopes(funcs ...func(dao gen.Dao) gen.Dao) SearchableQuery
-	Find() ([]interface{}, error)
-	Count() (int64, error)
-}
-
-func SearchablePaginateable(c *fiber.Ctx, u SearchableQuery, search string, whereCond func(u SearchableQuery, search string) SearchableQuery) ([]interface{}, error, int64) {
-	var (
-		qry     SearchableQuery
-		results []interface{}
-		err     error
-		total   int64 = 0
-	)
-
-	if search != "" {
-		qry = whereCond(u, search)
-
-		results, err = qry.Scopes(Paginate(c)).Find()
-		total, _ = qry.Count()
-	} else {
-		results, err = u.Scopes(Paginate(c)).Find()
-		total, _ = u.Count()
-	}
-	
-	return results, err, total
 }

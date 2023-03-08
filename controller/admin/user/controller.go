@@ -29,10 +29,10 @@ func Index(c *fiber.Ctx) error {
 	)
 
 	if search != "" {
-		qry = u.Where(u.Name.Eq(search)).
-			Or(u.Email.Eq(search)).
-			Or(u.Role.Eq(search)).
-			Or(u.PhoneNumber.Eq(search))
+		qry = u.Where(u.Name.Like(search)).
+			Or(u.Email.Like(search)).
+			Or(u.Role.Like(search)).
+			Or(u.PhoneNumber.Like(search))
 
 		users, err = qry.Scopes(utils.Paginate(c)).Find()
 		total, _ = qry.Count()
@@ -114,36 +114,24 @@ func Store(c *fiber.Ctx) error {
 		return utils.SafeThrow(c, err)
 	}
 
-	simFile, err := utils.SaveFileFromPayload(c, "sim", utils.AssetPath("sim"))
-
 	sess := utils.Session.Provide(c)
 
-	if err != nil && !strings.Contains(err.Error(), utils.NO_UPLOADED_FILE) {
-		sess.SetSession("error", err.Error())
-		return c.RedirectBack("/admin/users")
-	} else {
-		UserRepositories.Sim.UpdateOrCreate(userData.ID, &UserModels.Sim{
-			UserID:     userData.ID,
-			FilePath:   simFile,
-			IsVerified: false,
-		})
+	if err := UserRepositories.Sim.OptionalCreate(c,
+		"sim",
+		sess,
+		userData.ID,
+		"/admin/users"); err != nil {
+		return err
 	}
 
-	if payload.Nik != 0 {
-		UserRepositories.Nik.UpdateOrCreate(userData.ID, &UserModels.Nik{
-			UserID:     userData.ID,
-			Nik:        strconv.FormatInt(int64(payload.Nik), 10),
-			IsVerified: false,
-		})
-	}
+	UserRepositories.Nik.OptionalCreate(payload.Nik, userData.ID)
 
-	userPhoto, err := utils.SaveFileFromPayload(c, "photo", utils.AssetPath("user"))
-
-	if err != nil && !strings.Contains(err.Error(), utils.NO_UPLOADED_FILE) {
-		sess.SetSession("error", err.Error())
-		return c.RedirectBack("/admin/users")
-	} else {
-		UserRepositories.User.UpdateUserPhoto(userData.ID, userPhoto)
+	if err := UserRepositories.User.OptionalCreatePhoto(c,
+		sess,
+		"photo",
+		userData.ID,
+		"/admin/users"); err != nil {
+		return err
 	}
 
 	sess.SetSession("message", "User created successfully.")
