@@ -6,12 +6,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gen"
 	"log"
-	"math"
 	"math/rand"
 	"os"
 	"path"
-	"strconv"
 	"time"
 )
 
@@ -178,33 +177,31 @@ func SaveFileFromPayload(c *fiber.Ctx, payload string, assetDirectory string) (s
 	return fileName, nil
 }
 
-// WrapWithValidation
-// Wrap your fiber map with validation errors
-func WrapWithValidation(store SessionStore, data fiber.Map) fiber.Map {
-	err, validation := GetFailedValidation(store)
-	data["Validation"] = validation
-	data["Error"] = err
-
-	return data
+type SearchableQuery interface {
+	Where(conds ...interface{}) SearchableQuery
+	Or(conds ...interface{}) SearchableQuery
+	Scopes(funcs ...func(dao gen.Dao) gen.Dao) SearchableQuery
+	Find() ([]interface{}, error)
+	Count() (int64, error)
 }
 
-// WrapWithPagination
-// Wrap your fiber map with data necessary to use pagination component
-func WrapWithPagination(c *fiber.Ctx, totalRecord int64, data fiber.Map) fiber.Map {
-	page, err := strconv.Atoi(c.Query("page", PAGE_DEFAULT))
+func SearchablePaginateable(c *fiber.Ctx, u SearchableQuery, search string, whereCond func(u SearchableQuery, search string) SearchableQuery) ([]interface{}, error, int64) {
+	var (
+		qry     SearchableQuery
+		results []interface{}
+		err     error
+		total   int64 = 0
+	)
 
-	if err != nil {
-		page = 1
+	if search != "" {
+		qry = whereCond(u, search)
+
+		results, err = qry.Scopes(Paginate(c)).Find()
+		total, _ = qry.Count()
+	} else {
+		results, err = u.Scopes(Paginate(c)).Find()
+		total, _ = u.Count()
 	}
-
-	pageSize, err := strconv.Atoi(c.Query("page_size", PAGING_SIZE))
-
-	if err != nil {
-		pageSize = 5
-	}
-
-	data["pagingTotal"] = int(math.Ceil(float64(totalRecord) / float64(pageSize)))
-	data["pagingCurrent"] = page
-
-	return data
+	
+	return results, err, total
 }

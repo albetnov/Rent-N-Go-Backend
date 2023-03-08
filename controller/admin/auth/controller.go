@@ -11,10 +11,9 @@ func LoginView(c *fiber.Ctx) error {
 
 	message := sess.GetFlash("message")
 
-	return c.Render("auth/login", utils.WrapWithValidation(sess, fiber.Map{
-		"Message":   message,
-		"csrfToken": c.Locals("token"),
-	}))
+	return c.Render("auth/login", utils.Wrap(fiber.Map{
+		"Message": message,
+	}).Ctx(c).Csrf().Validation(sess).Get())
 }
 
 func LoginHandler(c *fiber.Ctx) error {

@@ -17,23 +17,39 @@ func Dashboard(c *fiber.Ctx) error {
 }
 
 func Index(c *fiber.Ctx) error {
-	users, err := query.User.Scopes(utils.Paginate(c)).Find()
+	search := strings.ToLower(c.Query("search"))
 
-	if err != nil {
-		return utils.SafeThrow(c, err)
+	u := query.User
+
+	var (
+		qry   query.IUserDo
+		users []*UserModels.User
+		err   error
+		total int64 = 0
+	)
+
+	if search != "" {
+		qry = u.Where(u.Name.Eq(search)).
+			Or(u.Email.Eq(search)).
+			Or(u.Role.Eq(search)).
+			Or(u.PhoneNumber.Eq(search))
+
+		users, err = qry.Scopes(utils.Paginate(c)).Find()
+		total, _ = qry.Count()
+	} else {
+		users, err = u.Scopes(utils.Paginate(c)).Find()
+		total, _ = u.Count()
 	}
-
-	total, err := query.User.Count()
 
 	if err != nil {
 		return utils.SafeThrow(c, err)
 	}
 
 	return admin.RenderTemplate(c, "users/index", "Manage Users",
-		utils.WrapWithPagination(c, total, fiber.Map{
+		utils.Wrap(fiber.Map{
 			"Users": users,
 			"Error": utils.Session.Provide(c).GetFlash("error"),
-		}))
+		}).Ctx(c).Pagination(total).Search(search).Get())
 }
 
 func showUser(user *UserModels.User) fiber.Map {
@@ -72,7 +88,8 @@ func Show(c *fiber.Ctx) error {
 }
 
 func Create(c *fiber.Ctx) error {
-	return admin.RenderTemplate(c, "users/form", "Create", utils.WrapWithValidation(utils.Session.Provide(c), fiber.Map{}))
+	return admin.RenderTemplate(c, "users/form", "Create",
+		utils.Wrap(fiber.Map{}).Validation(utils.Session.Provide(c)).Get())
 }
 
 func Store(c *fiber.Ctx) error {
