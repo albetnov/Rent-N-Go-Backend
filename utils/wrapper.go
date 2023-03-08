@@ -8,14 +8,26 @@ import (
 
 // Wrap
 // Directly access Wrapper.Wrap method
-func Wrap(data fiber.Map) *Wrapper {
+func Wrap(data fiber.Map, deps ...interface{}) *Wrapper {
 	wrapper := Wrapper{}
+
+	if len(deps) > 0 {
+		if deps[0] != nil {
+			wrapper.c = deps[0].(*fiber.Ctx)
+		}
+
+		if deps[1] != nil {
+			wrapper.sess = deps[1].(SessionStore)
+		}
+	}
+
 	return wrapper.Wrap(data)
 }
 
 type Wrapper struct {
 	data fiber.Map
 	c    *fiber.Ctx
+	sess SessionStore
 }
 
 // Wrap
@@ -26,24 +38,31 @@ func (w *Wrapper) Wrap(data fiber.Map) *Wrapper {
 }
 
 // Validation
-// Wrap your fiber map with validation errors
-func (w *Wrapper) Validation(store SessionStore) *Wrapper {
-	err, validation := GetFailedValidation(store)
+// Wrap your fiber map with validation errors. Need sess, deps[1].
+func (w *Wrapper) Validation() *Wrapper {
+	err, validation := GetFailedValidation(w.sess)
 	w.data["Validation"] = validation
 	w.data["Error"] = err
 
 	return w
 }
 
-// Ctx
-// Add context to wrapper (Pagination and Search need this)
-func (w *Wrapper) Ctx(c *fiber.Ctx) *Wrapper {
-	w.c = c
+// Message
+// Need sess, deps[1] parameter. Wrap your response with message component compliance.
+func (w *Wrapper) Message() *Wrapper {
+	w.data["Message"] = w.sess.GetFlash("message")
+	return w
+}
+
+// Error
+// Need sess, deps[1] parameter. Wrap your response with error component compliance.
+func (w *Wrapper) Error() *Wrapper {
+	w.data["Message"] = w.sess.GetFlash("error")
 	return w
 }
 
 // Pagination
-// Wrap your fiber map with data necessary to use pagination component
+// Wrap your fiber map with data necessary to use pagination component need ctx, deps[0].
 func (w *Wrapper) Pagination(totalRecord int64) *Wrapper {
 	page, err := strconv.Atoi(w.c.Query("page", PAGE_DEFAULT))
 
@@ -70,6 +89,8 @@ func (w *Wrapper) Search(search string) *Wrapper {
 	return w
 }
 
+// Csrf
+// Wrap your fiber data with csrf, need Ctx, deps[0].
 func (w *Wrapper) Csrf() *Wrapper {
 	w.data["csrf"] = w.c.Locals("token")
 	return w

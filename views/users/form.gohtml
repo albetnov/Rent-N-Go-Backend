@@ -2,6 +2,8 @@
     <div class="card-title">{{when .ID "Edit" "Create"}}</div>
     <div class="card-body">
         {{template "components/validation" .}}
+        {{template "components/error" .}}
+        {{template "components/message" .}}
         {{$userId := printf "/admin/users/edit" .ID}}
         <form action="{{when .ID $userId "/admin/users/create"}}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="_csrf" value="{{.csrf}}">
@@ -52,7 +54,7 @@
 
             <div class="form-group mb-2">
                 <label for="nik">NIK</label>
-                {{$nikNumber := 0}}
+                {{$nikNumber := ""}}
                 {{if .NIK}}
                     {{if gt .NIK.ID 0}}
                         {{$nikNumber = .NIK.Nik}}

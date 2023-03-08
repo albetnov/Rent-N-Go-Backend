@@ -9,11 +9,7 @@ import (
 func LoginView(c *fiber.Ctx) error {
 	sess := utils.Session.Provide(c)
 
-	message := sess.GetFlash("message")
-
-	return c.Render("auth/login", utils.Wrap(fiber.Map{
-		"Message": message,
-	}).Ctx(c).Csrf().Validation(sess).Get())
+	return c.Render("auth/login", utils.Wrap(fiber.Map{}, c, sess).Message().Csrf().Validation().Get())
 }
 
 func LoginHandler(c *fiber.Ctx) error {

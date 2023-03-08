@@ -12,7 +12,7 @@ import (
 
 var db *gorm.DB
 
-const PAGING_SIZE = "5"
+const PAGING_SIZE = "15"
 const PAGE_DEFAULT = "1"
 
 // SatisfiesDbConnection

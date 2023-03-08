@@ -45,11 +45,12 @@ func Index(c *fiber.Ctx) error {
 		return utils.SafeThrow(c, err)
 	}
 
+	sess := utils.Session.Provide(c)
+
 	return admin.RenderTemplate(c, "users/index", "Manage Users",
 		utils.Wrap(fiber.Map{
 			"Users": users,
-			"Error": utils.Session.Provide(c).GetFlash("error"),
-		}).Ctx(c).Pagination(total).Search(search).Get())
+		}, c, sess).Pagination(total).Search(search).Message().Error().Get())
 }
 
 func showUser(user *UserModels.User) fiber.Map {
@@ -89,19 +90,62 @@ func Show(c *fiber.Ctx) error {
 
 func Create(c *fiber.Ctx) error {
 	return admin.RenderTemplate(c, "users/form", "Create",
-		utils.Wrap(fiber.Map{}).Validation(utils.Session.Provide(c)).Get())
+		utils.Wrap(fiber.Map{}, nil, utils.Session.Provide(c)).Validation().Get())
 }
 
 func Store(c *fiber.Ctx) error {
 	payload := utils.GetPayload[CreateUserPayload](c)
 
-	simFile, err := utils.SaveFileFromPayload(c, "sim", utils.AssetPath("sim"))
+	hashed, err := utils.HashPassword(payload.Password)
 
-	if err != nil && !strings.Contains(err.Error(), utils.NO_UPLOADED_FILE) {
-		fmt.Println(err.Error())
+	if err != nil {
+		return utils.SafeThrow(c, err)
 	}
 
-	fmt.Println(payload, simFile)
+	userData := UserModels.User{
+		Role:        payload.Role,
+		Email:       payload.Email,
+		Name:        payload.Name,
+		PhoneNumber: strconv.FormatInt(int64(payload.PhoneNumber), 10),
+		Password:    hashed,
+	}
 
-	return c.JSON(fiber.Map{"message": "test"})
+	if err := UserRepositories.User.Create(&userData); err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
+	simFile, err := utils.SaveFileFromPayload(c, "sim", utils.AssetPath("sim"))
+
+	sess := utils.Session.Provide(c)
+
+	if err != nil && !strings.Contains(err.Error(), utils.NO_UPLOADED_FILE) {
+		sess.SetSession("error", err.Error())
+		return c.RedirectBack("/admin/users")
+	} else {
+		UserRepositories.Sim.UpdateOrCreate(userData.ID, &UserModels.Sim{
+			UserID:     userData.ID,
+			FilePath:   simFile,
+			IsVerified: false,
+		})
+	}
+
+	if payload.Nik != 0 {
+		UserRepositories.Nik.UpdateOrCreate(userData.ID, &UserModels.Nik{
+			UserID:     userData.ID,
+			Nik:        strconv.FormatInt(int64(payload.Nik), 10),
+			IsVerified: false,
+		})
+	}
+
+	userPhoto, err := utils.SaveFileFromPayload(c, "photo", utils.AssetPath("user"))
+
+	if err != nil && !strings.Contains(err.Error(), utils.NO_UPLOADED_FILE) {
+		sess.SetSession("error", err.Error())
+		return c.RedirectBack("/admin/users")
+	} else {
+		UserRepositories.User.UpdateUserPhoto(userData.ID, userPhoto)
+	}
+
+	sess.SetSession("message", "User created successfully.")
+	return c.Redirect("/admin/users")
 }

@@ -6,5 +6,5 @@ type CreateUserPayload struct {
 	PhoneNumber int    `validate:"required" form:"phone_number"`
 	Role        string `validate:"required,oneof=admin user"`
 	Nik         int
-	Password    string `validate:"omitempty,eqfield=ConfirmPassword,min=8"`
+	Password    string `validate:"required,min=8"`
 }
