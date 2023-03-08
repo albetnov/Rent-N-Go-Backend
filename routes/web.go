@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/csrf"
 	"rent-n-go-backend/controller/admin/auth"
 	"rent-n-go-backend/controller/admin/user"
+	"rent-n-go-backend/routes/admin"
 	"rent-n-go-backend/utils"
 	"time"
 )
@@ -25,9 +26,7 @@ func WebRoutes(r fiber.Router) {
 
 	utils.RegisterWithPrefix(r, func(adminRouter fiber.Router) {
 		adminRouter.Get("/dashboard", user.Dashboard)
-		adminRouter.Get("/users/create", user.Create)
-		adminRouter.Get("/users", user.Index)
-		adminRouter.Get("/users/:id<int>", user.Show)
+		utils.RegisterWithPrefix(adminRouter, admin.UsersModuleRoutes, "/users")
 		adminRouter.Get("/logout", auth.Logout)
 	}, "admin", csrfMiddleware, auth.Authed)
 }

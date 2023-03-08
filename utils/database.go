@@ -12,6 +12,9 @@ import (
 
 var db *gorm.DB
 
+const PAGING_SIZE = "5"
+const PAGE_DEFAULT = "1"
+
 // SatisfiesDbConnection
 // Create a connection to MySQL.
 func SatisfiesDbConnection() {
@@ -61,14 +64,14 @@ func GetDb() *gorm.DB {
 // paging a given resource with Fiber Compatible Context
 func Paginate(c *fiber.Ctx) func(db gen.Dao) gen.Dao {
 	return func(db gen.Dao) gen.Dao {
-		page, err := strconv.Atoi(c.Query("page", "1"))
+		page, err := strconv.Atoi(c.Query("page", PAGE_DEFAULT))
 		RecordLog(err)
 
 		if page == 0 {
 			page = 1
 		}
 
-		pageSize, err := strconv.Atoi(c.Query("page_size"))
+		pageSize, err := strconv.Atoi(c.Query("page_size", PAGING_SIZE))
 		RecordLog(err)
 
 		switch {

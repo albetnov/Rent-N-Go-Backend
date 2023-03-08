@@ -9,6 +9,7 @@ import (
 	"rent-n-go-backend/repositories/UserRepositories"
 	"rent-n-go-backend/utils"
 	"strconv"
+	"strings"
 )
 
 func Dashboard(c *fiber.Ctx) error {
@@ -16,22 +17,23 @@ func Dashboard(c *fiber.Ctx) error {
 }
 
 func Index(c *fiber.Ctx) error {
-	users, err := query.User.Find()
-
-	lists := make([]UserModels.User, len(users))
-
-	for i, v := range users {
-		lists[i] = *v
-	}
+	users, err := query.User.Scopes(utils.Paginate(c)).Find()
 
 	if err != nil {
 		return utils.SafeThrow(c, err)
 	}
 
-	return admin.RenderTemplate(c, "users/index", "Manage Users", fiber.Map{
-		"Users": lists,
-		"Error": utils.Session.Provide(c).GetFlash("error"),
-	})
+	total, err := query.User.Count()
+
+	if err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
+	return admin.RenderTemplate(c, "users/index", "Manage Users",
+		utils.WrapWithPagination(c, total, fiber.Map{
+			"Users": users,
+			"Error": utils.Session.Provide(c).GetFlash("error"),
+		}))
 }
 
 func showUser(user *UserModels.User) fiber.Map {
@@ -70,11 +72,19 @@ func Show(c *fiber.Ctx) error {
 }
 
 func Create(c *fiber.Ctx) error {
-	return admin.RenderTemplate(c, "users/form", "Create", nil)
+	return admin.RenderTemplate(c, "users/form", "Create", utils.WrapWithValidation(utils.Session.Provide(c), fiber.Map{}))
 }
 
 func Store(c *fiber.Ctx) error {
 	payload := utils.GetPayload[CreateUserPayload](c)
 
-	//utils.SaveFileFromPayload(c, )
+	simFile, err := utils.SaveFileFromPayload(c, "sim", utils.AssetPath("sim"))
+
+	if err != nil && !strings.Contains(err.Error(), utils.NO_UPLOADED_FILE) {
+		fmt.Println(err.Error())
+	}
+
+	fmt.Println(payload, simFile)
+
+	return c.JSON(fiber.Map{"message": "test"})
 }

@@ -81,6 +81,26 @@ func registerGlobalMiddlewares(app *fiber.App) *os.File {
 	return file
 }
 
+// RegisterViewFunc Register custom view utilities
+func RegisterViewFunc() map[string]interface{} {
+	return map[string]interface{}{
+		"when": func(firstCond any, value any, fallback any) any {
+			if firstCond != nil {
+				return value
+			}
+
+			return fallback
+		},
+		"inc": func(a int) int {
+			return a + 1
+		},
+		"dec": func(a int) int {
+			return a - 1
+		},
+	}
+}
+
+// beforeHook bootstrap any process before begin serving.
 func beforeHook(app *fiber.App) *os.File {
 	// Log some welcome message
 	log.Println("Welcome to Rent-N-Go Backend!")

@@ -1,0 +1,12 @@
+<ul class="pagination">
+    {{if gt .pagingTotal 0}}
+        {{ if gt .pagingCurrent 1 }}
+            <li class="page-item"><a class="page-link" href="?page={{ dec .pagingCurrent }}"><i
+                            class="fas fa-chevron-left"></i></a></li>
+        {{ end }}
+        {{ if lt .pagingCurrent .pagingTotal }}
+            <li class="page-item"><a class="page-link" href="?page={{ inc .pagingCurrent }}"><i
+                            class="fas fa-chevron-right"></i></a></li>
+        {{ end }}
+    {{ end }}
+</ul>

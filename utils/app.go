@@ -7,13 +7,17 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
 	"log"
+	"math"
 	"math/rand"
 	"os"
 	"path"
+	"strconv"
 	"time"
 )
 
 var r = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+const NO_UPLOADED_FILE = "there is no uploaded file associated with the given key"
 
 // GetApp
 // Return the application about boilerplate response in Map.
@@ -180,6 +184,27 @@ func WrapWithValidation(store SessionStore, data fiber.Map) fiber.Map {
 	err, validation := GetFailedValidation(store)
 	data["Validation"] = validation
 	data["Error"] = err
+
+	return data
+}
+
+// WrapWithPagination
+// Wrap your fiber map with data necessary to use pagination component
+func WrapWithPagination(c *fiber.Ctx, totalRecord int64, data fiber.Map) fiber.Map {
+	page, err := strconv.Atoi(c.Query("page", PAGE_DEFAULT))
+
+	if err != nil {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(c.Query("page_size", PAGING_SIZE))
+
+	if err != nil {
+		pageSize = 5
+	}
+
+	data["pagingTotal"] = int(math.Ceil(float64(totalRecord) / float64(pageSize)))
+	data["pagingCurrent"] = page
 
 	return data
 }
