@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -18,6 +19,10 @@ type ErrorResponse struct {
 
 var validate = validator.New()
 
+//func registerValidator() {
+//validate.RegisterValidation()
+//}
+
 const BODY_DATA = "body_data"
 
 // validateStruct
@@ -33,6 +38,28 @@ func validateStruct(data any) []*ErrorResponse {
 			element.Tag = err.Tag()
 			element.Value = err.Param()
 			errorResponses = append(errorResponses, &element)
+		}
+	}
+
+	return errorResponses
+}
+
+// validateWebStruct
+// Validate given payload but instead of producing ErrorResponse pointer, instead this function return array
+// of string.
+func validateWebStruct(data any) []string {
+	var errorResponses []string
+	validate.RegisterValidation("passwordable", func(fl validator.FieldLevel) bool {
+		if fl.Field().String() == "" {
+			return true
+		}
+
+		return len(fl.Field().String()) >= 8
+	})
+
+	if err := validate.Struct(data); err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			errorResponses = append(errorResponses, fmt.Sprintf("%s is %s", err.Field(), err.Tag()))
 		}
 	}
 
@@ -67,6 +94,30 @@ func InterceptRequest(data any) func(c *fiber.Ctx) error {
 	}
 }
 
+// InterceptWebRequest
+// Just like InterceptRequest, but instead of JSON, this function will intercept form based inputs.
+func InterceptWebRequest(ref any) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		sess := Session.Provide(c)
+
+		if err := c.BodyParser(ref); err != nil {
+			sess.SetSession("error", err.Error())
+			return c.RedirectBack("/")
+		}
+
+		errorResponses := validateWebStruct(ref)
+
+		if errorResponses != nil {
+			sess.SetSession("validation_error", errorResponses)
+			return c.RedirectBack("/")
+		}
+
+		c.Locals(BODY_DATA, ref)
+
+		return c.Next()
+	}
+}
+
 // GetPayload
 // Smartly get a payload from locals and map them into given struct.
 func GetPayload[T comparable](c *fiber.Ctx) T {
@@ -85,4 +136,10 @@ func CheckMimes(reader io.Reader, acceptedTypes []string) error {
 	}
 
 	return nil
+}
+
+// GetFailedValidation
+// Get the validated validation from Session Store
+func GetFailedValidation(store SessionStore) (any, any) {
+	return store.GetFlash("error"), store.GetFlash("validation_error")
 }

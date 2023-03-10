@@ -4,3 +4,4 @@ logs/
 query/
 node_modules/
 public/files/
+tmp/

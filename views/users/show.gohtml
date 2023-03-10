@@ -1,0 +1,40 @@
+<div class="card p-3">
+    <div class="card-title">{{.Name}} Detail</div>
+    <div class="card-body">
+        <ul>
+            <li>Email: {{.Email}}</li>
+            <li>Phone Number: {{.PhoneNumber}}</li>
+            <li>Role: {{.Role}}</li>
+        </ul>
+
+        {{if gt .NIK.ID 0}}
+            <div class="card">
+                <div class="card-title">NIK</div>
+                <div class="card-body">
+                    <ul>
+                        <li>Is Verified: {{if .NIK.IsVerified}} Yes {{else}} No {{end}}</li>
+                        <li>No: {{.NIK.Nik}}</li>
+                    </ul>
+                </div>
+            </div>
+        {{end}}
+
+        {{if gt .SIM.ID 0}}
+            <div class="card">
+                <div class="card-title">SIM</div>
+                <div class="card-body">
+                    <ul>
+                        <li>IS Verified {{if .SIM.IsVerified}} Yes {{else}} No {{end}}</li>
+                        <li>Photo: <img src="/public/files/sim{{.SIM.FilePath}}}" alt="sim"/></li>
+                    </ul>
+                </div>
+            </div>
+        {{end}}
+
+        {{if gt .Photo.ID 0 }}
+            <img  src="/public/files/user/{{.Photo.PhotoPath}}" alt="user"/>
+        {{end}}
+
+        <a class="btn btn-sm btn-secondary d-block" style="width:fit-content" href="/admin/users"><i class="fas fa-arrow-left"></i></a>
+    </div>
+</div>

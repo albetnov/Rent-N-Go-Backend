@@ -1,0 +1,77 @@
+<div class="card p-5">
+    <div class="card-title">{{when .ID "Edit" "Create"}}</div>
+    <div class="card-body">
+        {{template "components/validation" .}}
+        {{template "components/error" .}}
+        {{template "components/message" .}}
+        <form action="{{when .ID (printf "/admin/users/edit/%d" .ID) "/admin/users/create"}}" method="post" enctype="multipart/form-data">
+            {{template "components/csrf" .}}
+            <div class="form-group mb-2">
+                <label for="name">Name:</label>
+                <input id="name" name="name" placeholder="Your name here" value="{{when .ID .Name ""}}"
+                       class="form-control"/>
+            </div>
+            <div class="form-group mb-2">
+                <label for="email">Email:</label>
+                <input id="email" name="email" placeholder="Your email here" value="{{when .ID .Email ""}}"
+                       class="form-control"/>
+            </div>
+            <div class="form-group mb-2">
+                <label for="phone_number">Phone Number:</label>
+                <input id="phone_number" name="phone_number" placeholder="0388494292" type="number"
+                       value="{{when .PhoneNumber .PhoneNumber ""}}" class="form-control">
+            </div>
+            <div class="form-group mb-2">
+                <label for="role">
+                    Role:
+                    <select class="form-control" id="role" name="role">
+                        <option {{if eq .Role "admin"}} selected {{end}} value="admin">Admin</option>
+                        <option {{if eq .Role "user"}} selected {{end}} value="user">User</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="form-group mb-2">
+                <label for="photo">Profile Picture</label><br />
+                {{if .Photo}}
+                    {{if gt .Photo.ID 0}}
+                        <img src="/public/files/user/{{.Photo.PhotoPath}}" alt="user" class="my-3 w-50 object-fit-cover"/>
+                    {{end}}
+                {{end}}
+                <input type="file" name="photo" id="photo" class="form-control">
+            </div>
+
+            <div class="form-group mb-2">
+                <label for="sim">SIM</label><br/>
+                {{if .SIM}}
+                    {{if gt .SIM.ID 0}}
+                        <img src="/public/files/sim/{{.SIM.FilePath}}" alt="sim" class="my-3 w-50 object-fit-cover"/>
+                    {{end}}
+                {{end}}
+                <input type="file" name="sim" id="sim" class="form-control">
+            </div>
+
+            <div class="form-group mb-2">
+                <label for="nik">NIK</label>
+                {{$nikNumber := ""}}
+                {{if .NIK}}
+                    {{if gt .NIK.ID 0}}
+                        {{$nikNumber = .NIK.Nik}}
+                    {{end}}
+                {{end}}
+                <input id="nik" name="nik" class="form-control" value="{{$nikNumber}}"/>
+            </div>
+
+            <div class="form-group mb-2">
+                {{if .ID}}
+                    <div class="alert alert-info">Left empty if you don't want to change the password.</div>
+                {{end}}
+                <label for="password">Password</label>
+                <input type="password" name="password" class="form-control" id="password">
+            </div>
+
+            <button type="submit" class="btn btn-rounded btn-primary mt-3"><i class="fas fa-paper-plane"></i></button>
+        </form>
+        <a class="btn btn-secondary btn-sm mt-5" href="/admin/users"><i class="fas fa-arrow-left"></i></a>
+    </div>
+</div>

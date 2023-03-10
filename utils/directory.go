@@ -69,5 +69,11 @@ func PublicPath() string {
 		ShouldPanic(err)
 	}
 
-	return path.Join(currentDir, "public", "files")
+	return path.Join(currentDir, "public")
+}
+
+// AssetPath
+// Return the asset path which usually located in public. Return files directory with additional value if exist.
+func AssetPath(depth ...string) string {
+	return path.Join(PublicPath(), "files", path.Join(depth...))
 }

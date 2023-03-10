@@ -67,3 +67,6 @@ run:
 
 build:
 	go build .
+
+dev:
+	./bin/air

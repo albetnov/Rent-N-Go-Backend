@@ -2,11 +2,9 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	fiberRecover "github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"path"
@@ -60,9 +58,9 @@ Initiated at beginning of routing.
 */
 func registerGlobalMiddlewares(app *fiber.App) *os.File {
 	// Load encryptCookie middleware
-	app.Use(encryptcookie.New(encryptcookie.Config{
-		Key: viper.GetString("APP_KEY"),
-	}))
+	//app.Use(encryptcookie.New(encryptcookie.Config{
+	//	Key: viper.GetString("APP_KEY"),
+	//}))
 
 	// Load requestId middleware
 	app.Use(requestid.New())
@@ -83,6 +81,26 @@ func registerGlobalMiddlewares(app *fiber.App) *os.File {
 	return file
 }
 
+// RegisterViewFunc Register custom view utilities
+func RegisterViewFunc() map[string]interface{} {
+	return map[string]interface{}{
+		"when": func(firstCond any, value any, fallback any) any {
+			if firstCond != nil {
+				return value
+			}
+
+			return fallback
+		},
+		"inc": func(a int) int {
+			return a + 1
+		},
+		"dec": func(a int) int {
+			return a - 1
+		},
+	}
+}
+
+// beforeHook bootstrap any process before begin serving.
 func beforeHook(app *fiber.App) *os.File {
 	// Log some welcome message
 	log.Println("Welcome to Rent-N-Go Backend!")
@@ -105,6 +123,8 @@ func beforeHook(app *fiber.App) *os.File {
 	args := os.Args[1:]
 
 	processMigration(args)
+
+	utils.Session.InitStore()
 
 	return file
 }

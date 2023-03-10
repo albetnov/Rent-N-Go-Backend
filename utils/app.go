@@ -8,11 +8,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"math/rand"
+	"os"
 	"path"
 	"time"
 )
 
 var r = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+const NO_UPLOADED_FILE = "there is no uploaded file associated with the given key"
 
 // GetApp
 // Return the application about boilerplate response in Map.
@@ -48,15 +51,21 @@ func IsProduction() bool {
 	return viper.GetString("APP_ENV") == "production"
 }
 
-// SafeThrow
-// Safely throw an error to end UserModels in production
-// Safely throw an error complete with the message in development mode.
-func SafeThrow(w *fiber.Ctx, err error) error {
+func GetErrorMessage(err error) string {
 	errorMessage := "Can't proceed your request"
 
 	if !IsProduction() {
 		errorMessage = err.Error()
 	}
+
+	return errorMessage
+}
+
+// SafeThrow
+// Safely throw an error to end UserModels in production
+// Safely throw an error complete with the message in development mode.
+func SafeThrow(w *fiber.Ctx, err error) error {
+	errorMessage := GetErrorMessage(err)
 
 	statusCode := fiber.StatusInternalServerError
 
@@ -110,8 +119,10 @@ func GenerateRandomString(length int) string {
 	return string(char)
 }
 
+// GetUser
+// Get the current logged in user from given context
 func GetUser(c *fiber.Ctx) jwt.MapClaims {
-	user := c.Locals("UserModels")
+	user := c.Locals("user")
 
 	if user != nil {
 		return user.(*jwt.Token).Claims.(jwt.MapClaims)
@@ -120,6 +131,8 @@ func GetUser(c *fiber.Ctx) jwt.MapClaims {
 	return nil
 }
 
+// GetUserId
+// Return the UserId of the current user
 func GetUserId(c *fiber.Ctx) uint {
 	auth := GetUser(c)
 
@@ -132,7 +145,9 @@ func GetUserId(c *fiber.Ctx) uint {
 	return authId
 }
 
-func SaveFileFromPayload(c *fiber.Ctx, payload string) (string, error) {
+// SaveFileFromPayload
+// Simplify image saving by automatic salt and validate the given file.
+func SaveFileFromPayload(c *fiber.Ctx, payload string, assetDirectory string) (string, error) {
 	file, err := c.FormFile(payload)
 
 	if err != nil {
@@ -156,7 +171,13 @@ func SaveFileFromPayload(c *fiber.Ctx, payload string) (string, error) {
 
 	fileName := salt + file.Filename
 
-	c.SaveFile(file, path.Join(PublicPath(), fileName))
+	basePath := path.Join(AssetPath(assetDirectory))
+
+	if err = os.MkdirAll(basePath, 0700); err != nil {
+		return "", err
+	}
+
+	c.SaveFile(file, path.Join(AssetPath(assetDirectory), fileName))
 
 	return fileName, nil
 }
