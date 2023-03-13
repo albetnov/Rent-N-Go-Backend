@@ -25,19 +25,13 @@ func generateToken(currentUser *UserModels.User, c *fiber.Ctx) error {
 	UserRepositories.RefreshToken.UpdateOrCreateByUserId(currentUser.ID, &refreshToken)
 
 	photo, _ := query.User.Photo.Model(currentUser).Find()
-	nik, _ := query.User.Nik.Model(currentUser).Find()
-	sim, _ := query.User.Sim.Model(currentUser).Find()
+
+	photo.PhotoPath = utils.FormatUrl(c, photo.PhotoPath, "user")
 
 	claims := jwt.MapClaims{
-		"name":  currentUser.Name,
-		"role":  currentUser.Role,
-		"id":    currentUser.ID,
-		"exp":   tokenExpiredAt,
-		"nik":   nik,
-		"sim":   sim,
-		"phone": currentUser.PhoneNumber,
-		"email": currentUser.Email,
-		"photo": photo,
+		"role": currentUser.Role,
+		"id":   currentUser.ID,
+		"exp":  tokenExpiredAt,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

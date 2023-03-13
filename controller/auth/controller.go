@@ -83,7 +83,7 @@ func Register(c *fiber.Ctx) error {
 		Name:        payload.Name,
 		PhoneNumber: payload.PhoneNumber,
 		Email:       payload.Email,
-		Role:        "currentUser",
+		Role:        "user",
 		Password:    password,
 	}
 

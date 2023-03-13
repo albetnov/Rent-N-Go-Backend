@@ -7,7 +7,7 @@ type CompleteNikPayload struct {
 type UpdateProfilePayload struct {
 	Name        string `validate:"required"`
 	Email       string `validate:"required,email"`
-	PhoneNumber string `json:"phone_number" validate:"required"`
+	PhoneNumber string `json:"phone_number" validate:"required,numeric"`
 }
 
 type UpdatePasswordPayload struct {

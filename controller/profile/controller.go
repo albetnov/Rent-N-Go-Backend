@@ -8,11 +8,64 @@ import (
 	"strconv"
 )
 
+func getSim(sim UserModels.Sim) string {
+	hasSim := "Not Uploaded"
+
+	if sim.ID > 0 {
+		if sim.IsVerified {
+			hasSim = "Done!"
+		} else {
+			hasSim = "Not Verified"
+		}
+	}
+
+	return hasSim
+}
+
+func getNik(nik UserModels.Nik) string {
+	hasNik := "Not Filled"
+
+	if nik.ID > 0 {
+		if nik.IsVerified {
+			hasNik = "Done!"
+		} else {
+			hasNik = "Not Verified"
+		}
+	}
+
+	return hasNik
+}
+
 func CurrentUser(c *fiber.Ctx) error {
 	currentUser := utils.GetUser(c)
 
+	user, err := UserRepositories.User.GetAllById(uint(currentUser["id"].(float64)))
+
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "Something went wrong, or user not found",
+		})
+	}
+
+	if user.Photo.PhotoPath == "" {
+		// set default photo
+		user.Photo.PhotoPath = "https://source.unsplash.com/500x500?potrait"
+	} else {
+		user.Photo.PhotoPath = utils.FormatUrl(c, user.Photo.PhotoPath, "user")
+	}
+
+	currentUserStats := fiber.Map{
+		"name":  user.Name,
+		"phone": user.PhoneNumber,
+		"photo": user.Photo,
+		"email": user.Email,
+		"role":  user.Role,
+		"nik":   getNik(user.Nik),
+		"sim":   getSim(user.Sim),
+	}
+
 	return c.JSON(fiber.Map{
-		"data": currentUser,
+		"data": currentUserStats,
 	})
 }
 
@@ -100,8 +153,7 @@ func UpdateProfile(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"message": "Successfully update UserModels info.",
-		"action":  "REFRESH_TOKEN",
+		"message": "Successfully update User Info.",
 	})
 }
 
