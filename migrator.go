@@ -2,6 +2,7 @@ package main
 
 import (
 	"gorm.io/gorm"
+	"rent-n-go-backend/models"
 	"rent-n-go-backend/models/UserModels"
 	"rent-n-go-backend/utils"
 )
@@ -68,6 +69,22 @@ func migrateUserModule(db *gorm.DB) {
 	}
 }
 
+func migrateBasicModule(db *gorm.DB) {
+	basicModels := []any{&models.Features{}, &models.Pictures{}}
+
+	for _, v := range basicModels {
+		migrateModel(db, v)
+	}
+}
+
+func migrateServicesModule(db *gorm.DB) {
+	serviceModels := []any{&models.Cars{}, &models.Tour{}, &models.Driver{}}
+
+	for _, v := range serviceModels {
+		migrateModel(db, v)
+	}
+}
+
 /*
 *
 Will be executed by GORM
@@ -75,6 +92,8 @@ in Before Hook
 */
 func migrate(db *gorm.DB) {
 	migrateUserModule(db)
+	migrateBasicModule(db)
+	migrateServicesModule(db)
 }
 
 // Seed a data to a database
