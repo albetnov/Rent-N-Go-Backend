@@ -1,7 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"golang.org/x/exp/slices"
 	"gorm.io/gorm"
+	"log"
+	"os"
 	"rent-n-go-backend/models"
 	"rent-n-go-backend/models/UserModels"
 	"rent-n-go-backend/utils"
@@ -26,7 +30,15 @@ func seedByModule(args string, module string, callback func()) {
 
 func processMigration(args []string) {
 	if len(args) > 0 {
+		supportedArgs := []string{"refresh", "migrate", "seed"}
+
+		if !slices.Contains(supportedArgs, args[0]) {
+			log.Fatalf("Unsupported argument: %s", args[0])
+			os.Exit(1)
+		}
+
 		if args[0] == "refresh" {
+			fmt.Println("Refreshing migration...")
 			tables, err := utils.GetDb().Migrator().GetTables()
 
 			if err != nil {
@@ -43,11 +55,13 @@ func processMigration(args []string) {
 		}
 
 		if args[0] == "migrate" || args[0] == "refresh" {
+			fmt.Println("Migrating database...")
 			// migrate all tables to database.
 			migrate(utils.GetDb())
 		}
 
 		if args[0] == "seed" || args[0] == "refresh" {
+			fmt.Println("Seeding database...")
 			// check if UserModels want to seed specific module
 			arg := ""
 
@@ -58,6 +72,9 @@ func processMigration(args []string) {
 			// seed the table based on arguments.
 			seeder(utils.GetDb(), arg)
 		}
+
+		fmt.Println("Action executed successfully")
+		os.Exit(0)
 	}
 }
 

@@ -9,4 +9,8 @@ type Tour struct {
 	Price    int
 	Duration string
 	Stock    int
+	CarId    uint
+	DriverId uint
+	Car      Cars
+	Driver   Driver
 }
