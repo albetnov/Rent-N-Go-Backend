@@ -1,0 +1,53 @@
+<div class="card p-3">
+    <div class="card-title">My Profile</div>
+    <div class="card-body">
+        <div class="container">
+            {{template "components/error" .}}
+            <div class="row row-cols-2">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-title p-3">Profile Picture</div>
+                        <div class="card-body">
+                            {{if ne ._Propic "https://source.unsplash.com/500x500?potrait"}}
+                                <img src="{{._Propic}}" alt="profile" class="w-100 object-fit-scale"/>
+                                    {{else}}
+                                <p>No Pictures</p>
+                            {{end}}
+                        </div>
+                        <div class="card-footer">
+                            <form method="post" enctype="multipart/form-data" action="/admin/profile/update/picture">
+                                {{template "components/csrf" .}}
+                                <div class="form-group">
+                                    <label for="photo">Change Photo:</label>
+                                    <input type="file" id="photo" name="photo" class="form-control">
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-2">Update</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card">
+                        <div class="card-title p-3">User Info</div>
+                        <div class="card-body">
+                            <form method="post" action="/admin/profile/update">
+                                {{template "components/validation" .}}
+                                {{template "components/csrf" .}}
+                                <div class="form-group">
+                                    <label for="name">Name:</label>
+                                    <input id="name" name="name" class="form-control" value="{{._Name}}">
+                                </div>
+                                <div class="form-group mt-3">
+                                    <div class="alert alert-info">Left empty if you do not want to change password.</div>
+                                    <label for="password">Password</label>
+                                    <input type="password" name="password" class="form-control">
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-3">Update</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

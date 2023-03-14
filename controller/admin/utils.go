@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"rent-n-go-backend/query"
 	"rent-n-go-backend/repositories/UserRepositories"
@@ -25,7 +24,7 @@ func RenderTemplate(c *fiber.Ctx, name string, moduleName string, data fiber.Map
 	propic := "https://source.unsplash.com/500x500?potrait"
 
 	if err == nil && userPhoto.ID != 0 {
-		propic = fmt.Sprintf("/public/files/user/%s", userPhoto.PhotoPath)
+		propic = utils.FormatUrl(c, userPhoto.PhotoPath, "user")
 	}
 
 	if data == nil {

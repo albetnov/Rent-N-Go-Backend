@@ -89,7 +89,7 @@ func (ur userRepository) GetAllById(userId uint) (*UserModels.User, error) {
 }
 
 func (ur userRepository) OptionalCreatePhoto(c *fiber.Ctx, sess utils.SessionStore, payload string, userId uint, fallback string) error {
-	userPhoto, err := utils.SaveFileFromPayload(c, payload, utils.AssetPath("user"))
+	userPhoto, err := utils.SaveFileFromPayload(c, payload, "user")
 
 	if err != nil {
 		if strings.Contains(err.Error(), utils.NO_UPLOADED_FILE) {
@@ -97,6 +97,23 @@ func (ur userRepository) OptionalCreatePhoto(c *fiber.Ctx, sess utils.SessionSto
 		}
 
 		sess.SetSession("error", utils.GetErrorMessage(err))
+		return c.RedirectBack(fallback)
+	}
+
+	User.UpdateUserPhoto(userId, userPhoto)
+	return nil
+}
+
+func (ur userRepository) CreatePhoto(c *fiber.Ctx, sess utils.SessionStore, payload string, userId uint, fallback string) error {
+	userPhoto, err := utils.SaveFileFromPayload(c, payload, "user")
+
+	if err != nil {
+		if strings.Contains(err.Error(), utils.NO_UPLOADED_FILE) {
+			sess.SetSession("error", "No Uploaded File found.")
+		} else {
+			sess.SetSession("error", utils.GetErrorMessage(err))
+		}
+
 		return c.RedirectBack(fallback)
 	}
 
