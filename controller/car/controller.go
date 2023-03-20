@@ -5,6 +5,7 @@ import (
 	"rent-n-go-backend/query"
 	"rent-n-go-backend/repositories/ServiceRepositories"
 	"rent-n-go-backend/utils"
+	"strconv"
 )
 
 func Index(c *fiber.Ctx) error {
@@ -20,9 +21,35 @@ func Index(c *fiber.Ctx) error {
 	}
 
 	res := utils.Wrap(fiber.Map{
-		"cars":    cars,
+		"data":    cars,
 		"message": "Car fetched successfully",
 	}, c).WithMeta(total)
 
 	return c.JSON(res.Get())
+}
+
+func Show(c *fiber.Ctx) error {
+	carId, err := strconv.Atoi(c.Params("id"))
+
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "Car not found or invalid id given",
+			"error":   true,
+		})
+	}
+
+	car, err := ServiceRepositories.Car.GetById(uint(carId))
+
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "Car not found",
+			"error":   true,
+		})
+	}
+
+	res := fiber.Map{
+		"data":    car,
+		"message": "Car found!"}
+
+	return c.JSON(res)
 }

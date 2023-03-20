@@ -7,4 +7,5 @@ import (
 
 func CarsRoutes(r fiber.Router) {
 	r.Get("/", car.Index)
+	r.Get("/:id", car.Show)
 }

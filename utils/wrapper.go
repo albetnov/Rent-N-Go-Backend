@@ -123,30 +123,44 @@ func (w *Wrapper) WithMeta(totalRecord int64) *Wrapper {
 	return w
 }
 
+func processItem(item reflect.Value) ([]fiber.Map, []fiber.Map) {
+	var features []fiber.Map
+	var pictures []fiber.Map
+
+	for _, f := range item.FieldByName("Features").Interface().([]models.Features) {
+		features = append(features, fiber.Map{
+			"icon":  f.IconKey,
+			"label": f.Value,
+		})
+	}
+
+	for _, p := range item.FieldByName("Pictures").Interface().([]models.Pictures) {
+		pictures = append(pictures, fiber.Map{
+			"file_name": p.FileName,
+		})
+	}
+
+	return features, pictures
+}
+
+func MapToServiceableSingle[T comparable](data T,
+	callback func(data T, features, pictures []fiber.Map) fiber.Map) fiber.Map {
+	arrOfData := reflect.Indirect(reflect.ValueOf(data))
+
+	features, pictures := processItem(arrOfData)
+
+	return callback(data, features, pictures)
+}
+
 func MapToServiceable[T comparable](
 	data []T,
 	callback func(data T, features, pictures []fiber.Map) fiber.Map) []fiber.Map {
 	var result []fiber.Map
 
+	arrOfData := reflect.ValueOf(data)
+
 	for i, v := range data {
-		var features []fiber.Map
-		var pictures []fiber.Map
-
-		service := reflect.ValueOf(data)
-		item := reflect.Indirect(service.Index(i))
-
-		for _, f := range item.FieldByName("Features").Interface().([]models.Features) {
-			features = append(features, fiber.Map{
-				"icon":  f.IconKey,
-				"label": f.Value,
-			})
-		}
-
-		for _, p := range item.FieldByName("Pictures").Interface().([]models.Pictures) {
-			pictures = append(pictures, fiber.Map{
-				"file_name": p.FileName,
-			})
-		}
+		features, pictures := processItem(reflect.Indirect(arrOfData.Index(i)))
 
 		result = append(result, callback(v, features, pictures))
 	}
