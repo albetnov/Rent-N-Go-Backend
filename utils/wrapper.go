@@ -3,6 +3,8 @@ package utils
 import (
 	"github.com/gofiber/fiber/v2"
 	"math"
+	"reflect"
+	"rent-n-go-backend/models"
 	"strconv"
 )
 
@@ -16,7 +18,7 @@ func Wrap(data fiber.Map, deps ...interface{}) *Wrapper {
 			wrapper.c = deps[0].(*fiber.Ctx)
 		}
 
-		if deps[1] != nil {
+		if len(deps) > 1 && deps[1] != nil {
 			wrapper.sess = deps[1].(SessionStore)
 		}
 	}
@@ -61,22 +63,28 @@ func (w *Wrapper) Error() *Wrapper {
 	return w
 }
 
-// Pagination
-// Wrap your fiber map with data necessary to use pagination component need ctx, deps[0].
-func (w *Wrapper) Pagination(totalRecord int64) *Wrapper {
-	page, err := strconv.Atoi(w.c.Query("page", PAGE_DEFAULT))
+func getPagination(ctx *fiber.Ctx, totalRecord int64) (int, int) {
+	page, err := strconv.Atoi(ctx.Query("page", PAGE_DEFAULT))
 
 	if err != nil {
 		page = 1
 	}
 
-	pageSize, err := strconv.Atoi(w.c.Query("page_size", PAGING_SIZE))
+	pageSize, err := strconv.Atoi(ctx.Query("page_size", PAGING_SIZE))
 
 	if err != nil {
 		pageSize = 5
 	}
 
-	w.data["_pagingTotal"] = int(math.Ceil(float64(totalRecord) / float64(pageSize)))
+	return int(math.Ceil(float64(totalRecord) / float64(pageSize))), page
+}
+
+// Pagination
+// Wrap your fiber map with data necessary to use pagination component need ctx, deps[0].
+func (w *Wrapper) Pagination(totalRecord int64) *Wrapper {
+	totalPage, page := getPagination(w.c, totalRecord)
+
+	w.data["_pagingTotal"] = totalPage
 	w.data["_pagingCurrent"] = page
 
 	return w
@@ -100,4 +108,48 @@ func (w *Wrapper) Csrf() *Wrapper {
 // Return the wrapper data
 func (w Wrapper) Get() fiber.Map {
 	return w.data
+}
+
+func (w *Wrapper) WithMeta(totalRecord int64) *Wrapper {
+	totalPage, currentPage := getPagination(w.c, totalRecord)
+
+	w.data["meta"] = fiber.Map{
+		"total_page":   totalPage,
+		"current_page": currentPage,
+		"has_previous": currentPage > 1,
+		"has_next":     currentPage < totalPage,
+	}
+
+	return w
+}
+
+func MapToServiceable[T comparable](
+	data []T,
+	callback func(data T, features, pictures []fiber.Map) fiber.Map) []fiber.Map {
+	var result []fiber.Map
+
+	for i, v := range data {
+		var features []fiber.Map
+		var pictures []fiber.Map
+
+		service := reflect.ValueOf(data)
+		item := reflect.Indirect(service.Index(i))
+
+		for _, f := range item.FieldByName("Features").Interface().([]models.Features) {
+			features = append(features, fiber.Map{
+				"icon":  f.IconKey,
+				"label": f.Value,
+			})
+		}
+
+		for _, p := range item.FieldByName("Pictures").Interface().([]models.Pictures) {
+			pictures = append(pictures, fiber.Map{
+				"file_name": p.FileName,
+			})
+		}
+
+		result = append(result, callback(v, features, pictures))
+	}
+
+	return result
 }

@@ -32,6 +32,6 @@ func generateBasicModel(lists *Generator) {
 func generate(lists *Generator) {
 	// UserModels models module
 	generateUserModel(lists)
-	generateServicesModel(lists)
 	generateBasicModel(lists)
+	generateServicesModel(lists)
 }

@@ -23,4 +23,5 @@ func ApiRoutes(r fiber.Router) {
 	))
 
 	utils.RegisterWithPrefix(r, ProfileRoutes, "/profiles")
+	utils.RegisterWithPrefix(r, CarsRoutes, "/cars")
 }
