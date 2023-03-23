@@ -181,3 +181,14 @@ func SaveFileFromPayload(c *fiber.Ctx, payload string, assetDirectory string) (s
 
 	return fileName, nil
 }
+
+func ParseISO8601Date(date string) time.Time {
+	layout := "2006-01-02T15:04:05Z07:00"
+	result, err := time.Parse(layout, date)
+
+	if err != nil {
+		ShouldPanic(err)
+	}
+
+	return result
+}

@@ -1,5 +1,6 @@
 package ServiceRepositories
 
 var (
-	Car = car{}
+	Car    = car{}
+	Driver = driver{}
 )

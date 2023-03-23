@@ -8,9 +8,9 @@ import (
 
 type Orders struct {
 	gorm.Model
-	CarId         uint
-	DriverId      uint
-	TourId        uint
+	CarId         *uint
+	DriverId      *uint
+	TourId        *uint
 	Car           Cars
 	Driver        Driver
 	Tour          Tour

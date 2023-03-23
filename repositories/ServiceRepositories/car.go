@@ -56,3 +56,27 @@ func (c car) GetById(id uint) (fiber.Map, error) {
 
 	return utils.MapToServiceableSingle(result, c.buildGenericResult), nil
 }
+
+func (c car) CheckStock(id uint) (int64, *models.Cars, error) {
+	qo := query.Orders
+	qc := query.Cars
+
+	stock, err := qc.Where(qc.ID.Eq(id)).First()
+	if err != nil {
+		return 0, nil, err
+	}
+
+	totalOrder, err := qo.Scopes(utils.ActiveOrder).Where(qo.CarId.Eq(id)).Count()
+
+	if err != nil {
+		return 0, nil, err
+	}
+
+	result := int64(stock.Stock) - totalOrder
+
+	if result < 0 {
+		result = 0
+	}
+
+	return result, stock, nil
+}

@@ -9,6 +9,7 @@ import (
 	"golang.org/x/exp/slices"
 	"io"
 	"strings"
+	"time"
 )
 
 type ErrorResponse struct {
@@ -25,10 +26,47 @@ var validate = validator.New()
 
 const BODY_DATA = "body_data"
 
+// customValidator
+// set the custom validator.
+func customValidator() {
+	// Allow password to empty, while not add minimum 8 to it's length.
+	validate.RegisterValidation("passwordable", func(fl validator.FieldLevel) bool {
+		if fl.Field().String() == "" {
+			return true
+		}
+
+		return len(fl.Field().String()) >= 8
+	})
+
+	// Check if date comply ISO8601 standard
+	validate.RegisterValidation("ISO8601date", func(fl validator.FieldLevel) bool {
+		layout := "2006-01-02T15:04:05Z07:00"
+		_, err := time.Parse(layout, fl.Field().String())
+		return err == nil
+	})
+
+	// Validate date after (only works with ISO8601 format)
+	validate.RegisterValidation("afteriso", func(fl validator.FieldLevel) bool {
+		layout := "2006-01-02T15:04:05Z07:00"
+		fieldValue, _, _, _ := fl.GetStructFieldOK2()
+		startDate, err := time.Parse(layout, fieldValue.String())
+		if err != nil {
+			return false
+		}
+		endDate, err := time.Parse(layout, fl.Field().String())
+		if err != nil {
+			return false
+		}
+		// exactly one day after start. No matter the hours difference.
+		return endDate.YearDay() == startDate.YearDay()+1 && endDate.Year() == startDate.Year()
+	})
+}
+
 // validateStruct
 // Validate an payload to a given struct, return error if something wrong, and return empty if all passed.
 func validateStruct(data any) []*ErrorResponse {
 	var errorResponses []*ErrorResponse
+	customValidator()
 
 	err := validate.Struct(data)
 	if err != nil {
@@ -49,13 +87,7 @@ func validateStruct(data any) []*ErrorResponse {
 // of string.
 func validateWebStruct(data any) []string {
 	var errorResponses []string
-	validate.RegisterValidation("passwordable", func(fl validator.FieldLevel) bool {
-		if fl.Field().String() == "" {
-			return true
-		}
-
-		return len(fl.Field().String()) >= 8
-	})
+	customValidator()
 
 	if err := validate.Struct(data); err != nil {
 		for _, err := range err.(validator.ValidationErrors) {

@@ -4,10 +4,9 @@ import "gorm.io/gorm"
 
 type Driver struct {
 	gorm.Model
-	Name         string
-	Desc         string
-	Price        int
-	Availability bool
-	CarId        uint
-	Car          Cars
+	Name     string
+	Desc     string
+	Price    int
+	Pictures []Pictures `gorm:"foreignKey:AssociateId"`
+	Features []Features `gorm:"foreignKey:AssociateId"`
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"rent-n-go-backend/repositories/UserRepositories"
 	"rent-n-go-backend/utils"
+	"sync"
 )
 
 func History(c *fiber.Ctx) error {
@@ -29,15 +30,15 @@ func History(c *fiber.Ctx) error {
 			"payment_method": v.PaymentMethod,
 		}
 
-		if v.CarId != 0 {
+		if v.CarId != nil {
 			data["car"] = v.Car
 		}
 
-		if v.DriverId != 0 {
+		if v.DriverId != nil {
 			data["driver"] = v.Driver
 		}
 
-		if v.TourId != 0 {
+		if v.TourId != nil {
 			data["tour"] = v.Tour
 		}
 
@@ -48,4 +49,20 @@ func History(c *fiber.Ctx) error {
 		"data":    clearedOrder,
 		"message": "Order fetched successfully",
 	})
+}
+
+func Place(c *fiber.Ctx) error {
+	payload := utils.GetPayload[PlaceOrderPayload](c)
+
+	res := make(chan fiber.Map)
+	mtx := new(sync.Mutex)
+	userId := utils.GetUserId(c)
+
+	if payload.TourId == 0 && payload.DriverId == 0 {
+		go carStrategy(res, mtx, userId, payload)
+	}
+
+	response := <-res
+
+	return c.Status(response["status"].(int)).JSON(response)
 }
