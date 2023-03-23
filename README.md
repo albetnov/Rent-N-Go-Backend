@@ -4,7 +4,7 @@ the end user, but also provide admin panel to help maintain the end user.
 
 Written in Go.
 
-# Installation
+# Compiling Rent-N-Go
 
 ## Prerequisites 
 
@@ -26,15 +26,17 @@ you're set.
 
 # Windows Users
 
-For windows users that not using `bash`. You must run the `make` command with `windows_` prefix. Here's
-a complete lists and their equivalent:
+Rent-N-Go does not provide official way to build compilation environment for Windows user though. But windows
+user can still compile this adding some prerequisites:
 
-- `make windows` -> `make`
-- `make windows_install_npm` -> `make install_npm`
+- [Git's bash](https://git-scm.com/downloads) (we only need bash in here. You can switch to alternatives like [Cygwin](https://www.cygwin.com/) if you want to)
+- [Choco Package Manager](https://chocolatey.org/) (we need this in order to install `make` for windows)
+- [GNU Make](https://community.chocolatey.org/packages/make) (in order to run make command)
 
-> Other command may or may not work in Windows.
+After installing choco make sure to add it in path so Git Bash can access it too. From there, type `choco install make`
+to perform installation for Gnu's Make.
 
-It's just better to install `bash` as well on windows. See: https://git-scm.com/download/win
+> Alternatively, you can see the manual install below.
 
 ## Manual Install
 
@@ -43,6 +45,8 @@ It's just better to install `bash` as well on windows. See: https://git-scm.com/
 - `$PKG` install
 - `go mod download`
 - `go run "./generator/*.go"`
+- `go run *.go migrate`
+- `go run *.go seed`
 
 And you're set.
 
