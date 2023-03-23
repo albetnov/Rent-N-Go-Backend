@@ -111,6 +111,7 @@ func migrate(db *gorm.DB) {
 	migrateUserModule(db)
 	migrateBasicModule(db)
 	migrateServicesModule(db)
+	migrateModel(db, &models.Orders{})
 }
 
 // Seed a data to a database

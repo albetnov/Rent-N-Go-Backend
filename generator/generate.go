@@ -34,4 +34,5 @@ func generate(lists *Generator) {
 	generateUserModel(lists)
 	generateBasicModel(lists)
 	generateServicesModel(lists)
+	lists.addModel(models.Orders{})
 }

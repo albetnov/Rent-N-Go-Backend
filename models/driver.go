@@ -8,4 +8,6 @@ type Driver struct {
 	Desc         string
 	Price        int
 	Availability bool
+	CarId        uint
+	Car          Cars
 }

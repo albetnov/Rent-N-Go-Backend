@@ -7,7 +7,7 @@ type Tour struct {
 	Name     string
 	Desc     string
 	Price    int
-	Duration string
+	Duration int
 	Stock    int
 	CarId    uint
 	DriverId uint

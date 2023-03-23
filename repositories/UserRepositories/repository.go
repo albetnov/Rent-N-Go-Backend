@@ -5,4 +5,5 @@ var (
 	RefreshToken = refreshTokenRepository{}
 	Sim          = simRepository{}
 	User         = userRepository{}
+	Order        = orderRepository{}
 )
