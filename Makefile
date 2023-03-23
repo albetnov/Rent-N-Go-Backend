@@ -12,12 +12,6 @@ define unix_install
 	echo "Installation finish."
 endef
 
-define posix_install
-	echo "Generating queries"
-	go run "./generator/*.go"
-	echo "Installation finish."
-endef
-
 generate:
 	go run ./generator/*.go
 
@@ -30,26 +24,14 @@ refresh:
 seed:
 	go run *.go seed $(module)
 
-windows:
-	echo "Installing Project..."
-	echo "Running pnpm install"
-	pnpm install
-	$(call basic_install)
-	$(call posix_install)
-
-windows_install_npm:
-	echo "Installing Project"
-	echo "Running 'npm install'"
-	npm install
-	$(call basic_install)
-	$(call posix_install)
-
 install:
 	echo "Installing Project..."
 	echo "Running pnpm install"
 	pnpm install
 	$(call basic_install)
 	$(call unix_install)
+	go run *.go migrate
+	go run *.go seed
 
 
 install_npm:
