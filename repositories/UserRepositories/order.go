@@ -20,8 +20,9 @@ type orderRepository struct {
 const ORDER_COMPLETED = "completed"
 const ORDER_ACTIVE = "active"
 
-var CarIsOutOfStockErr = errors.New("The car is currently out of stock")
-var DriverIsNotAvailableErr = errors.New("Driver is currently not available at the moment.")
+var CarIsOutOfStockErr = errors.New("the car is currently out of stock")
+var DriverIsNotAvailableErr = errors.New("driver is currently not available at the moment")
+var TourIsNotAvailableErr = errors.New("seems like tour has disappeared")
 
 func (o *orderRepository) CreateOrder(startPeriod, endPeriod, paymentMethod string, userId uint) orderRepository {
 	o.startPeriod = utils.ParseISO8601Date(startPeriod)
@@ -150,4 +151,14 @@ func (o orderRepository) CreateDriverOrder(carId, driverId uint) error {
 	}
 
 	return nil
+}
+
+func (o orderRepository) CreateTourOrder(tourId uint) error {
+	//tour, err := ServiceRepositories.
+	stock, tour, err := ServiceRepositories.Tour.CheckStock(tourId)
+
+	if err != nil || stock <= 0 {
+		return TourIsNotAvailableErr
+	}
+
 }
