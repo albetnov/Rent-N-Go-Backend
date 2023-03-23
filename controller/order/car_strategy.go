@@ -17,22 +17,12 @@ func carStrategy(res chan<- fiber.Map, mtx *sync.Mutex, userId uint, payload Pla
 
 	if err != nil {
 		if errors.Is(err, UserRepositories.CarIsOutOfStockErr) {
-			res <- fiber.Map{
-				"message": err.Error(),
-				"status":  fiber.StatusBadRequest,
-			}
+			res <- carNotAvailable()
 		} else {
-			res <- fiber.Map{
-				"message": "Failed when creating order",
-				"details": err.Error(),
-				"status":  fiber.StatusBadRequest,
-			}
+			res <- orderErr(err)
 		}
 		return
 	}
 
-	res <- fiber.Map{
-		"message": "Order created successfully!",
-		"status":  fiber.StatusCreated,
-	}
+	res <- orderOk()
 }

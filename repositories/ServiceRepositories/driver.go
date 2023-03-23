@@ -45,3 +45,11 @@ func (d driver) GetById(id uint) (fiber.Map, error) {
 
 	return utils.MapToServiceableSingle(result, d.buildGenericResult), nil
 }
+
+func (d driver) CheckAvailability(id uint) bool {
+	qo := query.Orders
+
+	total, _ := qo.Scopes(utils.ActiveOrder).Where(qo.DriverId.Eq(id)).Count()
+
+	return total > 0
+}

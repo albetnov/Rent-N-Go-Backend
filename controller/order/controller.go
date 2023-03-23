@@ -54,12 +54,24 @@ func History(c *fiber.Ctx) error {
 func Place(c *fiber.Ctx) error {
 	payload := utils.GetPayload[PlaceOrderPayload](c)
 
+	userId := utils.GetUserId(c)
+
+	if alreadyHasOrder := UserRepositories.Order.HasOrder(userId); alreadyHasOrder {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "You already have an order!",
+			"status":  fiber.StatusBadRequest,
+		})
+	}
+
 	res := make(chan fiber.Map)
 	mtx := new(sync.Mutex)
-	userId := utils.GetUserId(c)
 
 	if payload.TourId == 0 && payload.DriverId == 0 {
 		go carStrategy(res, mtx, userId, payload)
+	} else if payload.TourId == 0 {
+		go driverStrategy(res, mtx, userId, payload)
+	} else {
+		//go something
 	}
 
 	response := <-res
