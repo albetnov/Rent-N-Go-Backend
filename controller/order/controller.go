@@ -55,7 +55,6 @@ func Place(c *fiber.Ctx) error {
 	payload := utils.GetPayload[PlaceOrderPayload](c)
 
 	userId := utils.GetUserId(c)
-
 	if alreadyHasOrder := UserRepositories.Order.HasOrder(userId); alreadyHasOrder {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "You already have an order!",
@@ -63,18 +62,19 @@ func Place(c *fiber.Ctx) error {
 		})
 	}
 
-	res := make(chan fiber.Map)
+	var res fiber.Map
 	mtx := new(sync.Mutex)
 
+	mtx.Lock()
+	orderStrategy.Build(payload, userId)
 	if payload.TourId == 0 && payload.DriverId == 0 {
-		go carStrategy(res, mtx, userId, payload)
+		res = orderStrategy.UseStrategy(carStrategy)
 	} else if payload.TourId == 0 {
-		go driverStrategy(res, mtx, userId, payload)
+		res = orderStrategy.UseStrategy(driverStrategy)
 	} else {
-		//go something
+		//tourStrategy(res, mtx, userId, payload)
 	}
+	mtx.Unlock()
 
-	response := <-res
-
-	return c.Status(response["status"].(int)).JSON(response)
+	return c.Status(res["status"].(int)).JSON(res)
 }
