@@ -2,6 +2,8 @@ package UserRepositories
 
 import (
 	"errors"
+	"fmt"
+	"github.com/gofiber/fiber/v2"
 	"gorm.io/gen"
 	"rent-n-go-backend/models"
 	"rent-n-go-backend/query"
@@ -59,67 +61,91 @@ func withTour(db gen.Dao) gen.Dao {
 		Preload(qo.Tour.Pictures.On(query.Pictures.Associate.Eq(BasicRepositories.Tour)))
 }
 
-func orderPreload(o gen.Dao) gen.Dao {
-	return o.
-		Scopes(withCar).
-		Scopes(withDriver).
-		Scopes(withTour)
+func orderPreload(userId uint, filter string) func(db gen.Dao) gen.Dao {
+	qo := query.Orders
+
+	return func(db gen.Dao) gen.Dao {
+		builder := db.
+			Scopes(withCar).
+			Scopes(withDriver).
+			Scopes(withTour).
+			Where(qo.UserId.Eq(userId))
+
+		if filter != "" {
+			builder = builder.Where(qo.Type.Eq(filter))
+		}
+
+		return builder
+	}
 }
 
-func (o orderRepository) GetUserOrder(userId uint) ([]*models.Orders, error) {
+func (o orderRepository) GetUserOrder(userId uint, c *fiber.Ctx, filter string) ([]*models.Orders, int64, error) {
 	qo := query.Orders
-	orders, err := qo.
-		Scopes(orderPreload).
-		Where(qo.UserId.Eq(userId)).
-		Order(qo.Status).
+
+	fmt.Println(filter)
+
+	builder := qo.Scopes(orderPreload(userId, filter))
+
+	orders, err := builder.
+		Scopes(utils.Paginate(c)).
+		Order(qo.Status, qo.ID).
 		Find()
 
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	wg := new(sync.WaitGroup)
 	qp := query.Pictures
 	qf := query.Features
 
-	for _, v := range orders {
-		wg.Add(4)
-		go func(v *models.Orders) {
-			tourCarPictures, _ := query.Cars.Pictures.Where(qp.Associate.Eq(BasicRepositories.Car)).Model(&v.Tour.Car).Find()
-			for _, p := range tourCarPictures {
-				v.Tour.Car.Pictures = append(v.Tour.Car.Pictures, *p)
-			}
-			wg.Done()
-		}(v)
+	if filter == "" || filter == "tour" {
+		for _, v := range orders {
+			wg.Add(4)
+			go func(v *models.Orders) {
+				tourCarPictures, _ := query.Cars.Pictures.Where(qp.Associate.Eq(BasicRepositories.Car)).Model(&v.Tour.Car).Find()
+				for _, p := range tourCarPictures {
+					v.Tour.Car.Pictures = append(v.Tour.Car.Pictures, *p)
+				}
+				wg.Done()
+			}(v)
 
-		go func(v *models.Orders) {
-			tourCarFeatures, _ := query.Cars.Features.Where(qf.Associate.Eq(BasicRepositories.Car)).Model(&v.Tour.Car).Find()
-			for _, f := range tourCarFeatures {
-				v.Tour.Car.Features = append(v.Tour.Car.Features, *f)
-			}
-			wg.Done()
-		}(v)
+			go func(v *models.Orders) {
+				tourCarFeatures, _ := query.Cars.Features.Where(qf.Associate.Eq(BasicRepositories.Car)).Model(&v.Tour.Car).Find()
+				for _, f := range tourCarFeatures {
+					v.Tour.Car.Features = append(v.Tour.Car.Features, *f)
+				}
+				wg.Done()
+			}(v)
 
-		go func(v *models.Orders) {
-			tourDriverPictures, _ := query.Driver.Pictures.Where(qp.Associate.Eq(BasicRepositories.Driver)).Model(&v.Tour.Driver).Find()
-			for _, p := range tourDriverPictures {
-				v.Tour.Driver.Pictures = append(v.Tour.Driver.Pictures, *p)
-			}
-			wg.Done()
-		}(v)
+			go func(v *models.Orders) {
+				tourDriverPictures, _ := query.Driver.Pictures.Where(qp.Associate.Eq(BasicRepositories.Driver)).Model(&v.Tour.Driver).Find()
+				for _, p := range tourDriverPictures {
+					v.Tour.Driver.Pictures = append(v.Tour.Driver.Pictures, *p)
+				}
+				wg.Done()
+			}(v)
 
-		go func(v *models.Orders) {
-			tourDriverFeatures, _ := query.Driver.Features.Where(qf.Associate.Eq(BasicRepositories.Driver)).Model(&v.Tour.Driver).Find()
-			for _, f := range tourDriverFeatures {
-				v.Tour.Driver.Features = append(v.Tour.Driver.Features, *f)
-			}
-			wg.Done()
-		}(v)
+			go func(v *models.Orders) {
+				tourDriverFeatures, _ := query.Driver.Features.Where(qf.Associate.Eq(BasicRepositories.Driver)).Model(&v.Tour.Driver).Find()
+				for _, f := range tourDriverFeatures {
+					v.Tour.Driver.Features = append(v.Tour.Driver.Features, *f)
+				}
+				wg.Done()
+			}(v)
+		}
+
+		wg.Wait()
 	}
 
-	wg.Wait()
+	total, err := qo.
+		Scopes(orderPreload(userId, filter)).Count()
 
-	return orders, err
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return orders, total, err
 }
 
 func activeOrder(db gen.Dao) gen.Dao {

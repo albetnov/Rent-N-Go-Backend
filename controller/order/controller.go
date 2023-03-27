@@ -9,11 +9,19 @@ import (
 
 func History(c *fiber.Ctx) error {
 	userId := utils.GetUserId(c)
-	order, err := UserRepositories.Order.GetUserOrder(userId)
+	filter := c.Query("filter", "")
+	order, total, err := UserRepositories.Order.GetUserOrder(userId, c, filter)
 
 	if err != nil || len(order) < 1 {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": "Ups, you seems like not having any order.",
+			"error":   true,
+		})
+	}
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Failed to fetch total page size of order",
 			"error":   true,
 		})
 	}
@@ -46,10 +54,12 @@ func History(c *fiber.Ctx) error {
 		clearedOrder = append(clearedOrder, data)
 	}
 
-	return c.JSON(fiber.Map{
+	res := utils.Wrap(fiber.Map{
 		"data":    clearedOrder,
 		"message": "Order fetched successfully",
-	})
+	}, c).WithMeta(total)
+
+	return c.JSON(res.Get())
 }
 
 func Place(c *fiber.Ctx) error {
