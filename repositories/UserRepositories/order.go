@@ -53,7 +53,7 @@ func (o orderRepository) GetUserOrder(userId uint) ([]*models.Orders, error) {
 }
 
 func activeOrder(db gen.Dao) gen.Dao {
-	return db.Where(query.Orders.EndPeriod.Gt(time.Now())).Where(query.Orders.Status.Neq(ORDER_COMPLETED))
+	return db.Where(query.Orders.Status.Neq(ORDER_COMPLETED))
 }
 
 func (o orderRepository) HasOrder(userId uint) bool {

@@ -41,8 +41,17 @@ func customValidator() {
 	// Check if date comply ISO8601 standard
 	validate.RegisterValidation("ISO8601date", func(fl validator.FieldLevel) bool {
 		layout := "2006-01-02T15:04:05Z07:00"
-		_, err := time.Parse(layout, fl.Field().String())
-		return err == nil
+		parsedTime, err := time.Parse(layout, fl.Field().String())
+
+		if err != nil {
+			return false
+		}
+
+		if parsedTime.Before(time.Now()) {
+			return false
+		}
+
+		return true
 	})
 
 	// Validate date after (only works with ISO8601 format)
