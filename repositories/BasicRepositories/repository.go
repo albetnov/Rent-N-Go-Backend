@@ -10,6 +10,7 @@ var (
 const (
 	Car    = "car"
 	Driver = "driver"
+	Tour   = "tour"
 )
 
 var ErrInvalidArgument = errors.New("invalid argument being passed")

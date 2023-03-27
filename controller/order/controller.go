@@ -28,6 +28,7 @@ func History(c *fiber.Ctx) error {
 			"start_period":   v.StartPeriod,
 			"end_period":     v.EndPeriod,
 			"payment_method": v.PaymentMethod,
+			"type":           v.Type,
 		}
 
 		if v.CarId != nil {

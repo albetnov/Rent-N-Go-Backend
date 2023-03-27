@@ -5,6 +5,7 @@ import (
 	"gorm.io/gen"
 	"rent-n-go-backend/models"
 	"rent-n-go-backend/query"
+	"rent-n-go-backend/repositories/BasicRepositories"
 	"rent-n-go-backend/repositories/ServiceRepositories"
 	"rent-n-go-backend/utils"
 	"sync"
@@ -35,22 +36,90 @@ func (o *orderRepository) CreateOrder(startPeriod, endPeriod, paymentMethod stri
 	return *o
 }
 
-func orderPreload(o gen.Dao) gen.Dao {
+func withCar(db gen.Dao) gen.Dao {
 	qo := query.Orders
-	return o.Preload(qo.Car).
-		Preload(qo.Driver).
-		Preload(qo.Tour).
+	return db.Preload(qo.Car).
+		Preload(qo.Car.Features.On(query.Features.Associate.Eq(BasicRepositories.Car))).
+		Preload(qo.Car.Pictures.On(query.Pictures.Associate.Eq(BasicRepositories.Car)))
+}
+
+func withDriver(db gen.Dao) gen.Dao {
+	qo := query.Orders
+	return db.Preload(qo.Driver).
+		Preload(qo.Driver.Features.On(query.Features.Associate.Eq(BasicRepositories.Driver))).
+		Preload(qo.Driver.Pictures.On(query.Pictures.Associate.Eq(BasicRepositories.Driver)))
+}
+
+func withTour(db gen.Dao) gen.Dao {
+	qo := query.Orders
+	return db.Preload(qo.Tour).
 		Preload(qo.Tour.Car).
-		Preload(qo.Tour.Driver)
+		Preload(qo.Tour.Driver).
+		Preload(qo.Tour.Features.On(query.Features.Associate.Eq(BasicRepositories.Tour))).
+		Preload(qo.Tour.Pictures.On(query.Pictures.Associate.Eq(BasicRepositories.Tour)))
+}
+
+func orderPreload(o gen.Dao) gen.Dao {
+	return o.
+		Scopes(withCar).
+		Scopes(withDriver).
+		Scopes(withTour)
 }
 
 func (o orderRepository) GetUserOrder(userId uint) ([]*models.Orders, error) {
 	qo := query.Orders
-	return qo.
+	orders, err := qo.
 		Scopes(orderPreload).
 		Where(qo.UserId.Eq(userId)).
 		Order(qo.Status).
 		Find()
+
+	if err != nil {
+		return nil, err
+	}
+
+	wg := new(sync.WaitGroup)
+	qp := query.Pictures
+	qf := query.Features
+
+	for _, v := range orders {
+		wg.Add(4)
+		go func(v *models.Orders) {
+			tourCarPictures, _ := query.Cars.Pictures.Where(qp.Associate.Eq(BasicRepositories.Car)).Model(&v.Tour.Car).Find()
+			for _, p := range tourCarPictures {
+				v.Tour.Car.Pictures = append(v.Tour.Car.Pictures, *p)
+			}
+			wg.Done()
+		}(v)
+
+		go func(v *models.Orders) {
+			tourCarFeatures, _ := query.Cars.Features.Where(qf.Associate.Eq(BasicRepositories.Car)).Model(&v.Tour.Car).Find()
+			for _, f := range tourCarFeatures {
+				v.Tour.Car.Features = append(v.Tour.Car.Features, *f)
+			}
+			wg.Done()
+		}(v)
+
+		go func(v *models.Orders) {
+			tourDriverPictures, _ := query.Driver.Pictures.Where(qp.Associate.Eq(BasicRepositories.Driver)).Model(&v.Tour.Driver).Find()
+			for _, p := range tourDriverPictures {
+				v.Tour.Driver.Pictures = append(v.Tour.Driver.Pictures, *p)
+			}
+			wg.Done()
+		}(v)
+
+		go func(v *models.Orders) {
+			tourDriverFeatures, _ := query.Driver.Features.Where(qf.Associate.Eq(BasicRepositories.Driver)).Model(&v.Tour.Driver).Find()
+			for _, f := range tourDriverFeatures {
+				v.Tour.Driver.Features = append(v.Tour.Driver.Features, *f)
+			}
+			wg.Done()
+		}(v)
+	}
+
+	wg.Wait()
+
+	return orders, err
 }
 
 func activeOrder(db gen.Dao) gen.Dao {
