@@ -66,7 +66,7 @@ func (c car) CheckStock(id uint) (int64, *models.Cars, error) {
 		return 0, nil, err
 	}
 
-	totalOrder, err := qo.Scopes(utils.ActiveOrder).Where(qo.CarId.Eq(id)).Count()
+	totalOrder, err := qo.Scopes(activeOrder).Where(qo.CarId.Eq(id)).Count()
 
 	if err != nil {
 		return 0, nil, err

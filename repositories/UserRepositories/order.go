@@ -50,10 +50,14 @@ func (o orderRepository) GetUserOrder(userId uint) ([]*models.Orders, error) {
 		Find()
 }
 
+func activeOrder(db gen.Dao) gen.Dao {
+	return db.Where(query.Orders.EndPeriod.Gt(time.Now())).Where(query.Orders.Status.Neq(ORDER_COMPLETED))
+}
+
 func (o orderRepository) HasOrder(userId uint) bool {
 	qo := query.Orders
 
-	total, _ := qo.Scopes(utils.ActiveOrder).Where(qo.UserId.Eq(userId)).Count()
+	total, _ := qo.Scopes(activeOrder).Where(qo.UserId.Eq(userId)).Count()
 
 	return total > 0
 }
@@ -155,10 +159,11 @@ func (o orderRepository) CreateDriverOrder(carId, driverId uint) error {
 
 func (o orderRepository) CreateTourOrder(tourId uint) error {
 	//tour, err := ServiceRepositories.
-	stock, tour, err := ServiceRepositories.Tour.CheckStock(tourId)
+	stock, _, err := ServiceRepositories.Tour.CheckStock(tourId)
 
 	if err != nil || stock <= 0 {
 		return TourIsNotAvailableErr
 	}
 
+	return nil
 }

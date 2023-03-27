@@ -55,7 +55,7 @@ func (t tour) CheckStock(id uint) (int64, *models.Tour, error) {
 	qo := query.Orders
 	qt := query.Tour
 
-	total, _ := qo.Scopes(utils.ActiveOrder).Where(qo.TourId.Eq(id)).Count()
+	total, _ := qo.Scopes(activeOrder).Where(qo.TourId.Eq(id)).Count()
 	tour, err := qt.Where(qt.ID.Eq(id)).First()
 
 	return int64(tour.Stock) - total, tour, err

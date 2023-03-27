@@ -7,9 +7,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gen"
 	"gorm.io/gorm"
-	"rent-n-go-backend/query"
 	"strconv"
-	"time"
 )
 
 var db *gorm.DB
@@ -92,10 +90,4 @@ func Paginate(c *fiber.Ctx) func(db gen.Dao) gen.Dao {
 // Yet another Database scope utility to gen a random item from given db instance
 func InRandomOrder(db *gorm.DB) *gorm.DB {
 	return db.Order("RAND()")
-}
-
-// ActiveOrder
-// Get active order
-func ActiveOrder(db gen.Dao) gen.Dao {
-	return db.Where(query.Orders.EndPeriod.Gt(time.Now())).Where(query.Orders.Status.Neq("completed"))
 }
