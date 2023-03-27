@@ -1,12 +1,30 @@
 package order
 
 import (
-	"fmt"
+	"errors"
+	"github.com/gofiber/fiber/v2"
 	"rent-n-go-backend/repositories/UserRepositories"
 )
 
-func tourStrategy(userId uint, payload PlaceOrderPayload) {
-	err := UserRepositories.Order.CreateOrder(payload.StartPeriod, payload.EndPeriod, payload.PaymentMethod, userId)
+func tourStrategy(userId uint, payload PlaceOrderPayload) fiber.Map {
+	err := UserRepositories.Order.CreateOrder(payload.StartPeriod, payload.EndPeriod, payload.PaymentMethod, userId).
+		CreateTourOrder(payload.TourId)
 
-	fmt.Println(err)
+	if err != nil {
+		if carHandled := handleCarErrorResponse(err); carHandled != nil {
+			return carHandled
+		}
+
+		if driverHandled := handleDriverErrorResponse(err); driverHandled != nil {
+			return driverHandled
+		}
+
+		if errors.Is(err, UserRepositories.TourIsNotAvailableErr) {
+			return tourNotAvailable()
+		}
+
+		return orderErr(err)
+	}
+
+	return orderOk()
 }

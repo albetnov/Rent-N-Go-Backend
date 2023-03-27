@@ -49,6 +49,7 @@ func (o orderRepository) GetUserOrder(userId uint) ([]*models.Orders, error) {
 	return qo.
 		Scopes(orderPreload).
 		Where(qo.UserId.Eq(userId)).
+		Order(qo.Status).
 		Find()
 }
 
@@ -178,15 +179,47 @@ func (o orderRepository) CreateTourOrder(tourId uint) error {
 	if err != nil || stock <= 0 {
 		return TourIsNotAvailableErr
 	}
-	// this can be a goroutine.
-	if _, err := o.checkCar(tour.CarId); err != nil {
+
+	errCh := make(chan error)
+	wg := new(sync.WaitGroup)
+
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		if _, err := o.checkCar(tour.CarId); err != nil {
+			errCh <- err
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		if err := o.checkDriver(tour.DriverId); err != nil {
+			errCh <- err
+		}
+	}()
+
+	wg.Wait()
+	close(errCh)
+
+	if err := <-errCh; err != nil {
 		return err
 	}
 
-	if err := o.checkDriver(tour.DriverId); err != nil {
+	qo := query.Orders
+	if err := qo.Create(&models.Orders{
+		TourId:        &tourId,
+		Type:          "tour",
+		TotalAmount:   tour.Price,
+		StartPeriod:   o.startPeriod,
+		UserId:        o.userId,
+		EndPeriod:     o.endPeriod,
+		PaymentMethod: o.paymentMethod,
+		Status:        ORDER_ACTIVE,
+	}); err != nil {
 		return err
 	}
 
 	return nil
-
 }

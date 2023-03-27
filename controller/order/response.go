@@ -37,3 +37,10 @@ func carNotFound() fiber.Map {
 		"status":  fiber.StatusNotFound,
 	}
 }
+
+func tourNotAvailable() fiber.Map {
+	return fiber.Map{
+		"message": "The tour you've looking for is not longer available",
+		"status":  fiber.StatusBadRequest,
+	}
+}

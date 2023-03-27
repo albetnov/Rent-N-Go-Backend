@@ -72,7 +72,7 @@ func Place(c *fiber.Ctx) error {
 	} else if payload.Type == IsDriver {
 		res = orderStrategy.UseStrategy(driverStrategy)
 	} else {
-		//tourStrategy(res, mtx, userId, payload)
+		res = orderStrategy.UseStrategy(tourStrategy)
 	}
 	mtx.Unlock()
 
