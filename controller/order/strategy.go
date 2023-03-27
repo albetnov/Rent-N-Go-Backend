@@ -2,6 +2,10 @@ package order
 
 import "github.com/gofiber/fiber/v2"
 
+const IsCar = "car"
+const IsDriver = "driver"
+const IsTour = "tour"
+
 type strategy struct {
 	Payload PlaceOrderPayload
 	UserId  uint

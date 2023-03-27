@@ -21,4 +21,5 @@ type Orders struct {
 	User          UserModels.User
 	PaymentMethod string
 	Status        string
+	Type          string
 }

@@ -67,9 +67,9 @@ func Place(c *fiber.Ctx) error {
 
 	mtx.Lock()
 	orderStrategy.Build(payload, userId)
-	if payload.TourId == 0 && payload.DriverId == 0 {
+	if payload.Type == IsCar {
 		res = orderStrategy.UseStrategy(carStrategy)
-	} else if payload.TourId == 0 {
+	} else if payload.Type == IsDriver {
 		res = orderStrategy.UseStrategy(driverStrategy)
 	} else {
 		//tourStrategy(res, mtx, userId, payload)

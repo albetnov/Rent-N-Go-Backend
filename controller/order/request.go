@@ -7,4 +7,5 @@ type PlaceOrderPayload struct {
 	PaymentMethod string `json:"payment_method" validate:"required"`
 	StartPeriod   string `json:"start_period" validate:"required,ISO8601date"`
 	EndPeriod     string `json:"end_period" validate:"required,ISO8601date,afteriso=StartPeriod"`
+	Type          string `validate:"required,oneof=car driver tour"`
 }

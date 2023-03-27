@@ -30,3 +30,10 @@ func carNotAvailable() fiber.Map {
 		"status":  fiber.StatusBadRequest,
 	}
 }
+
+func carNotFound() fiber.Map {
+	return fiber.Map{
+		"message": "Car not found.",
+		"status":  fiber.StatusNotFound,
+	}
+}

@@ -7,6 +7,7 @@ import (
 	"rent-n-go-backend/query"
 	"rent-n-go-backend/repositories/ServiceRepositories"
 	"rent-n-go-backend/utils"
+	"sync"
 	"time"
 )
 
@@ -23,6 +24,7 @@ const ORDER_ACTIVE = "active"
 var CarIsOutOfStockErr = errors.New("the car is currently out of stock")
 var DriverIsNotAvailableErr = errors.New("driver is currently not available at the moment")
 var TourIsNotAvailableErr = errors.New("seems like tour has disappeared")
+var CarNotFound = errors.New("car not found")
 
 func (o *orderRepository) CreateOrder(startPeriod, endPeriod, paymentMethod string, userId uint) orderRepository {
 	o.startPeriod = utils.ParseISO8601Date(startPeriod)
@@ -62,19 +64,11 @@ func (o orderRepository) HasOrder(userId uint) bool {
 	return total > 0
 }
 
-func (o orderRepository) checkUser() error {
-	if _, err := User.GetById(o.userId); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (o orderRepository) checkCar(carId uint) (*models.Cars, error) {
 	currentStock, car, err := ServiceRepositories.Car.CheckStock(carId)
 
 	if err != nil {
-		return nil, err
+		return nil, CarNotFound
 	}
 
 	if currentStock == 0 {
@@ -93,10 +87,6 @@ func (o orderRepository) CreateCarOrder(carId uint) error {
 		return err
 	}
 
-	if err := o.checkUser(); err != nil {
-		return err
-	}
-
 	dayDiff := o.endPeriod.YearDay() - o.startPeriod.YearDay()
 
 	if err := qo.Create(&models.Orders{
@@ -107,6 +97,7 @@ func (o orderRepository) CreateCarOrder(carId uint) error {
 		EndPeriod:     o.endPeriod,
 		TotalAmount:   car.Price * dayDiff,
 		PaymentMethod: o.paymentMethod,
+		Type:          "car",
 	}); err != nil {
 		return err
 	}
@@ -123,15 +114,38 @@ func (o orderRepository) checkDriver(driverId uint) error {
 }
 
 func (o orderRepository) CreateDriverOrder(carId, driverId uint) error {
-	car, err := o.checkCar(carId)
+	errCh := make(chan error, 2)
+	carCh := make(chan *models.Cars)
+	var wg sync.WaitGroup
 
-	if err != nil {
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		result, err := o.checkCar(carId)
+		if err != nil {
+			errCh <- err
+			return
+		}
+		carCh <- result
+	}()
+
+	go func() {
+		defer wg.Done()
+		err := o.checkDriver(driverId)
+		if err != nil {
+			errCh <- err
+		}
+	}()
+
+	wg.Wait()
+	close(errCh)
+
+	if err := <-errCh; err != nil {
 		return err
 	}
 
-	if err := o.checkDriver(driverId); err != nil {
-		return err
-	}
+	car := <-carCh
 
 	driver, _ := ServiceRepositories.Driver.GetById(driverId)
 
@@ -150,6 +164,7 @@ func (o orderRepository) CreateDriverOrder(carId, driverId uint) error {
 		TotalAmount:   price,
 		PaymentMethod: o.paymentMethod,
 		DriverId:      &driverId,
+		Type:          "driver",
 	}); err != nil {
 		return err
 	}
@@ -158,12 +173,20 @@ func (o orderRepository) CreateDriverOrder(carId, driverId uint) error {
 }
 
 func (o orderRepository) CreateTourOrder(tourId uint) error {
-	//tour, err := ServiceRepositories.
-	stock, _, err := ServiceRepositories.Tour.CheckStock(tourId)
+	stock, tour, err := ServiceRepositories.Tour.CheckStock(tourId)
 
 	if err != nil || stock <= 0 {
 		return TourIsNotAvailableErr
 	}
+	// this can be a goroutine.
+	if _, err := o.checkCar(tour.CarId); err != nil {
+		return err
+	}
+
+	if err := o.checkDriver(tour.DriverId); err != nil {
+		return err
+	}
 
 	return nil
+
 }

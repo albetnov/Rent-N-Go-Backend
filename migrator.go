@@ -131,4 +131,39 @@ func seeder(db *gorm.DB, args string) {
 
 		db.Create(&user)
 	})
+
+	seedByModule(args, "CarModel", func() {
+		car := models.Cars{
+			Price: 100000,
+			Stock: 100,
+			Name:  "Some Name",
+			Desc:  "Some Description",
+		}
+
+		db.Create(&car)
+	})
+
+	seedByModule(args, "DriverModel", func() {
+		driver := models.Driver{
+			Desc:  "Seorang supir yang dapat di andalkan dan pro dalam membawa mobil",
+			Name:  "Delvin Jason",
+			Price: 50000,
+		}
+
+		db.Create(&driver)
+	})
+
+	seedByModule(args, "TourModel", func() {
+		tour := models.Tour{
+			Price:    5000000,
+			Name:     "Jalan-Jalan",
+			Desc:     "Stress kuliah? saya juga. Kenapa ga jalan2 aja? bo lui.",
+			Stock:    100,
+			DriverId: 1,
+			CarId:    1,
+			Duration: 7,
+		}
+
+		db.Create(&tour)
+	})
 }
