@@ -9,6 +9,7 @@ import (
 
 func ApiRoutes(r fiber.Router) {
 	utils.RegisterWithPrefix(r, AuthRoutes, "/auth")
+	utils.RegisterWithPrefix(r, CarsRoutes, "/cars")
 
 	r.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(viper.GetString("APP_KEY")),
@@ -23,6 +24,5 @@ func ApiRoutes(r fiber.Router) {
 	))
 
 	utils.RegisterWithPrefix(r, ProfileRoutes, "/profiles")
-	utils.RegisterWithPrefix(r, CarsRoutes, "/cars")
 	utils.RegisterWithPrefix(r, OrderRoutes, "/orders")
 }

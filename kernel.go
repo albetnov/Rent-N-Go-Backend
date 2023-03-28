@@ -11,6 +11,7 @@ import (
 	"rent-n-go-backend/query"
 	"rent-n-go-backend/utils"
 	"runtime"
+	"time"
 )
 
 /*
@@ -96,6 +97,13 @@ func RegisterViewFunc() map[string]interface{} {
 		},
 		"dec": func(a int) int {
 			return a - 1
+		},
+		"estimate": func(startDate time.Time, endDate time.Time) int {
+			startDate = time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, startDate.Location())
+			endDate = time.Date(endDate.Year(), endDate.Month(), endDate.Day(), 0, 0, 0, 0, endDate.Location())
+
+			diff := endDate.Sub(startDate)
+			return int(diff.Hours() / 24)
 		},
 	}
 }

@@ -28,6 +28,7 @@ func WebRoutes(r fiber.Router) {
 		adminRouter.Get("/dashboard", user.Dashboard)
 		utils.RegisterWithPrefix(adminRouter, admin.UsersModuleRoutes, "/users")
 		utils.RegisterWithPrefix(adminRouter, admin.ProfileRoutes, "/profile")
+		utils.RegisterWithPrefix(adminRouter, admin.OrderRoutes, "/orders")
 		adminRouter.Get("/logout", auth.Logout)
 	}, "admin", csrfMiddleware, auth.Authed)
 }

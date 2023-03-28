@@ -10,7 +10,7 @@ import (
 
 func Index(c *fiber.Ctx) error {
 	sess := utils.Session.Provide(c)
-	res := utils.Wrap(fiber.Map{}, nil, sess).Message().Error().Get()
+	res := utils.Wrap(fiber.Map{}, nil, sess).Message().Error().Validation().Get()
 	return admin.RenderTemplate(c, "profile", "Profile", res)
 }
 

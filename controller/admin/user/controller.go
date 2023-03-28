@@ -53,7 +53,10 @@ func Index(c *fiber.Ctx) error {
 		}, c, sess).Pagination(total).Search(search).Message().Error().Get())
 }
 
-func showUser(user *UserModels.User) fiber.Map {
+func showUser(c *fiber.Ctx, user *UserModels.User) fiber.Map {
+	user.Sim.FilePath = utils.FormatUrl(c, user.Sim.FilePath, "sim")
+	user.Photo.PhotoPath = utils.FormatUrl(c, user.Photo.PhotoPath, "user")
+
 	return fiber.Map{
 		"Name":        user.Name,
 		"Email":       user.Email,
@@ -85,7 +88,7 @@ func Show(c *fiber.Ctx) error {
 		return c.RedirectBack("/admin/users")
 	}
 
-	return admin.RenderTemplate(c, "users/show", fmt.Sprintf("%s Detail", user.Name), showUser(user))
+	return admin.RenderTemplate(c, "users/show", fmt.Sprintf("%s Detail", user.Name), showUser(c, user))
 }
 
 func Create(c *fiber.Ctx) error {
@@ -157,7 +160,7 @@ func Edit(c *fiber.Ctx) error {
 		return c.RedirectBack("/admin/users")
 	}
 
-	response := utils.Wrap(showUser(user), nil, utils.Session.Provide(c)).Error().Validation().Get()
+	response := utils.Wrap(showUser(c, user), nil, utils.Session.Provide(c)).Error().Validation().Get()
 
 	return admin.RenderTemplate(c, "users/form", fmt.Sprintf("Edit %s", user.Name), response)
 }

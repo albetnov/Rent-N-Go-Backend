@@ -62,28 +62,32 @@ func withTour(db gen.Dao) gen.Dao {
 		Preload(qo.Tour.Pictures.On(query.Pictures.Associate.Eq(BasicRepositories.Tour)))
 }
 
-func orderPreload(userId uint, filter string) func(db gen.Dao) gen.Dao {
-	qo := query.Orders
+func orderPreload(db gen.Dao) gen.Dao {
+	return db.
+		Scopes(withCar).
+		Scopes(withDriver).
+		Scopes(withTour)
 
-	return func(db gen.Dao) gen.Dao {
-		builder := db.
-			Scopes(withCar).
-			Scopes(withDriver).
-			Scopes(withTour).
-			Where(qo.UserId.Eq(userId))
-
-		if filter != "" {
-			builder = builder.Where(qo.Type.Eq(filter))
-		}
-
-		return builder
-	}
 }
 
 func (o orderRepository) GetUserOrder(userId uint, c *fiber.Ctx, filter string) ([]*models.Orders, int64, error) {
 	qo := query.Orders
 
-	builder := qo.Scopes(orderPreload(userId, filter))
+	builder := qo.Scopes(orderPreload)
+
+	if userId != 0 {
+		builder = builder.Where(qo.UserId.Eq(userId))
+	}
+
+	if filter != "" {
+		builder = builder.Where(qo.Type.Eq(filter))
+	}
+
+	total, err := builder.Count()
+
+	if err != nil {
+		return nil, 0, err
+	}
 
 	orders, err := builder.
 		Scopes(utils.Paginate(c)).
@@ -135,13 +139,6 @@ func (o orderRepository) GetUserOrder(userId uint, c *fiber.Ctx, filter string) 
 		}
 
 		wg.Wait()
-	}
-
-	total, err := qo.
-		Scopes(orderPreload(userId, filter)).Count()
-
-	if err != nil {
-		return nil, 0, err
 	}
 
 	return orders, total, err
