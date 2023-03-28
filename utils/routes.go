@@ -3,6 +3,8 @@ package utils
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"os"
+	"strings"
 )
 
 // RegisterWithPrefix
@@ -27,5 +29,8 @@ func GetCurrentUrl(c *fiber.Ctx) string {
 // FormatUrl
 // Format Asset Url to absolute path
 func FormatUrl(c *fiber.Ctx, fileName, moduleName string) string {
-	return fmt.Sprintf("%s/public/files/%s/%s", GetCurrentUrl(c), moduleName, fileName)
+	splitFileName := strings.Split(fileName, string(os.PathSeparator))
+	parsedFileName := splitFileName[len(splitFileName)-1]
+
+	return fmt.Sprintf("%s/public/files/%s/%s", GetCurrentUrl(c), moduleName, parsedFileName)
 }

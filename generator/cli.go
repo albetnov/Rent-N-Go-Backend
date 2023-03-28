@@ -21,13 +21,8 @@ func main() {
 
 	g.UseDB(utils.GetDb())
 
+	generateWithQuery(g.ApplyInterface)
 	g.ApplyBasic(lists.Models...)
-
-	if len(lists.Queries) > 0 {
-		for i, v := range lists.Queries {
-			g.ApplyInterface(i, v.([]interface{})...)
-		}
-	}
 
 	g.Execute()
 

@@ -5,7 +5,6 @@ import (
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 	"os"
-	"path"
 	"rent-n-go-backend/models/UserModels"
 	"rent-n-go-backend/query"
 	"rent-n-go-backend/utils"
@@ -74,8 +73,10 @@ func (ur userRepository) UpdateUserPhoto(userId uint, fileName string) {
 
 	preCond := qup.Where(qup.UserID.Eq(userId))
 
+	fileName = utils.AssetPath("user", fileName)
+
 	if result, err := preCond.First(); err == nil {
-		os.Remove(path.Join(utils.AssetPath("user"), result.PhotoPath))
+		os.Remove(result.PhotoPath)
 		preCond.Update(qup.PhotoPath, fileName)
 		return
 	}
@@ -133,13 +134,13 @@ func (ur userRepository) DeleteById(userId uint) error {
 	u.Select(u.Nik.Field()).Delete(currentUser)
 
 	if sim, err := u.Sim.Model(currentUser).Find(); err != nil {
-		os.Remove(path.Join(utils.AssetPath("sim"), sim.FilePath))
+		os.Remove(sim.FilePath)
 	}
 
 	u.Select(u.Sim.Field()).Delete(currentUser)
 
 	if photo, err := u.Photo.Model(currentUser).Find(); err != nil {
-		os.Remove(path.Join(utils.AssetPath("user"), photo.PhotoPath))
+		os.Remove(photo.PhotoPath)
 	}
 
 	u.Select(u.Photo.Field()).Delete(currentUser)

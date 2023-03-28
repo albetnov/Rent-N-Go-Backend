@@ -126,10 +126,12 @@ func UpdateSim(c *fiber.Ctx) error {
 	simPayload := UserModels.Sim{
 		UserID:     authId,
 		IsVerified: false,
-		FilePath:   fileName,
+		FilePath:   utils.AssetPath("sim", fileName),
 	}
 
 	UserRepositories.Sim.UpdateOrCreate(authId, &simPayload)
+
+	simPayload.FilePath = utils.FormatUrl(c, fileName, "sim")
 
 	return c.JSON(fiber.Map{
 		"message": "SIM updated successfully",

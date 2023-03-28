@@ -35,6 +35,16 @@ func (c car) buildGenericResult(data *models.Cars, features, pictures []fiber.Ma
 	}
 }
 
+func (c car) GetRandom() ([]fiber.Map, error) {
+	result, err := c.buildGetQuery().RandomizeWithLimit(6)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.MapToServiceable(result, c.buildGenericResult), nil
+}
+
 func (c car) GetAll(ctx *fiber.Ctx) ([]fiber.Map, error) {
 	result, err := c.buildGetQuery().
 		Scopes(utils.Paginate(ctx)).Find()

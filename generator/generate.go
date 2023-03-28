@@ -1,6 +1,7 @@
 package main
 
 import (
+	"gorm.io/gen"
 	"rent-n-go-backend/models"
 	"rent-n-go-backend/models/UserModels"
 )
@@ -14,7 +15,7 @@ func generateUserModel(lists *Generator) {
 }
 
 func generateServicesModel(lists *Generator) {
-	services := []any{models.Cars{}, models.Driver{}, models.Tour{}}
+	services := []any{models.Driver{}, models.Tour{}}
 
 	for _, v := range services {
 		lists.addModel(v)
@@ -35,4 +36,15 @@ func generate(lists *Generator) {
 	generateBasicModel(lists)
 	generateServicesModel(lists)
 	lists.addModel(models.Orders{})
+}
+
+func generateWithQuery(applier func(fc interface{}, models ...interface{})) {
+	type ScaffoldQuery interface {
+		// RandomizeWithLimit Randomize the data on the fly with given limit on MySQL
+		//
+		// SELECT * FROM @@table ORDER BY RAND() LIMIT @limit
+		RandomizeWithLimit(limit int) ([]*gen.T, error)
+	}
+
+	applier(func(ScaffoldQuery) {}, models.Cars{})
 }

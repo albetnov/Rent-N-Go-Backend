@@ -8,11 +8,30 @@ import (
 	"strconv"
 )
 
+func Recommendation(c *fiber.Ctx) error {
+	cars, err := ServiceRepositories.Car.GetRandom()
+
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "There's no recommended car for now",
+			"error":   true,
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"cars":    cars,
+		"message": "Recommendation fetched successfully",
+	})
+}
+
 func Index(c *fiber.Ctx) error {
 	cars, err := ServiceRepositories.Car.GetAll(c)
 
 	if err != nil {
-		return utils.SafeThrow(c, err)
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "Ups, no car available at the moment",
+			"error":   true,
+		})
 	}
 
 	total, err := query.Cars.Count()
