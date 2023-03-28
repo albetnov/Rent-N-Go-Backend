@@ -14,8 +14,8 @@ func handleDriverErrorResponse(err error) fiber.Map {
 	return nil
 }
 
-func driverStrategy(userId uint, payload PlaceOrderPayload) fiber.Map {
-	err := UserRepositories.Order.CreateOrder(payload.StartPeriod, payload.EndPeriod, payload.PaymentMethod, userId).
+func driverStrategy(c *fiber.Ctx, userId uint, payload PlaceOrderPayload) fiber.Map {
+	err := UserRepositories.Order.CreateOrder(c, payload.StartPeriod, payload.EndPeriod, payload.PaymentMethod, userId).
 		CreateDriverOrder(payload.CarId, payload.DriverId)
 
 	if err != nil {

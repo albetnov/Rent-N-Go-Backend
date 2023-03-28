@@ -9,16 +9,18 @@ const IsTour = "tour"
 type strategy struct {
 	Payload PlaceOrderPayload
 	UserId  uint
+	c       *fiber.Ctx
 }
 
-func (s *strategy) Build(payload PlaceOrderPayload, userId uint) strategy {
+func (s *strategy) Build(ctx *fiber.Ctx, payload PlaceOrderPayload, userId uint) strategy {
 	s.Payload = payload
 	s.UserId = userId
+	s.c = ctx
 	return *s
 }
 
-func (s strategy) UseStrategy(fn func(userId uint, payload PlaceOrderPayload) fiber.Map) fiber.Map {
-	return fn(s.UserId, s.Payload)
+func (s strategy) UseStrategy(fn func(c *fiber.Ctx, userId uint, payload PlaceOrderPayload) fiber.Map) fiber.Map {
+	return fn(s.c, s.UserId, s.Payload)
 }
 
 var orderStrategy = strategy{}

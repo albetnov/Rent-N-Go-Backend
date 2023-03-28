@@ -18,9 +18,9 @@ func handleCarErrorResponse(err error) fiber.Map {
 	return nil
 }
 
-func carStrategy(userId uint, payload PlaceOrderPayload) fiber.Map {
+func carStrategy(c *fiber.Ctx, userId uint, payload PlaceOrderPayload) fiber.Map {
 	err := UserRepositories.Order.
-		CreateOrder(payload.StartPeriod, payload.EndPeriod, payload.PaymentMethod, userId).
+		CreateOrder(c, payload.StartPeriod, payload.EndPeriod, payload.PaymentMethod, userId).
 		CreateCarOrder(payload.CarId)
 
 	if err != nil {

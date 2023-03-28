@@ -6,8 +6,8 @@ import (
 	"rent-n-go-backend/repositories/UserRepositories"
 )
 
-func tourStrategy(userId uint, payload PlaceOrderPayload) fiber.Map {
-	err := UserRepositories.Order.CreateOrder(payload.StartPeriod, payload.EndPeriod, payload.PaymentMethod, userId).
+func tourStrategy(c *fiber.Ctx, userId uint, payload PlaceOrderPayload) fiber.Map {
+	err := UserRepositories.Order.CreateOrder(c, payload.StartPeriod, payload.EndPeriod, payload.PaymentMethod, userId).
 		CreateTourOrder(payload.TourId)
 
 	if err != nil {

@@ -9,6 +9,12 @@ import (
 )
 
 type car struct {
+	c *fiber.Ctx
+}
+
+func (c *car) Ctx(ctx *fiber.Ctx) *car {
+	c.c = ctx
+	return c
 }
 
 func (c car) buildGetQuery() query.ICarsDo {
@@ -42,7 +48,7 @@ func (c car) GetRandom() ([]fiber.Map, error) {
 		return nil, err
 	}
 
-	return utils.MapToServiceable(result, c.buildGenericResult), nil
+	return utils.MapToServiceable(c.c, result, c.buildGenericResult), nil
 }
 
 func (c car) GetAll(ctx *fiber.Ctx) ([]fiber.Map, error) {
@@ -53,7 +59,7 @@ func (c car) GetAll(ctx *fiber.Ctx) ([]fiber.Map, error) {
 		return nil, err
 	}
 
-	return utils.MapToServiceable(result, c.buildGenericResult), nil
+	return utils.MapToServiceable(c.c, result, c.buildGenericResult), nil
 }
 
 func (c car) GetById(id uint) (fiber.Map, error) {
@@ -64,7 +70,7 @@ func (c car) GetById(id uint) (fiber.Map, error) {
 		return nil, err
 	}
 
-	return utils.MapToServiceableSingle(result, c.buildGenericResult), nil
+	return utils.MapToServiceableSingle(c.c, result, c.buildGenericResult), nil
 }
 
 func (c car) CheckStock(id uint) (int64, *models.Cars, error) {

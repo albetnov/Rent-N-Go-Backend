@@ -9,7 +9,7 @@ import (
 )
 
 func Recommendation(c *fiber.Ctx) error {
-	cars, err := ServiceRepositories.Car.GetRandom()
+	cars, err := ServiceRepositories.Car.Ctx(c).GetRandom()
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -25,7 +25,7 @@ func Recommendation(c *fiber.Ctx) error {
 }
 
 func Index(c *fiber.Ctx) error {
-	cars, err := ServiceRepositories.Car.GetAll(c)
+	cars, err := ServiceRepositories.Car.Ctx(c).GetAll(c)
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -57,7 +57,7 @@ func Show(c *fiber.Ctx) error {
 		})
 	}
 
-	car, err := ServiceRepositories.Car.GetById(uint(carId))
+	car, err := ServiceRepositories.Car.Ctx(c).GetById(uint(carId))
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{

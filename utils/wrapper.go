@@ -123,7 +123,7 @@ func (w *Wrapper) WithMeta(totalRecord int64) *Wrapper {
 	return w
 }
 
-func processItem(item reflect.Value) ([]fiber.Map, []fiber.Map) {
+func processItem(c *fiber.Ctx, item reflect.Value) ([]fiber.Map, []fiber.Map) {
 	var features []fiber.Map
 	var pictures []fiber.Map
 
@@ -136,23 +136,26 @@ func processItem(item reflect.Value) ([]fiber.Map, []fiber.Map) {
 
 	for _, p := range item.FieldByName("Pictures").Interface().([]models.Pictures) {
 		pictures = append(pictures, fiber.Map{
-			"file_name": p.FileName,
+			"file_name": FormatUrl(c, p.FileName, p.Associate),
 		})
 	}
 
 	return features, pictures
 }
 
-func MapToServiceableSingle[T comparable](data T,
+func MapToServiceableSingle[T comparable](
+	c *fiber.Ctx,
+	data T,
 	callback func(data T, features, pictures []fiber.Map) fiber.Map) fiber.Map {
 	arrOfData := reflect.Indirect(reflect.ValueOf(data))
 
-	features, pictures := processItem(arrOfData)
+	features, pictures := processItem(c, arrOfData)
 
 	return callback(data, features, pictures)
 }
 
 func MapToServiceable[T comparable](
+	c *fiber.Ctx,
 	data []T,
 	callback func(data T, features, pictures []fiber.Map) fiber.Map) []fiber.Map {
 	var result []fiber.Map
@@ -160,7 +163,7 @@ func MapToServiceable[T comparable](
 	arrOfData := reflect.ValueOf(data)
 
 	for i, v := range data {
-		features, pictures := processItem(reflect.Indirect(arrOfData.Index(i)))
+		features, pictures := processItem(c, reflect.Indirect(arrOfData.Index(i)))
 
 		result = append(result, callback(v, features, pictures))
 	}

@@ -10,6 +10,12 @@ import (
 )
 
 type driver struct {
+	c *fiber.Ctx
+}
+
+func (d *driver) Ctx(c *fiber.Ctx) *driver {
+	d.c = c
+	return d
 }
 
 func (d driver) buildGetQuery(db gen.Dao) gen.Dao {
@@ -43,7 +49,7 @@ func (d driver) GetById(id uint) (fiber.Map, error) {
 		return nil, err
 	}
 
-	return utils.MapToServiceableSingle(result, d.buildGenericResult), nil
+	return utils.MapToServiceableSingle(d.c, result, d.buildGenericResult), nil
 }
 
 func (d driver) CheckAvailability(id uint) bool {

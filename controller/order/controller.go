@@ -77,7 +77,7 @@ func Place(c *fiber.Ctx) error {
 	mtx := new(sync.Mutex)
 
 	mtx.Lock()
-	orderStrategy.Build(payload, userId)
+	orderStrategy.Build(c, payload, userId)
 	if payload.Type == IsCar {
 		res = orderStrategy.UseStrategy(carStrategy)
 	} else if payload.Type == IsDriver {

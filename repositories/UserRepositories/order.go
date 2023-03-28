@@ -2,7 +2,6 @@ package UserRepositories
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gen"
 	"rent-n-go-backend/models"
@@ -15,6 +14,7 @@ import (
 )
 
 type orderRepository struct {
+	c             *fiber.Ctx
 	startPeriod   time.Time
 	endPeriod     time.Time
 	userId        uint
@@ -29,11 +29,12 @@ var DriverIsNotAvailableErr = errors.New("driver is currently not available at t
 var TourIsNotAvailableErr = errors.New("seems like tour has disappeared")
 var CarNotFound = errors.New("car not found")
 
-func (o *orderRepository) CreateOrder(startPeriod, endPeriod, paymentMethod string, userId uint) orderRepository {
+func (o *orderRepository) CreateOrder(ctx *fiber.Ctx, startPeriod, endPeriod, paymentMethod string, userId uint) orderRepository {
 	o.startPeriod = utils.ParseISO8601Date(startPeriod)
 	o.endPeriod = utils.ParseISO8601Date(endPeriod)
 	o.paymentMethod = paymentMethod
 	o.userId = userId
+	o.c = ctx
 
 	return *o
 }
@@ -81,8 +82,6 @@ func orderPreload(userId uint, filter string) func(db gen.Dao) gen.Dao {
 
 func (o orderRepository) GetUserOrder(userId uint, c *fiber.Ctx, filter string) ([]*models.Orders, int64, error) {
 	qo := query.Orders
-
-	fmt.Println(filter)
 
 	builder := qo.Scopes(orderPreload(userId, filter))
 
@@ -161,7 +160,7 @@ func (o orderRepository) HasOrder(userId uint) bool {
 }
 
 func (o orderRepository) checkCar(carId uint) (*models.Cars, error) {
-	currentStock, car, err := ServiceRepositories.Car.CheckStock(carId)
+	currentStock, car, err := ServiceRepositories.Car.Ctx(o.c).CheckStock(carId)
 
 	if err != nil {
 		return nil, CarNotFound
@@ -202,7 +201,7 @@ func (o orderRepository) CreateCarOrder(carId uint) error {
 }
 
 func (o orderRepository) checkDriver(driverId uint) error {
-	if ServiceRepositories.Driver.CheckAvailability(driverId) {
+	if ServiceRepositories.Driver.Ctx(o.c).CheckAvailability(driverId) {
 		return DriverIsNotAvailableErr
 	}
 
@@ -243,7 +242,7 @@ func (o orderRepository) CreateDriverOrder(carId, driverId uint) error {
 
 	car := <-carCh
 
-	driver, _ := ServiceRepositories.Driver.GetById(driverId)
+	driver, _ := ServiceRepositories.Driver.Ctx(o.c).GetById(driverId)
 
 	dayDiff := o.endPeriod.YearDay() - o.startPeriod.YearDay()
 
@@ -269,7 +268,7 @@ func (o orderRepository) CreateDriverOrder(carId, driverId uint) error {
 }
 
 func (o orderRepository) CreateTourOrder(tourId uint) error {
-	stock, tour, err := ServiceRepositories.Tour.CheckStock(tourId)
+	stock, tour, err := ServiceRepositories.Tour.Ctx(o.c).CheckStock(tourId)
 
 	if err != nil || stock <= 0 {
 		return TourIsNotAvailableErr

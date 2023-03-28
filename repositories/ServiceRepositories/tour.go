@@ -10,6 +10,12 @@ import (
 )
 
 type tour struct {
+	c *fiber.Ctx
+}
+
+func (t *tour) Ctx(c *fiber.Ctx) *tour {
+	t.c = c
+	return t
 }
 
 func (t tour) buildGetQuery(db gen.Dao) gen.Dao {
@@ -52,7 +58,7 @@ func (t tour) GetById(id uint) (fiber.Map, error) {
 		return nil, err
 	}
 
-	return utils.MapToServiceableSingle(result, t.buildGenericResult), nil
+	return utils.MapToServiceableSingle(t.c, result, t.buildGenericResult), nil
 }
 
 func (t tour) CheckStock(id uint) (int64, *models.Tour, error) {
