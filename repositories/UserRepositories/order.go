@@ -105,13 +105,14 @@ func (o orderRepository) GetUserOrder(userId uint, c *fiber.Ctx, filter string) 
 	if filter == "" || filter == "tour" {
 		for _, v := range orders {
 			wg.Add(4)
-			go func(v *models.Orders) {
+			go func(v *models.Orders, c *fiber.Ctx) {
 				tourCarPictures, _ := query.Cars.Pictures.Where(qp.Associate.Eq(BasicRepositories.Car)).Model(&v.Tour.Car).Find()
 				for _, p := range tourCarPictures {
+					p.FileName = utils.FormatUrl(c, p.FileName, p.Associate)
 					v.Tour.Car.Pictures = append(v.Tour.Car.Pictures, *p)
 				}
 				wg.Done()
-			}(v)
+			}(v, c)
 
 			go func(v *models.Orders) {
 				tourCarFeatures, _ := query.Cars.Features.Where(qf.Associate.Eq(BasicRepositories.Car)).Model(&v.Tour.Car).Find()
@@ -121,13 +122,14 @@ func (o orderRepository) GetUserOrder(userId uint, c *fiber.Ctx, filter string) 
 				wg.Done()
 			}(v)
 
-			go func(v *models.Orders) {
+			go func(v *models.Orders, c *fiber.Ctx) {
 				tourDriverPictures, _ := query.Driver.Pictures.Where(qp.Associate.Eq(BasicRepositories.Driver)).Model(&v.Tour.Driver).Find()
 				for _, p := range tourDriverPictures {
+					p.FileName = utils.FormatUrl(c, p.FileName, p.Associate)
 					v.Tour.Driver.Pictures = append(v.Tour.Driver.Pictures, *p)
 				}
 				wg.Done()
-			}(v)
+			}(v, c)
 
 			go func(v *models.Orders) {
 				tourDriverFeatures, _ := query.Driver.Features.Where(qf.Associate.Eq(BasicRepositories.Driver)).Model(&v.Tour.Driver).Find()

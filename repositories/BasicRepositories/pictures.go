@@ -31,7 +31,7 @@ func (f picturesRepository) Insert(associate string, associateId uint, fileName 
 	err := query.Pictures.Create(&models.Pictures{
 		Associate:   associate,
 		AssociateId: int(associateId),
-		FileName:    utils.AssetPath(associate, fileName),
+		FileName:    fileName,
 	})
 
 	if err != nil {
@@ -46,7 +46,7 @@ func (f picturesRepository) DeleteById(id uint) (gen.ResultInfo, error) {
 	builder := qf.Where(qf.ID.Eq(id))
 
 	if result, err := builder.First(); err != nil {
-		os.Remove(result.FileName)
+		os.Remove(utils.AssetPath(result.Associate, result.FileName))
 	}
 
 	return builder.Delete()
@@ -62,7 +62,7 @@ func (f picturesRepository) DeleteByModuleId(associate string, associateId uint)
 
 	if result, err := builder.Find(); err != nil {
 		for _, v := range result {
-			os.Remove(v.FileName)
+			os.Remove(utils.AssetPath(v.Associate, v.FileName))
 		}
 	}
 
