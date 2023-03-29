@@ -1,0 +1,68 @@
+<div class="card p-3">
+    <div class="card-title">{{.Name}} Order Details</div>
+    <div class="card-body">
+        <div class="row row-cols-2">
+            {{if .Car.Name}}
+                <div class="col">
+                    <div class="card p-2">
+                        <div class="d-flex gap-5 flex-row">
+                            <img src="{{.Car.Picture}}" alt="car" class="w-75 object-fit-scale"/>
+                            <h2>{{.Car.Name}}</h2>
+                        </div>
+                        <hr>
+                        <div class="d-flex w-full justify-content-between">
+                            <p>{{.Car.Desc}}</p>
+                            <p>{{.Car.Price}}</p>
+                        </div>
+                    </div>
+                </div>
+            {{end}}
+            {{if .Driver.Name}}
+                <div class="col">
+                    <div class="card p-2">
+                        <div class="d-flex gap-5 flex-row">
+                            <img src="{{.Driver.Picture}}" alt="driver" class="w-75 object-fit-scale"/>
+                            <h2>{{.Driver.Name}}</h2>
+                        </div>
+                        <hr>
+                        <div class="d-flex w-full justify-content-between">
+                            <p>{{.Driver.Desc}}</p>
+                            <p>{{.Driver.Price}}</p>
+                        </div>
+                    </div>
+                </div>
+            {{end}}
+            {{if .Tour.Name}}
+                <div class="col">
+                    <div class="card p-2">
+                        <div class="d-flex gap-5 flex-row">
+                            <img src="{{.Tour.Picture}}" alt="tour" class="w-75 object-fit-scale"/>
+                            <h2>{{.Tour.Name}}</h2>
+                        </div>
+                        <hr>
+                        <div class="d-flex w-full justify-content-between">
+                            <p>{{.Tour.Desc}}</p>
+                            <p>{{.Tour.Price}}</p>
+                        </div>
+                    </div>
+                </div>
+            {{end}}
+        </div>
+
+        <div class="mt-5">
+            <div class="card p-3">
+                <ul>
+                    <li>Total Amount: {{.TotalAmount}}</li>
+                    <li>Status: {{.Status}}</li>
+                    <li>Type: {{.Type}}</li>
+                    <li>Payment Method: {{.PaymentMethod}}</li>
+                    <li>Start Rental Period: {{.StartPeriod}}</li>
+                    <li>End Rental Period: {{.EndPeriod}}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <a class="btn btn-sm btn-primary btn-rounded" href="/admin/orders"><i class="fas fa-arrow-left"></i></a>
+    </div>
+</div>

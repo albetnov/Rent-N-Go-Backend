@@ -7,4 +7,5 @@ import (
 
 func OrderRoutes(r fiber.Router) {
 	r.Get("/", order.Index)
+	r.Get("/:id", order.Show)
 }

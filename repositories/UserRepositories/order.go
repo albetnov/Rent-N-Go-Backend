@@ -70,6 +70,46 @@ func orderPreload(db gen.Dao) gen.Dao {
 
 }
 
+func (o orderRepository) mutate(c *fiber.Ctx, v *models.Orders, wg *sync.WaitGroup) {
+	qp := query.Pictures
+	qf := query.Features
+
+	wg.Add(4)
+	go func(v *models.Orders, c *fiber.Ctx) {
+		defer wg.Done()
+		tourCarPictures, _ := query.Cars.Pictures.Where(qp.Associate.Eq(BasicRepositories.Car)).Model(&v.Tour.Car).Find()
+		for _, p := range tourCarPictures {
+			p.FileName = utils.FormatUrl(c, p.FileName, p.Associate)
+			v.Tour.Car.Pictures = append(v.Tour.Car.Pictures, *p)
+		}
+	}(v, c)
+
+	go func(v *models.Orders) {
+		defer wg.Done()
+		tourCarFeatures, _ := query.Cars.Features.Where(qf.Associate.Eq(BasicRepositories.Car)).Model(&v.Tour.Car).Find()
+		for _, f := range tourCarFeatures {
+			v.Tour.Car.Features = append(v.Tour.Car.Features, *f)
+		}
+	}(v)
+
+	go func(v *models.Orders, c *fiber.Ctx) {
+		defer wg.Done()
+		tourDriverPictures, _ := query.Driver.Pictures.Where(qp.Associate.Eq(BasicRepositories.Driver)).Model(&v.Tour.Driver).Find()
+		for _, p := range tourDriverPictures {
+			p.FileName = utils.FormatUrl(c, p.FileName, p.Associate)
+			v.Tour.Driver.Pictures = append(v.Tour.Driver.Pictures, *p)
+		}
+	}(v, c)
+
+	go func(v *models.Orders) {
+		defer wg.Done()
+		tourDriverFeatures, _ := query.Driver.Features.Where(qf.Associate.Eq(BasicRepositories.Driver)).Model(&v.Tour.Driver).Find()
+		for _, f := range tourDriverFeatures {
+			v.Tour.Driver.Features = append(v.Tour.Driver.Features, *f)
+		}
+	}(v)
+}
+
 func (o orderRepository) GetUserOrder(userId uint, c *fiber.Ctx, filter string) ([]*models.Orders, int64, error) {
 	qo := query.Orders
 
@@ -99,51 +139,31 @@ func (o orderRepository) GetUserOrder(userId uint, c *fiber.Ctx, filter string) 
 	}
 
 	wg := new(sync.WaitGroup)
-	qp := query.Pictures
-	qf := query.Features
 
 	if filter == "" || filter == "tour" {
 		for _, v := range orders {
-			wg.Add(4)
-			go func(v *models.Orders, c *fiber.Ctx) {
-				tourCarPictures, _ := query.Cars.Pictures.Where(qp.Associate.Eq(BasicRepositories.Car)).Model(&v.Tour.Car).Find()
-				for _, p := range tourCarPictures {
-					p.FileName = utils.FormatUrl(c, p.FileName, p.Associate)
-					v.Tour.Car.Pictures = append(v.Tour.Car.Pictures, *p)
-				}
-				wg.Done()
-			}(v, c)
-
-			go func(v *models.Orders) {
-				tourCarFeatures, _ := query.Cars.Features.Where(qf.Associate.Eq(BasicRepositories.Car)).Model(&v.Tour.Car).Find()
-				for _, f := range tourCarFeatures {
-					v.Tour.Car.Features = append(v.Tour.Car.Features, *f)
-				}
-				wg.Done()
-			}(v)
-
-			go func(v *models.Orders, c *fiber.Ctx) {
-				tourDriverPictures, _ := query.Driver.Pictures.Where(qp.Associate.Eq(BasicRepositories.Driver)).Model(&v.Tour.Driver).Find()
-				for _, p := range tourDriverPictures {
-					p.FileName = utils.FormatUrl(c, p.FileName, p.Associate)
-					v.Tour.Driver.Pictures = append(v.Tour.Driver.Pictures, *p)
-				}
-				wg.Done()
-			}(v, c)
-
-			go func(v *models.Orders) {
-				tourDriverFeatures, _ := query.Driver.Features.Where(qf.Associate.Eq(BasicRepositories.Driver)).Model(&v.Tour.Driver).Find()
-				for _, f := range tourDriverFeatures {
-					v.Tour.Driver.Features = append(v.Tour.Driver.Features, *f)
-				}
-				wg.Done()
-			}(v)
+			o.mutate(c, v, wg)
 		}
 
 		wg.Wait()
 	}
 
 	return orders, total, err
+}
+
+func (o orderRepository) GetByOrderId(c *fiber.Ctx, orderId uint) (*models.Orders, error) {
+	qo := query.Orders
+
+	order, err := qo.Scopes(orderPreload).Where(qo.ID.Eq(orderId)).First()
+
+	if err != nil {
+		return nil, err
+	}
+	wg := new(sync.WaitGroup)
+	o.mutate(c, order, wg)
+	wg.Wait()
+
+	return order, nil
 }
 
 func activeOrder(db gen.Dao) gen.Dao {
