@@ -73,10 +73,8 @@ func (ur userRepository) UpdateUserPhoto(userId uint, fileName string) {
 
 	preCond := qup.Where(qup.UserID.Eq(userId))
 
-	fileName = utils.AssetPath("user", fileName)
-
 	if result, err := preCond.First(); err == nil {
-		os.Remove(result.PhotoPath)
+		os.Remove(utils.AssetPath("user", result.PhotoPath))
 		preCond.Update(qup.PhotoPath, fileName)
 		return
 	}
@@ -140,7 +138,7 @@ func (ur userRepository) DeleteById(userId uint) error {
 	u.Select(u.Sim.Field()).Delete(currentUser)
 
 	if photo, err := u.Photo.Model(currentUser).Find(); err != nil {
-		os.Remove(photo.PhotoPath)
+		os.Remove(utils.AssetPath("user", photo.PhotoPath))
 	}
 
 	u.Select(u.Photo.Field()).Delete(currentUser)

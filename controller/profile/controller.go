@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func getSim(sim UserModels.Sim) string {
+func getSim(c *fiber.Ctx, sim UserModels.Sim) string {
 	hasSim := "Not Uploaded"
 
 	if sim.ID > 0 {
@@ -18,6 +18,8 @@ func getSim(sim UserModels.Sim) string {
 			hasSim = "Not Verified"
 		}
 	}
+
+	sim.FilePath = utils.FormatUrl(c, sim.FilePath, "sim")
 
 	return hasSim
 }
@@ -61,7 +63,7 @@ func CurrentUser(c *fiber.Ctx) error {
 		"email": user.Email,
 		"role":  user.Role,
 		"nik":   getNik(user.Nik),
-		"sim":   getSim(user.Sim),
+		"sim":   getSim(c, user.Sim),
 	}
 
 	return c.JSON(fiber.Map{
@@ -126,7 +128,7 @@ func UpdateSim(c *fiber.Ctx) error {
 	simPayload := UserModels.Sim{
 		UserID:     authId,
 		IsVerified: false,
-		FilePath:   utils.AssetPath("sim", fileName),
+		FilePath:   fileName,
 	}
 
 	UserRepositories.Sim.UpdateOrCreate(authId, &simPayload)
