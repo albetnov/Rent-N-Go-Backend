@@ -69,6 +69,7 @@ func Place(c *fiber.Ctx) error {
 	if alreadyHasOrder := UserRepositories.Order.HasOrder(userId); alreadyHasOrder {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "You already have an order!",
+			"action":  "ALREADY_HAVE_ORDER",
 			"status":  fiber.StatusBadRequest,
 		})
 	}
@@ -88,4 +89,21 @@ func Place(c *fiber.Ctx) error {
 	mtx.Unlock()
 
 	return c.Status(res["status"].(int)).JSON(res)
+}
+
+func HasActive(c *fiber.Ctx) error {
+	userId := utils.GetUserId(c)
+	if alreadyHasOrder := UserRepositories.Order.HasOrder(userId); alreadyHasOrder {
+		return c.JSON(fiber.Map{
+			"message": "You already have an active order",
+			"action":  "ALREADY_HAVE_ORDER",
+			"status":  fiber.StatusOK,
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"message": "You don't have any active order",
+		"action":  "ORDER_NULL",
+		"status":  fiber.StatusOK,
+	})
 }

@@ -42,3 +42,7 @@ func Index(c *fiber.Ctx) error {
 
 	return admin.RenderTemplate(c, "order/index", "Orders List", res.Get())
 }
+
+func Show() {
+
+}

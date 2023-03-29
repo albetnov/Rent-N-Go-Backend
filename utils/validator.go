@@ -47,7 +47,7 @@ func customValidator() {
 			return false
 		}
 
-		if parsedTime.Before(time.Now()) {
+		if parsedTime.YearDay() < time.Now().YearDay() && parsedTime.Year() == time.Now().Year() {
 			return false
 		}
 
@@ -67,7 +67,7 @@ func customValidator() {
 			return false
 		}
 		// exactly one day after start. No matter the hours difference.
-		return endDate.YearDay() == startDate.YearDay()+1 && endDate.Year() == startDate.Year()
+		return endDate.YearDay() >= startDate.YearDay()+1 && endDate.Year() == startDate.Year()
 	})
 }
 
