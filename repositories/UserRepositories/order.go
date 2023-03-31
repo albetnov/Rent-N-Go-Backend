@@ -345,3 +345,11 @@ func (o orderRepository) UpdateOrderStatus(orderId uint, status string) error {
 
 	return err
 }
+
+func (o orderRepository) DeleteOrder(orderId uint) error {
+	qo := query.Orders
+
+	_, err := qo.Where(qo.ID.Eq(orderId)).Delete()
+
+	return err
+}

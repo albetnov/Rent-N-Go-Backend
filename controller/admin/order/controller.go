@@ -40,7 +40,7 @@ func Index(c *fiber.Ctx) error {
 		data["Orders"] = order
 	}
 
-	res := utils.Wrap(data, c, utils.Session.Provide(c)).Pagination(total).Message().Search(search)
+	res := utils.Wrap(data, c, utils.Session.Provide(c)).Pagination(total).Message().Search(search).Csrf()
 
 	return admin.RenderTemplate(c, "order/index", "Orders List", res.Get())
 }
@@ -130,5 +130,24 @@ func UpdateStatus(c *fiber.Ctx) error {
 	}
 
 	sess.SetSession("message", "Order Status Updated Successfully!")
+	return c.RedirectBack("/admin/orders")
+}
+
+func DeleteOrder(c *fiber.Ctx) error {
+	orderId, err := strconv.Atoi(c.Params("id"))
+
+	sess := utils.Session.Provide(c)
+
+	if err != nil {
+		sess.SetSession("error", err.Error())
+		return c.RedirectBack("/admin/orders")
+	}
+
+	if err := UserRepositories.Order.DeleteOrder(uint(orderId)); err != nil {
+		sess.SetSession("error", err.Error())
+		return c.RedirectBack("/admin/orders")
+	}
+
+	sess.SetSession("message", "Order has been deleted!")
 	return c.RedirectBack("/admin/orders")
 }
