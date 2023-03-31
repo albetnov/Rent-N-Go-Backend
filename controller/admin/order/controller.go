@@ -30,7 +30,7 @@ func Index(c *fiber.Ctx) error {
 
 	total, _ := builder.Count()
 
-	order, err := builder.Find()
+	order, err := builder.Scopes(utils.Paginate(c)).Order(qo.Status).Find()
 
 	data := fiber.Map{
 		"Orders": nil,
@@ -65,7 +65,8 @@ func Show(c *fiber.Ctx) error {
 
 	order, err := UserRepositories.Order.GetByOrderId(c, uint(orderId))
 
-	return admin.RenderTemplate(c, "order/show", "Order Detail", fiber.Map{
+	res := utils.Wrap(fiber.Map{
+		"ID":   order.ID,
 		"Name": order.User.Name,
 		"Car": fiber.Map{
 			"Picture": getPicture(order.Car.Pictures),
@@ -91,5 +92,43 @@ func Show(c *fiber.Ctx) error {
 		"PaymentMethod": order.PaymentMethod,
 		"StartPeriod":   order.StartPeriod,
 		"EndPeriod":     order.EndPeriod,
-	})
+	}, c, sess).Csrf().Error().Message()
+
+	return admin.RenderTemplate(c, "order/show", "Order Detail", res.Get())
+}
+
+func UpdateStatus(c *fiber.Ctx) error {
+	orderId, err := strconv.Atoi(c.Params("id"))
+
+	sess := utils.Session.Provide(c)
+	if err != nil {
+		sess.SetSession("error", err.Error())
+		return c.RedirectBack("/admin/orders")
+	}
+
+	isComplete := c.FormValue("complete")
+	isCancel := c.FormValue("cancel")
+	isActive := c.FormValue("active")
+
+	status := UserRepositories.ORDER_ACTIVE
+
+	if isComplete != "" {
+		status = UserRepositories.ORDER_COMPLETED
+	}
+
+	if isCancel != "" {
+		status = UserRepositories.ORDER_CANCELLED
+	}
+
+	if isActive != "" {
+		status = UserRepositories.ORDER_ACTIVE
+	}
+
+	if err := UserRepositories.Order.UpdateOrderStatus(uint(orderId), status); err != nil {
+		sess.SetSession("error", err.Error())
+		return c.RedirectBack("/admin/orders")
+	}
+
+	sess.SetSession("message", "Order Status Updated Successfully!")
+	return c.RedirectBack("/admin/orders")
 }

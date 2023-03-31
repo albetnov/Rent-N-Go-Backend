@@ -1,6 +1,10 @@
 <div class="card p-3">
     <div class="card-title">{{.Name}} Order Details</div>
     <div class="card-body">
+        <div class="my-3 p-1 mx-auto">
+            {{template "components/error" .}}
+            {{template "components/message" .}}
+        </div>
         <div class="row row-cols-2">
             {{if .Car.Name}}
                 <div class="col">
@@ -61,6 +65,21 @@
                 </ul>
             </div>
         </div>
+
+        <form class="mt-5 flex-row gap-3" method="post" action="/admin/orders/update/status/{{.ID}}">
+            {{template "components/csrf" .}}
+            {{if eq .Status "completed"}}
+                <button class="btn btn-primary" type="submit" name="active" value="active">Mark as Active</button>
+                <button class="btn btn-secondary" type="submit" name="cancel" value="cancel">Mark as Cancelled</button>
+                {{else if eq .Status "cancelled"}}
+                <button class="btn btn-primary" type="submit" name="active" value="active">Mark as Active</button>
+                <button class="btn btn-secondary" type="submit" name="complete" value="complete">Mark as Complete
+                </button>
+            {{else}}
+                <button class="btn btn-primary" type="submit" name="complete" value="complete">Complete Order</button>
+                <button class="btn btn-secondary" type="submit" name="cancel" value="cancel">Cancel Order</button>
+            {{end}}
+        </form>
     </div>
     <div class="card-footer">
         <a class="btn btn-sm btn-primary btn-rounded" href="/admin/orders"><i class="fas fa-arrow-left"></i></a>

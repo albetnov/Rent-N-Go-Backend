@@ -5,3 +5,4 @@ query/
 node_modules/
 public/files/
 tmp/
+bin/air

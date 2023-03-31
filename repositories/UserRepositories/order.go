@@ -23,6 +23,7 @@ type orderRepository struct {
 
 const ORDER_COMPLETED = "completed"
 const ORDER_ACTIVE = "active"
+const ORDER_CANCELLED = "cancelled"
 
 var CarIsOutOfStockErr = errors.New("the car is currently out of stock")
 var DriverIsNotAvailableErr = errors.New("driver is currently not available at the moment")
@@ -167,7 +168,7 @@ func (o orderRepository) GetByOrderId(c *fiber.Ctx, orderId uint) (*models.Order
 }
 
 func activeOrder(db gen.Dao) gen.Dao {
-	return db.Where(query.Orders.Status.Neq(ORDER_COMPLETED))
+	return db.Where(query.Orders.Status.Eq(ORDER_ACTIVE))
 }
 
 func (o orderRepository) HasOrder(userId uint) bool {
@@ -335,4 +336,12 @@ func (o orderRepository) CreateTourOrder(tourId uint) error {
 	}
 
 	return nil
+}
+
+func (o orderRepository) UpdateOrderStatus(orderId uint, status string) error {
+	qo := query.Orders
+
+	_, err := qo.Where(qo.ID.Eq(orderId)).Update(qo.Status, status)
+
+	return err
 }
