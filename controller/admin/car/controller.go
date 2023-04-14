@@ -1,6 +1,7 @@
 package car
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"rent-n-go-backend/controller/admin"
 	"rent-n-go-backend/models"
@@ -57,4 +58,26 @@ func Index(c *fiber.Ctx) error {
 	}, c, sess).Pagination(total).Search(search).Message().Error()
 
 	return admin.RenderTemplate(c, "car/index", "Manage Cars", res.Get())
+}
+
+func Show(c *fiber.Ctx) error {
+	carId, err := strconv.Atoi(c.Params("id"))
+
+	sess := utils.Session.Provide(c)
+
+	if err != nil {
+		sess.SetSession("error", err.Error())
+		return c.RedirectBack("/admin/cars")
+	}
+
+	id := uint(carId)
+
+	car, err := ServiceRepositories.Car.Ctx(c).GetById(id)
+
+	if err != nil {
+		sess.SetSession("error", "Ups car not found")
+		return c.RedirectBack("/admin/cars")
+	}
+
+	return admin.RenderTemplate(c, "car/show", fmt.Sprintf("%s Detail", car["name"]), car)
 }
