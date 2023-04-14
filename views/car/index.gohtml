@@ -1,0 +1,43 @@
+<div class="card p-3">
+    <div class="card-title">Manage Cars</div>
+    <div class="card-body">
+        <a href="/admin/users/create" class="btn btn-primary"><i class="fas fa-user-plus"></i> Create Car</a>
+        {{template "components/searchbar" .}}
+        {{template "components/error" .}}
+        {{template "components/message" .}}
+        <div class="table-responsive">
+            <table class="table">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{$holdqtys := .Stocks}}
+                {{range .Cars}}
+                {{$holdqty := index $holdqtys .ID}}
+                    <tr>
+                        <td>{{.Name}}</td>
+                        <td>{{.Price}}</td>
+                        <td>{{.Stock}}
+                            {{if gt $holdqty 0}}
+                            ({{$holdqty}})
+                            {{end}}
+                        </td>
+                        <td class="text-center">
+                            <a class="btn btn-sm btn-primary" href="/admin/cars/{{.ID}}"><i class="fas fa-eye"></i></a>
+                            <a class="btn btn-sm btn-info" href="/admin/cars/edit/{{.ID}}"><i class="fas fa-edit"></i></a>
+                            <a class="btn btn-sm btn-danger" href="/admin/cars/delete/{{.ID}}"
+                               onclick="confirm('Are you sure?')"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                {{end}}
+                </tbody>
+            </table>
+            {{template "components/pagination" .}}
+        </div>
+    </div>
+</div>
