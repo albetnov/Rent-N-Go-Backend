@@ -43,6 +43,13 @@ func Refresh(c *fiber.Ctx) error {
 
 	refreshToken, err := UserRepositories.RefreshToken.GetByUserId(id)
 
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Refresh token invalid.",
+			"action":  "INVALID_TOKEN",
+		})
+	}
+
 	UserRepositories.RefreshToken.DeleteByTokenId(refreshToken.ID)
 
 	if refreshToken.ExpiredAt.Before(time.Now()) {

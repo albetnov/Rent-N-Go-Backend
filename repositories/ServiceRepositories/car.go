@@ -27,6 +27,8 @@ func (c car) buildGetQuery() query.ICarsDo {
 }
 
 func (c car) buildGenericResult(data *models.Cars, features, pictures []fiber.Map) fiber.Map {
+	stock, _, _ := c.CheckStock(data.ID)
+
 	return fiber.Map{
 		"id":         data.ID,
 		"name":       data.Name,
@@ -38,6 +40,7 @@ func (c car) buildGenericResult(data *models.Cars, features, pictures []fiber.Ma
 		"created_at": data.CreatedAt,
 		"updated_at": data.UpdatedAt,
 		"deleted_at": data.DeletedAt,
+		"hold_stock": stock,
 	}
 }
 
