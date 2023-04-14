@@ -81,3 +81,22 @@ func Show(c *fiber.Ctx) error {
 
 	return admin.RenderTemplate(c, "car/show", fmt.Sprintf("%s Detail", car["name"]), car)
 }
+
+func Create(c *fiber.Ctx) error {
+	return admin.RenderTemplate(c, "car/form", "Create",
+		utils.Wrap(fiber.Map{}, nil, utils.Session.Provide(c)).Validation().Get())
+}
+
+func Store(c *fiber.Ctx) error {
+	payload := utils.GetPayload[CarPayload](c)
+
+	_, err := utils.SaveFileFromPayload(c, "pictures", "cars")
+
+	if err != nil {
+		return c.JSON(fiber.Map{"error": "fotonya mana cuk!"})
+	}
+
+	fmt.Println(payload)
+
+	return c.JSON(fiber.Map{"oke": "oke"})
+}

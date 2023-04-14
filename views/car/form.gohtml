@@ -1,73 +1,56 @@
 <div class="card p-5">
-    <div class="card-title">{{when .ID "Edit" "Create"}}</div>
+    <div class="card-title">{{when .id "Edit" "Create"}}</div>
     <div class="card-body">
         {{template "components/validation" .}}
         {{template "components/error" .}}
         {{template "components/message" .}}
-        <form action="{{when .ID (printf "/admin/users/edit/%d" .ID) "/admin/users/create"}}" method="post" enctype="multipart/form-data">
+        <form action="{{when .id (printf "/admin/cars/edit/%d" .id) "/admin/cars/create"}}" method="post"
+              enctype="multipart/form-data">
             {{template "components/csrf" .}}
             <div class="form-group mb-2">
                 <label for="name">Name:</label>
-                <input id="name" name="name" placeholder="Your name here" value="{{when .ID .Name ""}}"
+                <input id="name" name="name" placeholder="Your name here" value="{{when .id .name ""}}"
                        class="form-control"/>
             </div>
             <div class="form-group mb-2">
-                <label for="email">Email:</label>
-                <input id="email" name="email" placeholder="Your email here" value="{{when .ID .Email ""}}"
+                <label for="price">Price:</label>
+                <input id="price" name="price" placeholder="Your price here" value="{{when .id .price ""}}"
                        class="form-control"/>
             </div>
             <div class="form-group mb-2">
-                <label for="phone_number">Phone Number:</label>
-                <input id="phone_number" name="phone_number" placeholder="0388494292" type="number"
-                       value="{{when .PhoneNumber .PhoneNumber ""}}" class="form-control">
+                <label for="stock">Stock:</label>
+                <input id="stock" name="stock" placeholder="99" type="number"
+                       value="{{when .stock .stock ""}}" class="form-control">
             </div>
             <div class="form-group mb-2">
-                <label for="role">
-                    Role:
-                    <select class="form-control" id="role" name="role">
-                        <option {{if eq .Role "admin"}} selected {{end}} value="admin">Admin</option>
-                        <option {{if eq .Role "user"}} selected {{end}} value="user">User</option>
-                    </select>
-                </label>
+                <label for="desc">Description:</label>
+                <textarea class="form-control" id="desc" placeholder="Description" name="desc">{{when .desc .desc ""}}</textarea>
             </div>
 
             <div class="form-group mb-2">
-                <label for="photo">Profile Picture</label><br />
-                {{if .Photo}}
-                    {{if gt .Photo.ID 0}}
-                        <img src="/public/files/user/{{.Photo.PhotoPath}}" alt="user" class="my-3 w-50 object-fit-cover"/>
+                <label>Features:</label>
+                <button class="btn btn-primary" id="add-feature-btn" type="button">Add Feature</button>
+                <div id="features-wrapper">
+                    {{if .features}}
+                        {{range $index, $el := .features}}
+                            <input class="form-control mt-3 mb-2" name="features-icon"
+                                   value="{{$el.icon}}">
+                            <input class="form-control" name="features-label"
+                                   value="{{$el.label}}">
+                        {{end}}
+                    {{end}}
+                </div>
+            </div>
+
+            <div class="form-group mb-2">
+                <label>Pictures:</label>
+                {{if .pictures}}
+                    <p>Current Picture:</p>
+                    {{range .pictures}}
+                        <img src="{{.file_name}}" class="w-50 object-fit-scale" alt="car"/>
                     {{end}}
                 {{end}}
-                <input type="file" name="photo" id="photo" class="form-control">
-            </div>
-
-            <div class="form-group mb-2">
-                <label for="sim">SIM</label><br/>
-                {{if .SIM}}
-                    {{if gt .SIM.ID 0}}
-                        <img src="/public/files/sim/{{.SIM.FilePath}}" alt="sim" class="my-3 w-50 object-fit-cover"/>
-                    {{end}}
-                {{end}}
-                <input type="file" name="sim" id="sim" class="form-control">
-            </div>
-
-            <div class="form-group mb-2">
-                <label for="nik">NIK</label>
-                {{$nikNumber := ""}}
-                {{if .NIK}}
-                    {{if gt .NIK.ID 0}}
-                        {{$nikNumber = .NIK.Nik}}
-                    {{end}}
-                {{end}}
-                <input id="nik" name="nik" class="form-control" value="{{$nikNumber}}"/>
-            </div>
-
-            <div class="form-group mb-2">
-                {{if .ID}}
-                    <div class="alert alert-info">Left empty if you don't want to change the password.</div>
-                {{end}}
-                <label for="password">Password</label>
-                <input type="password" name="password" class="form-control" id="password">
+                <input type="file" name="pictures" class="form-control" multiple/>
             </div>
 
             <button type="submit" class="btn btn-rounded btn-primary mt-3"><i class="fas fa-paper-plane"></i></button>
@@ -75,3 +58,22 @@
         <a class="btn btn-secondary btn-sm mt-5" href="/admin/users"><i class="fas fa-arrow-left"></i></a>
     </div>
 </div>
+
+<script>
+    const fbtn = document.querySelector("#add-feature-btn")
+    const fwrapper = document.querySelector("#features-wrapper")
+
+    fbtn.addEventListener("click", () => {
+        const elIcon = document.createElement("input")
+        elIcon.setAttribute("class", "form-control mt-3 mb-2")
+        elIcon.setAttribute("name", `features-icon`)
+        elIcon.setAttribute("placeholder", "Icon Key String")
+
+        const elLabel = document.createElement("input")
+        elLabel.setAttribute("class", "form-control")
+        elLabel.setAttribute("name", `features-label`)
+        elLabel.setAttribute("placeholder", "Icon Label")
+        fwrapper.appendChild(elIcon)
+        fwrapper.appendChild(elLabel)
+    })
+</script>

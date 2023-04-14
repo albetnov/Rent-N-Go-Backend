@@ -161,7 +161,7 @@ func InterceptWebRequest(ref any) func(c *fiber.Ctx) error {
 
 // GetPayload
 // Smartly get a payload from locals and map them into given struct.
-func GetPayload[T comparable](c *fiber.Ctx) T {
+func GetPayload[T any](c *fiber.Ctx) T {
 	payload := *c.Locals(BODY_DATA).(*T)
 
 	return payload
