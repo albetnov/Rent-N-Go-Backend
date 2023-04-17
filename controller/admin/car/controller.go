@@ -127,3 +127,100 @@ func Store(c *fiber.Ctx) error {
 
 	return c.RedirectBack("/admin/cars")
 }
+
+func Edit(c *fiber.Ctx) error {
+	carId, err := strconv.Atoi(c.Params("id"))
+
+	sess := utils.Session.Provide(c)
+
+	if err != nil {
+		sess.SetSession("error", err.Error())
+		return c.RedirectBack("/admin/cars")
+	}
+
+	id := uint(carId)
+
+	car, err := ServiceRepositories.Car.Ctx(c).GetById(id)
+
+	if err != nil {
+		sess.SetSession("error", "Ups car not found")
+		return c.RedirectBack("/admin/cars")
+	}
+
+	response := utils.Wrap(car, nil, utils.Session.Provide(c)).Error().Validation()
+
+	return admin.RenderTemplate(c, "car/form", fmt.Sprintf("%s Edit", car["name"]), response.Get())
+}
+
+func Update(c *fiber.Ctx) error {
+	carId, err := strconv.Atoi(c.Params("id"))
+
+	sess := utils.Session.Provide(c)
+
+	if err != nil {
+		sess.SetSession("error", err.Error())
+		return c.RedirectBack("/admin/cars")
+	}
+
+	id := uint(carId)
+
+	car, err := ServiceRepositories.Car.Ctx(c).GetById(id)
+
+	if err != nil {
+		sess.SetSession("error", "Ups car not found")
+		return c.RedirectBack("/admin/cars")
+	}
+
+	payload := utils.GetPayload[CarPayload](c)
+
+	qc := query.Cars
+	if _, err := qc.Where(qc.ID.Eq(car["id"].(uint))).Updates(&models.Cars{
+		Name:  payload.Name,
+		Price: payload.Price,
+		Stock: payload.Stock,
+		Desc:  payload.Desc,
+	}); err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
+	sess.SetSession("message", "Car updated successfully")
+
+	return c.RedirectBack("/admin/cars")
+}
+
+func Delete(c *fiber.Ctx) error {
+	carId, err := strconv.Atoi(c.Params("id"))
+
+	sess := utils.Session.Provide(c)
+
+	if err != nil {
+		sess.SetSession("error", err.Error())
+		return c.RedirectBack("/admin/cars")
+	}
+
+	id := uint(carId)
+
+	car, err := ServiceRepositories.Car.Ctx(c).GetById(id)
+
+	if err != nil {
+		sess.SetSession("error", "Ups car not found")
+		return c.RedirectBack("/admin/cars")
+	}
+
+	if _, err := BasicRepositories.Features.DeleteByModuleId(BasicRepositories.Car, car["id"].(uint)); err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
+	if _, err := BasicRepositories.Pictures.DeleteByModuleId(BasicRepositories.Car, car["id"].(uint)); err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
+	qc := query.Cars
+
+	if _, err := qc.Where(qc.ID.Eq(car["id"].(uint))).Delete(); err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
+	sess.SetSession("message", "Car deleted successfully")
+	return c.RedirectBack("/admin/cars")
+}
