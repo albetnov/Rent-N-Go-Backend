@@ -6,6 +6,7 @@ import (
 	"rent-n-go-backend/controller/admin"
 	"rent-n-go-backend/models"
 	"rent-n-go-backend/query"
+	"rent-n-go-backend/repositories/BasicRepositories"
 	"rent-n-go-backend/repositories/ServiceRepositories"
 	"rent-n-go-backend/utils"
 	"strconv"
@@ -90,13 +91,39 @@ func Create(c *fiber.Ctx) error {
 func Store(c *fiber.Ctx) error {
 	payload := utils.GetPayload[CarPayload](c)
 
-	_, err := utils.SaveFileFromPayload(c, "pictures", "cars")
+	fileNames, err := utils.SaveMultiFilesFromPayload(c, "pictures", "cars")
+
+	detail := "Car added successfully!"
 
 	if err != nil {
-		return c.JSON(fiber.Map{"error": "fotonya mana cuk!"})
+		detail = detail + " But, Some photos failed to upload."
 	}
 
-	fmt.Println(payload)
+	sess := utils.Session.Provide(c)
+	sess.SetSession("message", detail)
 
-	return c.JSON(fiber.Map{"oke": "oke"})
+	car := &models.Cars{
+		Name:  payload.Name,
+		Price: payload.Price,
+		Stock: payload.Stock,
+		Desc:  payload.Desc,
+	}
+
+	if err := query.Cars.Create(car); err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
+	for _, fileName := range fileNames {
+		if err := BasicRepositories.Pictures.Insert(BasicRepositories.Car, car.ID, fileName); err != nil {
+			return utils.SafeThrow(c, err)
+		}
+	}
+
+	for i, featureIcon := range payload.FeaturesIcon {
+		if err := BasicRepositories.Features.Insert(BasicRepositories.Car, car.ID, featureIcon, payload.FeaturesLabel[i]); err != nil {
+			return utils.SafeThrow(c, err)
+		}
+	}
+
+	return c.RedirectBack("/admin/cars")
 }

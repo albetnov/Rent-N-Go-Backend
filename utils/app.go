@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"errors"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
@@ -8,6 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"math/rand"
+	"mime/multipart"
 	"os"
 	"path"
 	"time"
@@ -145,15 +148,7 @@ func GetUserId(c *fiber.Ctx) uint {
 	return authId
 }
 
-// SaveFileFromPayload
-// Simplify image saving by automatic salt and validate the given file.
-func SaveFileFromPayload(c *fiber.Ctx, payload string, assetDirectory string) (string, error) {
-	file, err := c.FormFile(payload)
-
-	if err != nil {
-		return "", err
-	}
-
+func validateAndSaveFile(c *fiber.Ctx, file *multipart.FileHeader, assetDirectory string) (string, error) {
 	reader, err := file.Open()
 	if err != nil {
 		return "", err
@@ -180,6 +175,47 @@ func SaveFileFromPayload(c *fiber.Ctx, payload string, assetDirectory string) (s
 	c.SaveFile(file, path.Join(AssetPath(assetDirectory), fileName))
 
 	return fileName, nil
+}
+
+// SaveFileFromPayload
+// Simplify image saving by automatic salt and validate the given file.
+func SaveFileFromPayload(c *fiber.Ctx, payload string, assetDirectory string) (string, error) {
+	file, err := c.FormFile(payload)
+
+	if err != nil {
+		return "", err
+	}
+
+	return validateAndSaveFile(c, file, assetDirectory)
+}
+
+// SaveMultiFileFromPayload
+// Simply multiple image saving by automatically salt and validate each given files from payload
+func SaveMultiFilesFromPayload(c *fiber.Ctx, payload string, assetDirectory string) ([]string, error) {
+	form, err := c.MultipartForm()
+
+	if err != nil {
+		return nil, err
+	}
+
+	files := form.File[payload]
+
+	if len(files) <= 0 {
+		return nil, errors.New(fmt.Sprintf("Invalid. No %s being provided.", payload))
+	}
+
+	fileNames := []string{}
+
+	for _, file := range files {
+		fileName, err := validateAndSaveFile(c, file, assetDirectory)
+		if err != nil {
+			return fileNames, err
+		}
+
+		fileNames = append(fileNames, fileName)
+	}
+
+	return fileNames, nil
 }
 
 func ParseISO8601Date(date string) time.Time {

@@ -5,6 +5,6 @@ type CarPayload struct {
 	Stock         int      `validate:"required,numeric"`
 	Desc          string   `validate:"required"`
 	Price         int      `validate:"required,numeric"`
-	FeaturesIcon  []string `validate:"required" form:"features-icon" `
+	FeaturesIcon  []string `validate:"required" form:"features-icon"`
 	FeaturesLabel []string `validate:"required" form:"features-label"`
 }
