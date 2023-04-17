@@ -24,34 +24,39 @@
             </div>
             <div class="form-group mb-2">
                 <label for="desc">Description:</label>
-                <textarea class="form-control" id="desc" placeholder="Description" name="desc">{{when .desc .desc ""}}</textarea>
+                <textarea class="form-control" id="desc" placeholder="Description"
+                          name="desc">{{when .desc .desc ""}}</textarea>
             </div>
 
-            <div class="form-group mb-2">
-                <label>Features:</label>
-                <button class="btn btn-primary" id="add-feature-btn" type="button">Add Feature</button>
-                <div id="features-wrapper">
-                    {{if .features}}
-                        {{range $index, $el := .features}}
-                            <input class="form-control mt-3 mb-2" name="features-icon"
-                                   value="{{$el.icon}}">
-                            <input class="form-control" name="features-label"
-                                   value="{{$el.label}}">
+            {{if not .id}}
+                <div class="form-group mb-2">
+                    <label>Features:</label>
+                    <button class="btn btn-primary" id="add-feature-btn" type="button">Add Feature</button>
+                    <div id="features-wrapper">
+                        {{if .features}}
+                            {{range $index, $el := .features}}
+                                <input class="form-control mt-3 mb-2" name="features-icon"
+                                       value="{{$el.icon}}">
+                                <input class="form-control" name="features-label"
+                                       value="{{$el.label}}">
+                            {{end}}
+                        {{end}}
+                    </div>
+                </div>
+            {{end}}
+
+            {{if not .id}}
+                <div class="form-group mb-2">
+                    <label>Pictures:</label>
+                    {{if .pictures}}
+                        <p>Current Picture:</p>
+                        {{range .pictures}}
+                            <img src="{{.file_name}}" class="w-50 object-fit-scale" alt="car"/>
                         {{end}}
                     {{end}}
+                    <input type="file" name="pictures" class="form-control" multiple/>
                 </div>
-            </div>
-
-            <div class="form-group mb-2">
-                <label>Pictures:</label>
-                {{if .pictures}}
-                    <p>Current Picture:</p>
-                    {{range .pictures}}
-                        <img src="{{.file_name}}" class="w-50 object-fit-scale" alt="car"/>
-                    {{end}}
-                {{end}}
-                <input type="file" name="pictures" class="form-control" multiple/>
-            </div>
+            {{end}}
 
             <button type="submit" class="btn btn-rounded btn-primary mt-3"><i class="fas fa-paper-plane"></i></button>
         </form>
