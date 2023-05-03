@@ -74,7 +74,7 @@ func (o orderRepository) mutate(c *fiber.Ctx, v *models.Orders, wg *sync.WaitGro
 	qp := query.Pictures
 	qf := query.Features
 
-	wg.Add(4)
+	wg.Add(3)
 	go func(v *models.Orders, c *fiber.Ctx) {
 		defer wg.Done()
 		tourCarPictures, _ := query.Cars.Pictures.Where(qp.Associate.Eq(BasicRepositories.Car)).Model(&v.Tour.Car).Find()
