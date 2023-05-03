@@ -21,12 +21,9 @@ func (t *tour) Ctx(c *fiber.Ctx) *tour {
 func (t tour) buildGetQuery(db gen.Dao) gen.Dao {
 	qt := query.Tour
 	qp := query.Pictures
-	qf := query.Features
 
 	return db.Preload(qt.Pictures.On(qp.Associate.Eq(BasicRepositories.Tour))).
-		Preload(qt.Features.On(qf.Associate.Eq(BasicRepositories.Tour))).
 		Preload(qt.Driver).
-		Preload(qt.Driver.Features.On(qf.Associate.Eq(BasicRepositories.Driver))).
 		Preload(qt.Driver.Pictures.On(qp.Associate.Eq(BasicRepositories.Driver))).
 		Preload(qt.Car).
 		Preload(qt.Car.Pictures.On(qp.Associate.Eq(BasicRepositories.Car)))
@@ -38,7 +35,6 @@ func (t tour) buildGenericResult(data *models.Tour, features, pictures []fiber.M
 		"name":       data.Name,
 		"desc":       data.Desc,
 		"price":      data.Price,
-		"features":   features,
 		"pictures":   pictures,
 		"car":        data.Car,
 		"driver":     data.Driver,

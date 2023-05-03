@@ -13,6 +13,5 @@ type Tour struct {
 	DriverId uint
 	Car      Cars
 	Driver   Driver
-	Features []Features `gorm:"foreignKey:AssociateId"`
 	Pictures []Pictures `gorm:"foreignKey:AssociateId"`
 }

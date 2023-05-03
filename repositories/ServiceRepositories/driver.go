@@ -21,10 +21,8 @@ func (d *driver) Ctx(c *fiber.Ctx) *driver {
 func (d driver) buildGetQuery(db gen.Dao) gen.Dao {
 	qd := query.Driver
 	qp := query.Pictures
-	qf := query.Features
 
-	return db.Preload(qd.Pictures.On(qp.Associate.Eq(BasicRepositories.Driver))).
-		Preload(qd.Features.On(qf.Associate.Eq(BasicRepositories.Driver)))
+	return db.Preload(qd.Pictures.On(qp.Associate.Eq(BasicRepositories.Driver)))
 }
 
 func (d driver) buildGenericResult(data *models.Driver, features, pictures []fiber.Map) fiber.Map {
@@ -33,7 +31,6 @@ func (d driver) buildGenericResult(data *models.Driver, features, pictures []fib
 		"name":       data.Name,
 		"desc":       data.Desc,
 		"price":      data.Price,
-		"features":   features,
 		"pictures":   pictures,
 		"created_at": data.CreatedAt,
 		"updated_at": data.UpdatedAt,

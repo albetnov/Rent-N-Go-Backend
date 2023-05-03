@@ -49,7 +49,6 @@ func withCar(db gen.Dao) gen.Dao {
 func withDriver(db gen.Dao) gen.Dao {
 	qo := query.Orders
 	return db.Preload(qo.Driver).
-		Preload(qo.Driver.Features.On(query.Features.Associate.Eq(BasicRepositories.Driver))).
 		Preload(qo.Driver.Pictures.On(query.Pictures.Associate.Eq(BasicRepositories.Driver)))
 }
 
@@ -58,7 +57,6 @@ func withTour(db gen.Dao) gen.Dao {
 	return db.Preload(qo.Tour).
 		Preload(qo.Tour.Car).
 		Preload(qo.Tour.Driver).
-		Preload(qo.Tour.Features.On(query.Features.Associate.Eq(BasicRepositories.Tour))).
 		Preload(qo.Tour.Pictures.On(query.Pictures.Associate.Eq(BasicRepositories.Tour)))
 }
 
@@ -72,9 +70,8 @@ func orderPreload(db gen.Dao) gen.Dao {
 
 func (o orderRepository) mutate(c *fiber.Ctx, v *models.Orders, wg *sync.WaitGroup) {
 	qp := query.Pictures
-	qf := query.Features
 
-	wg.Add(3)
+	wg.Add(2)
 	go func(v *models.Orders, c *fiber.Ctx) {
 		defer wg.Done()
 		tourCarPictures, _ := query.Cars.Pictures.Where(qp.Associate.Eq(BasicRepositories.Car)).Model(&v.Tour.Car).Find()
@@ -92,14 +89,6 @@ func (o orderRepository) mutate(c *fiber.Ctx, v *models.Orders, wg *sync.WaitGro
 			v.Tour.Driver.Pictures = append(v.Tour.Driver.Pictures, *p)
 		}
 	}(v, c)
-
-	go func(v *models.Orders) {
-		defer wg.Done()
-		tourDriverFeatures, _ := query.Driver.Features.Where(qf.Associate.Eq(BasicRepositories.Driver)).Model(&v.Tour.Driver).Find()
-		for _, f := range tourDriverFeatures {
-			v.Tour.Driver.Features = append(v.Tour.Driver.Features, *f)
-		}
-	}(v)
 }
 
 func (o orderRepository) GetUserOrder(userId uint, c *fiber.Ctx, filter string) ([]*models.Orders, int64, error) {
