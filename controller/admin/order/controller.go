@@ -45,12 +45,12 @@ func Index(c *fiber.Ctx) error {
 	return admin.RenderTemplate(c, "order/index", "Orders List", res.Get())
 }
 
-func getPicture(value []models.Pictures) *string {
+func getPicture(c *fiber.Ctx, value []models.Pictures) string {
 	if len(value) > 0 {
-		return &value[0].FileName
+		return utils.FormatUrl(c, value[0].FileName, "car")
 	}
 
-	return nil
+	return ""
 }
 
 func Show(c *fiber.Ctx) error {
@@ -69,19 +69,19 @@ func Show(c *fiber.Ctx) error {
 		"ID":   order.ID,
 		"Name": order.User.Name,
 		"Car": fiber.Map{
-			"Picture": getPicture(order.Car.Pictures),
+			"Picture": getPicture(c, order.Car.Pictures),
 			"Name":    order.Car.Name,
 			"Desc":    order.Car.Desc,
 			"Price":   order.Car.Price,
 		},
 		"Tour": fiber.Map{
-			"Picture": getPicture(order.Tour.Pictures),
+			"Picture": getPicture(c, order.Tour.Pictures),
 			"Name":    order.Tour.Name,
 			"Desc":    order.Tour.Desc,
 			"Price":   order.Tour.Price,
 		},
 		"Driver": fiber.Map{
-			"Picture": getPicture(order.Driver.Pictures),
+			"Picture": getPicture(c, order.Driver.Pictures),
 			"Name":    order.Driver.Name,
 			"Desc":    order.Driver.Desc,
 			"Price":   order.Driver.Price,
