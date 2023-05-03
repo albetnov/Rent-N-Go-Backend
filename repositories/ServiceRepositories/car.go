@@ -53,9 +53,24 @@ func (c car) GetRandom() ([]fiber.Map, error) {
 	return utils.MapToServiceable(c.c, result, c.buildGenericResult), nil
 }
 
-func (c car) GetAll(ctx *fiber.Ctx) ([]fiber.Map, error) {
-	result, err := c.buildGetQuery().
-		Scopes(utils.Paginate(ctx)).Find()
+func (c car) GetAll(ctx *fiber.Ctx, search string, seats, price int) ([]fiber.Map, error) {
+	qc := query.Cars
+	carQuery := c.buildGetQuery().
+		Scopes(utils.Paginate(ctx))
+
+	if search != "" {
+		carQuery = carQuery.Where(qc.Name.Like(search)).Or(qc.Desc.Like(search))
+	}
+
+	if seats > 0 {
+		carQuery = carQuery.Where(qc.Seats.Eq(seats))
+	}
+
+	if price > 0 {
+		carQuery = carQuery.Where(qc.Price.Gte(price))
+	}
+
+	result, err := carQuery.Find()
 
 	if err != nil {
 		return nil, err

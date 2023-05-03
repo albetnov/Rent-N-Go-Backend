@@ -29,7 +29,6 @@ func (t tour) buildGetQuery(db gen.Dao) gen.Dao {
 		Preload(qt.Driver.Features.On(qf.Associate.Eq(BasicRepositories.Driver))).
 		Preload(qt.Driver.Pictures.On(qp.Associate.Eq(BasicRepositories.Driver))).
 		Preload(qt.Car).
-		Preload(qt.Car.Features.On(qf.Associate.Eq(BasicRepositories.Car))).
 		Preload(qt.Car.Pictures.On(qp.Associate.Eq(BasicRepositories.Car)))
 }
 

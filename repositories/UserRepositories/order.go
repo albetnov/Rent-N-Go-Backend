@@ -43,7 +43,6 @@ func (o *orderRepository) CreateOrder(ctx *fiber.Ctx, startPeriod, endPeriod, pa
 func withCar(db gen.Dao) gen.Dao {
 	qo := query.Orders
 	return db.Preload(qo.Car).
-		Preload(qo.Car.Features.On(query.Features.Associate.Eq(BasicRepositories.Car))).
 		Preload(qo.Car.Pictures.On(query.Pictures.Associate.Eq(BasicRepositories.Car)))
 }
 

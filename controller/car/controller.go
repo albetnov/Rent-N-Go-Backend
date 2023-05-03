@@ -25,7 +25,11 @@ func Recommendation(c *fiber.Ctx) error {
 }
 
 func Index(c *fiber.Ctx) error {
-	cars, err := ServiceRepositories.Car.Ctx(c).GetAll(c)
+	search := c.Query("search", "")
+	filterSeat, _ := strconv.Atoi(c.Query("seats", "0"))
+	filterPrice, _ := strconv.Atoi(c.Query("price", "0"))
+
+	cars, err := ServiceRepositories.Car.Ctx(c).GetAll(c, search, filterSeat, filterPrice)
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
