@@ -47,7 +47,9 @@ func SatisfiesDbConnection() {
 
 	var err error
 
-	db, err = gorm.Open(mysql.Open(credentials))
+	db, err = gorm.Open(mysql.Open(credentials), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
 
 	if err != nil {
 		panic(err)

@@ -48,19 +48,13 @@
             {{if not .id}}
                 <div class="form-group mb-2">
                     <label>Pictures:</label>
-                    {{if .pictures}}
-                        <p>Current Picture:</p>
-                        {{range .pictures}}
-                            <img src="{{.file_name}}" class="w-50 object-fit-scale" alt="car"/>
-                        {{end}}
-                    {{end}}
                     <input type="file" name="pictures" class="form-control" multiple/>
                 </div>
             {{end}}
 
             <button type="submit" class="btn btn-rounded btn-primary mt-3"><i class="fas fa-paper-plane"></i></button>
         </form>
-        <a class="btn btn-secondary btn-sm mt-5" href="/admin/users"><i class="fas fa-arrow-left"></i></a>
+        <a class="btn btn-secondary btn-sm mt-5" href="/admin/cars"><i class="fas fa-arrow-left"></i></a>
     </div>
 </div>
 

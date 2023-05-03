@@ -91,7 +91,7 @@ func Create(c *fiber.Ctx) error {
 func Store(c *fiber.Ctx) error {
 	payload := utils.GetPayload[CarPayload](c)
 
-	fileNames, err := utils.SaveMultiFilesFromPayload(c, "pictures", "cars")
+	fileNames, err := utils.SaveMultiFilesFromPayload(c, "pictures", "car")
 
 	detail := "Car added successfully!"
 
@@ -125,7 +125,7 @@ func Store(c *fiber.Ctx) error {
 		}
 	}
 
-	return c.RedirectBack("/admin/cars")
+	return c.Redirect("/admin/cars")
 }
 
 func Edit(c *fiber.Ctx) error {
@@ -171,7 +171,7 @@ func Update(c *fiber.Ctx) error {
 		return c.RedirectBack("/admin/cars")
 	}
 
-	payload := utils.GetPayload[CarPayload](c)
+	payload := utils.GetPayload[EditCarPayload](c)
 
 	qc := query.Cars
 	if _, err := qc.Where(qc.ID.Eq(car["id"].(uint))).Updates(&models.Cars{
@@ -185,7 +185,7 @@ func Update(c *fiber.Ctx) error {
 
 	sess.SetSession("message", "Car updated successfully")
 
-	return c.RedirectBack("/admin/cars")
+	return c.Redirect("/admin/cars")
 }
 
 func Delete(c *fiber.Ctx) error {
