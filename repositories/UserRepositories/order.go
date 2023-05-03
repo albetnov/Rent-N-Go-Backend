@@ -85,14 +85,6 @@ func (o orderRepository) mutate(c *fiber.Ctx, v *models.Orders, wg *sync.WaitGro
 		}
 	}(v, c)
 
-	go func(v *models.Orders) {
-		defer wg.Done()
-		tourCarFeatures, _ := query.Cars.Features.Where(qf.Associate.Eq(BasicRepositories.Car)).Model(&v.Tour.Car).Find()
-		for _, f := range tourCarFeatures {
-			v.Tour.Car.Features = append(v.Tour.Car.Features, *f)
-		}
-	}(v)
-
 	go func(v *models.Orders, c *fiber.Ctx) {
 		defer wg.Done()
 		tourDriverPictures, _ := query.Driver.Pictures.Where(qp.Associate.Eq(BasicRepositories.Driver)).Model(&v.Tour.Driver).Find()

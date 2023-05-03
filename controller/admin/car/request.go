@@ -1,17 +1,10 @@
 package car
 
 type CarPayload struct {
-	Name          string   `validate:"required"`
-	Stock         int      `validate:"required,numeric"`
-	Desc          string   `validate:"required"`
-	Price         int      `validate:"required,numeric"`
-	FeaturesIcon  []string `validate:"required" form:"features-icon"`
-	FeaturesLabel []string `validate:"required" form:"features-label"`
-}
-
-type EditCarPayload struct {
-	Name  string `validate:"required"`
-	Stock int    `validate:"required,numeric"`
-	Desc  string `validate:"required"`
-	Price int    `validate:"required,numeric"`
+	Name    string `validate:"required"`
+	Stock   int    `validate:"required,numeric"`
+	Desc    string `validate:"required"`
+	Price   int    `validate:"required,numeric"`
+	Seats   int    `validate:"required,numeric"`
+	Baggage int    `validate:"required,numeric"`
 }

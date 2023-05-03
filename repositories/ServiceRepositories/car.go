@@ -20,10 +20,8 @@ func (c *car) Ctx(ctx *fiber.Ctx) *car {
 func (c car) buildGetQuery() query.ICarsDo {
 	qc := query.Cars
 	qp := query.Pictures
-	qf := query.Features
 
-	return qc.Preload(qc.Pictures.On(qp.Associate.Eq(BasicRepositories.Car))).
-		Preload(qc.Features.On(qf.Associate.Eq(BasicRepositories.Car)))
+	return qc.Preload(qc.Pictures.On(qp.Associate.Eq(BasicRepositories.Car)))
 }
 
 func (c car) buildGenericResult(data *models.Cars, features, pictures []fiber.Map) fiber.Map {
@@ -35,8 +33,9 @@ func (c car) buildGenericResult(data *models.Cars, features, pictures []fiber.Ma
 		"stock":      data.Stock,
 		"desc":       data.Desc,
 		"price":      data.Price,
-		"features":   features,
 		"pictures":   pictures,
+		"seats":      data.Seats,
+		"baggages":   data.Baggage,
 		"created_at": data.CreatedAt,
 		"updated_at": data.UpdatedAt,
 		"deleted_at": data.DeletedAt,

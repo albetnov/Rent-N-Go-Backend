@@ -103,10 +103,12 @@ func Store(c *fiber.Ctx) error {
 	sess.SetSession("message", detail)
 
 	car := &models.Cars{
-		Name:  payload.Name,
-		Price: payload.Price,
-		Stock: payload.Stock,
-		Desc:  payload.Desc,
+		Name:    payload.Name,
+		Price:   payload.Price,
+		Stock:   payload.Stock,
+		Desc:    payload.Desc,
+		Seats:   payload.Seats,
+		Baggage: payload.Baggage,
 	}
 
 	if err := query.Cars.Create(car); err != nil {
@@ -115,12 +117,6 @@ func Store(c *fiber.Ctx) error {
 
 	for _, fileName := range fileNames {
 		if err := BasicRepositories.Pictures.Insert(BasicRepositories.Car, car.ID, fileName); err != nil {
-			return utils.SafeThrow(c, err)
-		}
-	}
-
-	for i, featureIcon := range payload.FeaturesIcon {
-		if err := BasicRepositories.Features.Insert(BasicRepositories.Car, car.ID, featureIcon, payload.FeaturesLabel[i]); err != nil {
 			return utils.SafeThrow(c, err)
 		}
 	}
@@ -171,14 +167,16 @@ func Update(c *fiber.Ctx) error {
 		return c.RedirectBack("/admin/cars")
 	}
 
-	payload := utils.GetPayload[EditCarPayload](c)
+	payload := utils.GetPayload[CarPayload](c)
 
 	qc := query.Cars
 	if _, err := qc.Where(qc.ID.Eq(car["id"].(uint))).Updates(&models.Cars{
-		Name:  payload.Name,
-		Price: payload.Price,
-		Stock: payload.Stock,
-		Desc:  payload.Desc,
+		Name:    payload.Name,
+		Price:   payload.Price,
+		Stock:   payload.Stock,
+		Desc:    payload.Desc,
+		Seats:   payload.Seats,
+		Baggage: payload.Baggage,
 	}); err != nil {
 		return utils.SafeThrow(c, err)
 	}

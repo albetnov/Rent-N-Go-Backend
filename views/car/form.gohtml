@@ -28,22 +28,15 @@
                           name="desc">{{when .desc .desc ""}}</textarea>
             </div>
 
-            {{if not .id}}
-                <div class="form-group mb-2">
-                    <label>Features:</label>
-                    <button class="btn btn-primary" id="add-feature-btn" type="button">Add Feature</button>
-                    <div id="features-wrapper">
-                        {{if .features}}
-                            {{range $index, $el := .features}}
-                                <input class="form-control mt-3 mb-2" name="features-icon"
-                                       value="{{$el.icon}}">
-                                <input class="form-control" name="features-label"
-                                       value="{{$el.label}}">
-                            {{end}}
-                        {{end}}
-                    </div>
-                </div>
-            {{end}}
+            <div class="form-group mb-2">
+                <label>Seats:</label>
+                <input class="form-control mt-3 mb-2" name="seats" type="number" max="10" min="2" value="{{when .id .seats ""}}">
+            </div>
+
+            <div class="form-group mb-2">
+                <label>Baggage:</label>
+                <input class="form-control mt-3 mb-2" name="baggage" type="number" max="2" min="1" value="{{when .id .baggages ""}}">
+            </div>
 
             {{if not .id}}
                 <div class="form-group mb-2">
@@ -57,22 +50,3 @@
         <a class="btn btn-secondary btn-sm mt-5" href="/admin/cars"><i class="fas fa-arrow-left"></i></a>
     </div>
 </div>
-
-<script>
-    const fbtn = document.querySelector("#add-feature-btn")
-    const fwrapper = document.querySelector("#features-wrapper")
-
-    fbtn.addEventListener("click", () => {
-        const elIcon = document.createElement("input")
-        elIcon.setAttribute("class", "form-control mt-3 mb-2")
-        elIcon.setAttribute("name", `features-icon`)
-        elIcon.setAttribute("placeholder", "Icon Key String")
-
-        const elLabel = document.createElement("input")
-        elLabel.setAttribute("class", "form-control")
-        elLabel.setAttribute("name", `features-label`)
-        elLabel.setAttribute("placeholder", "Icon Label")
-        fwrapper.appendChild(elIcon)
-        fwrapper.appendChild(elLabel)
-    })
-</script>

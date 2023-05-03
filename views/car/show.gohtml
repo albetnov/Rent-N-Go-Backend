@@ -11,20 +11,9 @@
             <li>Stock: {{.stock}}</li>
             <li>Price: {{.price}}</li>
             <li>Hold Stock: {{.hold_stock}}</li>
+            <li>Seats: {{.seats}}</li>
+            <li>Baggage: {{.baggages}}</li>
         </ul>
-
-        {{if .features}}
-            <div class="card">
-                <div class="card-title">Features</div>
-                <div class="card-body">
-                    <ul>
-                        {{range .features}}
-                            <li>{{.icon}} | {{.label}}</li>
-                        {{end}}
-                    </ul>
-                </div>
-            </div>
-        {{end}}
 
         {{if .pictures}}
             <div class="card">

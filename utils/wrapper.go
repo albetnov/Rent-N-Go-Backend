@@ -127,13 +127,6 @@ func processItem(c *fiber.Ctx, item reflect.Value) ([]fiber.Map, []fiber.Map) {
 	var features []fiber.Map
 	var pictures []fiber.Map
 
-	for _, f := range item.FieldByName("Features").Interface().([]models.Features) {
-		features = append(features, fiber.Map{
-			"icon":  f.IconKey,
-			"label": f.Value,
-		})
-	}
-
 	for _, p := range item.FieldByName("Pictures").Interface().([]models.Pictures) {
 		pictures = append(pictures, fiber.Map{
 			"file_name": FormatUrl(c, p.FileName, p.Associate),
