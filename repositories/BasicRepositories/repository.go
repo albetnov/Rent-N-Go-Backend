@@ -17,7 +17,7 @@ var ErrInvalidArgument = errors.New("invalid argument being passed")
 var ErrNotFound = errors.New("invalid id being passed. Target association not found")
 
 func checkAssociation(associate string) error {
-	if associate != "car" && associate != "driver" {
+	if associate != "car" && associate != "driver" && associate != "tour" {
 		return ErrInvalidArgument
 	}
 

@@ -1,0 +1,46 @@
+<div class="card p-3">
+    <div class="card-title">{{.name}} Detail</div>
+    <div class="card-body">
+        <div class="card">
+            <div class="card-title">Description</div>
+            <div class="card-body">
+                {{.desc}}
+            </div>
+        </div>
+        <ul>
+            <li>Stock: {{.stock}}</li>
+            <li>Price: {{.price}}</li>
+            <li>Hold Stock: {{.hold_stock}}</li>
+        </ul>
+
+        {{if .features}}
+            <div class="card">
+                <div class="card-title">Features</div>
+                <div class="card-body">
+                    <ul>
+                        {{range .features}}
+                            <li>{{.icon}} | {{.label}}</li>
+                        {{end}}
+                    </ul>
+                </div>
+            </div>
+        {{end}}
+
+        {{if .pictures}}
+            <div class="card">
+                <div class="card-title">Pictures</div>
+                <div class="card-body">
+                    <ul>
+                        {{range .pictures}}
+                            <li>
+                                <img src="{{.file_name}}" class="w-50 object-fit-scale" alt="tour"/>
+                            </li>
+                        {{end}}
+                    </ul>
+                </div>
+            </div>
+        {{end}}
+
+        <a class="btn btn-sm btn-secondary d-block" style="width:fit-content" href="/admin/tours"><i class="fas fa-arrow-left"></i></a>
+    </div>
+</div>
