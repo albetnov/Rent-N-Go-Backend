@@ -28,6 +28,12 @@ func (f picturesRepository) Insert(associate string, associateId uint, fileName 
 		}
 	}
 
+	if associate == "tour" {
+		if _, err := query.Tour.Where(query.Tour.ID.Eq(associateId)).First(); err != nil {
+			return ErrNotFound
+		}
+	}
+
 	err := query.Pictures.Create(&models.Pictures{
 		Associate:   associate,
 		AssociateId: int(associateId),

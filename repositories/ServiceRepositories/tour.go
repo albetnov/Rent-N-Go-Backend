@@ -3,6 +3,7 @@ package ServiceRepositories
 import (
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gen"
+	"gorm.io/gorm"
 	"rent-n-go-backend/models"
 	"rent-n-go-backend/query"
 	"rent-n-go-backend/repositories/BasicRepositories"
@@ -10,7 +11,8 @@ import (
 )
 
 type tour struct {
-	c *fiber.Ctx
+	c  *fiber.Ctx
+	db *gorm.DB
 }
 
 func (t *tour) Ctx(c *fiber.Ctx) *tour {
@@ -22,7 +24,8 @@ func (t tour) buildGetQuery(db gen.Dao) gen.Dao {
 	qt := query.Tour
 	qp := query.Pictures
 
-	return db.Preload(qt.Pictures.On(qp.Associate.Eq(BasicRepositories.Tour))).
+	return db.
+		Preload(qt.Pictures.On(qp.Associate.Eq(BasicRepositories.Tour))).
 		Preload(qt.Driver).
 		Preload(qt.Driver.Pictures.On(qp.Associate.Eq(BasicRepositories.Driver))).
 		Preload(qt.Car).
@@ -30,11 +33,14 @@ func (t tour) buildGetQuery(db gen.Dao) gen.Dao {
 }
 
 func (t tour) buildGenericResult(data *models.Tour, features, pictures []fiber.Map) fiber.Map {
+	totalPrice := data.Price + data.Driver.Price + data.Car.Price
+
 	return fiber.Map{
 		"id":         data.ID,
 		"name":       data.Name,
 		"desc":       data.Desc,
-		"price":      data.Price,
+		"price":      totalPrice,
+		"features":   features,
 		"pictures":   pictures,
 		"car":        data.Car,
 		"driver":     data.Driver,
@@ -64,4 +70,42 @@ func (t tour) CheckStock(id uint) (int64, *models.Tour, error) {
 	tour, err := qt.Where(qt.ID.Eq(id)).First()
 
 	return int64(tour.Stock) - total, tour, err
+}
+
+func (t tour) GetTours(c *fiber.Ctx) ([]fiber.Map, error) {
+	qt := query.Tour
+	results, err := qt.Scopes(t.buildGetQuery).Find()
+
+	if err != nil {
+		return nil, err
+	}
+
+	serviceableResults := make([]fiber.Map, len(results))
+	for i, result := range results {
+		serviceableResults[i] = utils.MapToServiceableSingle(c, result, t.buildGenericResult)
+	}
+
+	return serviceableResults, nil
+}
+
+func (t tour) GetByCarIdForName(carId uint) (*models.Tour, error) {
+	qt := query.Tour
+	result, err := qt.Scopes(t.buildGetQuery).Where(qt.CarId.Eq(carId)).First()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (t tour) GetByDriverIdForName(driverId uint) (*models.Tour, error) {
+	qt := query.Tour
+	result, err := qt.Scopes(t.buildGetQuery).Where(qt.CarId.Eq(driverId)).First()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }

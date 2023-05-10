@@ -1,0 +1,82 @@
+<div class="card p-5">
+    <div class="card-title">{{when .id "Edit" "Create"}}</div>
+    <div class="card-body">
+        {{template "components/validation" .}}
+        {{template "components/error" .}}
+        {{template "components/message" .}}
+        <form action="{{when .id (printf "/admin/tours/edit/%d" .id) "/admin/tours/create"}}" method="post"
+              enctype="multipart/form-data">
+            {{template "components/csrf" .}}
+            <div class="form-group mb-2">
+                <label for="name">Name:</label>
+                <input id="name" name="name" placeholder="Tour name here" value="{{when .id .name ""}}"
+                       class="form-control"/>
+            </div>
+            <div class="form-group mb-2">
+                <label for="price">Price:</label>
+                <input id="price" name="price" placeholder="Tour price here" value="{{when .id .price ""}}"
+                       class="form-control"/>
+            </div>
+            <div class="form-group mb-2">
+                <label for="stock">Stock:</label>
+                <input id="stock" name="stock" placeholder="99" type="number"
+                       value="{{when .stock .stock ""}}" class="form-control">
+            </div>
+            <div class="form-group mb-2">
+                <label for="desc">Description:</label>
+                <textarea class="form-control" id="desc" placeholder="Description"
+                          name="desc">{{when .desc .desc ""}}</textarea>
+            </div>
+            <div class="form-group mb-2">
+                <label for="carId">Car ID:</label>
+                <input id="carId" name="carId" placeholder="Car ID here" class="form-control"/>
+            </div>
+            <div class="form-group mb-2">
+                <label for="driverId">Driver ID:</label>
+                <input id="driverId" name="driverId" placeholder="Driver ID here" class="form-control"/>
+            </div>
+            <div class="form-group mb-2">
+                <label for="pictures">Pictures:</label>
+                <input type="file" id="pictures" name="pictures" multiple class="form-control"/>
+            </div>
+
+            {{if not .id}}
+            {{end}}
+
+            {{if not .id}}
+                <div class="form-group mb-2">
+                    <label>Pictures:</label>
+                    {{if .pictures}}
+                        <p>Current Picture:</p>
+                        {{range .pictures}}
+                            <img src="{{.file_name}}" class="w-50 object-fit-scale" alt="car"/>
+                        {{end}}
+                    {{end}}
+                    <input type="file" name="pictures" class="form-control" multiple/>
+                </div>
+            {{end}}
+
+            <button type="submit" class="btn btn-rounded btn-primary mt-3"><i class="fas fa-paper-plane"></i></button>
+        </form>
+        <a class="btn btn-secondary btn-sm mt-5" href="/admin/users"><i class="fas fa-arrow-left"></i></a>
+    </div>
+</div>
+
+<script>
+    const fbtn = document.querySelector("#add-feature-btn")
+    const fwrapper = document.querySelector("#features-wrapper")
+
+    fbtn.addEventListener("click", () => {
+        const elIcon = document.createElement("input")
+        elIcon.setAttribute("class", "form-control mt-3 mb-2")
+        elIcon.setAttribute("name", `features-icon`)
+        elIcon.setAttribute("placeholder", "Icon Key String")
+
+        const elLabel = document.createElement("input")
+        elLabel.setAttribute("class", "form-control")
+        elLabel.setAttribute("name", `features-label`)
+        elLabel.setAttribute("placeholder", "Icon Label")
+        fwrapper.appendChild(elIcon)
+        fwrapper.appendChild(elLabel)
+    })
+</script>
