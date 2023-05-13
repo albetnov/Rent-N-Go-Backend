@@ -99,14 +99,30 @@ func Show(c *fiber.Ctx) error {
 }
 
 func Create(c *fiber.Ctx) error {
+	// Retrieve the car data from the database
+	cars, err := query.Cars.Find()
+	if err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
+	// Retrieve the driver data from the database
+	drivers, err := query.Driver.Find()
+	if err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
+	// Pass the car and driver data to the template
 	return admin.RenderTemplate(c, "tour/form", "Create",
-		utils.Wrap(fiber.Map{}, nil, utils.Session.Provide(c)).Validation().Get())
+		utils.Wrap(fiber.Map{
+			"Cars":    cars,
+			"Drivers": drivers,
+		}, nil, utils.Session.Provide(c)).Validation().Get())
 }
 
 func Store(c *fiber.Ctx) error {
 	payload := utils.GetPayload[TourPayload](c)
 
-	fileNames, err := utils.SaveMultiFilesFromPayload(c, "pictures", "tours")
+	fileNames, err := utils.SaveMultiFilesFromPayload(c, "pictures", "tour")
 
 	detail := "Tour added successfully!"
 
