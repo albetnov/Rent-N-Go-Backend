@@ -28,30 +28,25 @@
                           name="desc">{{when .desc .desc ""}}</textarea>
             </div>
             <div class="form-group mb-2">
-                <label for="carId">Car ID:</label>
-                <input id="carId" name="carId" placeholder="Car ID here" class="form-control"/>
+                <label for="carID">Car</label>
+                <select id="carID" name="carID" class="form-control">
+                    {{ range .Cars }}
+                        <option value="{{ .ID }}">{{ .Name }}</option>
+                    {{ end }}
+                </select>
             </div>
             <div class="form-group mb-2">
                 <label for="driverId">Driver ID:</label>
-                <input id="driverId" name="driverId" placeholder="Driver ID here" class="form-control"/>
+                <select id="driverId" name="driverId" class="form-control">
+                    {{ range .Drivers }}
+                        <option value="{{ .ID }}">{{ .Name }}</option>
+                    {{ end }}
+                </select>
             </div>
-            <div class="form-group mb-2">
-                <label for="pictures">Pictures:</label>
-                <input type="file" id="pictures" name="pictures" multiple class="form-control"/>
-            </div>
-
-            {{if not .id}}
-            {{end}}
 
             {{if not .id}}
                 <div class="form-group mb-2">
                     <label>Pictures:</label>
-                    {{if .pictures}}
-                        <p>Current Picture:</p>
-                        {{range .pictures}}
-                            <img src="{{.file_name}}" class="w-50 object-fit-scale" alt="car"/>
-                        {{end}}
-                    {{end}}
                     <input type="file" name="pictures" class="form-control" multiple/>
                 </div>
             {{end}}
