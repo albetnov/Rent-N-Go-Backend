@@ -19,16 +19,16 @@ func Index(c *fiber.Ctx) error {
 	cr := query.Tour
 
 	var (
-		qry   query.ITourDo
 		tours []*models.Tour
 		err   error
 		total int64 = 0
 	)
 
+	qry := cr.Scopes(ServiceRepositories.Tour.BuildGetQuery)
 	searchInt, _ := strconv.Atoi(search)
 
 	if search != "" {
-		qry = cr.Where(cr.Name.Like(search)).
+		qry = qry.Where(cr.Name.Like(search)).
 			Or(cr.Price.Like(searchInt)).
 			Or(cr.Desc.Like(search)).
 			Or(cr.Stock.Like(searchInt))
@@ -48,29 +48,9 @@ func Index(c *fiber.Ctx) error {
 
 	tourStock := map[uint]int64{}
 
-	carNames := make(map[uint]string)
-	for _, tour := range tours {
-		tourCar, err := ServiceRepositories.Tour.GetByCarIdForName(tour.CarId)
-		if err != nil {
-			return utils.SafeThrow(c, err)
-		}
-		carNames[tour.CarId] = tourCar.Car.Name
-	}
-
-	driverNames := make(map[uint]string)
-	for _, tour := range tours {
-		tourDriver, err := ServiceRepositories.Tour.GetByDriverIdForName(tour.DriverId)
-		if err != nil {
-			return utils.SafeThrow(c, err)
-		}
-		driverNames[tour.DriverId] = tourDriver.Driver.Name
-	}
-
 	res := utils.Wrap(fiber.Map{
-		"Tours":       tours,
-		"Stocks":      tourStock,
-		"CarNames":    carNames,
-		"DriverNames": driverNames,
+		"Tours":  tours,
+		"Stocks": tourStock,
 	}, c, sess).Pagination(total).Search(search).Message().Error()
 
 	return admin.RenderTemplate(c, "tour/index", "Manage Tours", res.Get())

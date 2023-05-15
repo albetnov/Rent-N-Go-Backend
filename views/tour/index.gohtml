@@ -10,26 +10,16 @@
                 <thead class="thead-dark">
                 <tr>
                     <th>Name</th>
-                    <th>Cars</th>
-                    <th>CarsId</th>
-                    <th>Drivers</th>
-                    <th>DriversId</th>
                     <th>Stock</th>
                     <th class="text-center">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 {{$holdqtys := .Stocks}}
-                {{$carNames := .CarNames}}
-                {{$driverNames := .DriverNames}}
                 {{range .Tours}}
                     {{$holdqty := index $holdqtys .ID}}
                     <tr>
                         <td>{{.Name}}</td>
-                        <td>{{index $carNames .CarId}}</td>
-                        <td>{{.CarId}}</td>
-                        <td>{{index $driverNames .DriverId}}</td>
-                        <td>{{.DriverId}}</td>
                         <td>{{.Stock}}
 
                             {{if gt $holdqty 0}}
