@@ -154,9 +154,25 @@ func Edit(c *fiber.Ctx) error {
 		return c.RedirectBack("/admin/tours")
 	}
 
+	// Retrieve the car data from the database
+	cars, err := query.Cars.Find()
+	if err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
+	// Retrieve the driver data from the database
+	drivers, err := query.Driver.Find()
+	if err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
 	response := utils.Wrap(tour, nil, utils.Session.Provide(c)).Error().Validation()
 
-	return admin.RenderTemplate(c, "tour/form", fmt.Sprintf("%s Edit", tour["name"]), response.Get())
+	data := response.Get()
+	data["Cars"] = cars
+	data["Drivers"] = drivers
+
+	return admin.RenderTemplate(c, "tour/form", fmt.Sprintf("%s Edit", tour["name"]), data)
 }
 
 func Update(c *fiber.Ctx) error {
@@ -166,7 +182,7 @@ func Update(c *fiber.Ctx) error {
 
 	if err != nil {
 		sess.SetSession("error", err.Error())
-		return c.RedirectBack("/admin/cars")
+		return c.RedirectBack("/admin/tours")
 	}
 
 	id := uint(tourId)
@@ -174,13 +190,12 @@ func Update(c *fiber.Ctx) error {
 	tour, err := ServiceRepositories.Tour.Ctx(c).GetById(id)
 
 	if err != nil {
-		sess.SetSession("error", "Ups car not found")
-		return c.RedirectBack("/admin/cars")
+		sess.SetSession("error", "Ups tour not found")
+		return c.RedirectBack("/admin/tours")
 	}
 
 	payload := utils.GetPayload[TourPayload](c)
 
-	// Get the carId and driverId values from the form data
 	carId := c.FormValue("carId")
 	driverId := c.FormValue("driverId")
 
