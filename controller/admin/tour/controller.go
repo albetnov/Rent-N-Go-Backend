@@ -166,13 +166,13 @@ func Edit(c *fiber.Ctx) error {
 		return utils.SafeThrow(c, err)
 	}
 
-	// Pass the car and driver data to the template
-	return admin.RenderTemplate(c, "tour/form", fmt.Sprintf("%s Edit", tour["name"]),
-		utils.Wrap(fiber.Map{
-			"Tour":    tour,
-			"Cars":    cars,
-			"Drivers": drivers,
-		}, nil, utils.Session.Provide(c)).Validation().Get())
+	response := utils.Wrap(tour, nil, utils.Session.Provide(c)).Error().Validation()
+
+	data := response.Get()
+	data["Cars"] = cars
+	data["Drivers"] = drivers
+
+	return admin.RenderTemplate(c, "tour/form", fmt.Sprintf("%s Edit", tour["name"]), data)
 }
 
 func Update(c *fiber.Ctx) error {
