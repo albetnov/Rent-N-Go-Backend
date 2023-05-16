@@ -20,7 +20,7 @@ func (t *tour) Ctx(c *fiber.Ctx) *tour {
 	return t
 }
 
-func (t tour) buildGetQuery(db gen.Dao) gen.Dao {
+func (t tour) BuildGetQuery(db gen.Dao) gen.Dao {
 	qt := query.Tour
 	qp := query.Pictures
 
@@ -53,7 +53,7 @@ func (t tour) buildGenericResult(data *models.Tour, features, pictures []fiber.M
 
 func (t tour) GetById(id uint) (fiber.Map, error) {
 	qt := query.Tour
-	result, err := qt.Scopes(t.buildGetQuery).Where(qt.ID.Eq(id)).First()
+	result, err := qt.Scopes(t.BuildGetQuery).Where(qt.ID.Eq(id)).First()
 
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func (t tour) CheckStock(id uint) (int64, *models.Tour, error) {
 
 func (t tour) GetTours(c *fiber.Ctx) ([]fiber.Map, error) {
 	qt := query.Tour
-	results, err := qt.Scopes(t.buildGetQuery).Find()
+	results, err := qt.Scopes(t.BuildGetQuery).Find()
 
 	if err != nil {
 		return nil, err
@@ -86,26 +86,4 @@ func (t tour) GetTours(c *fiber.Ctx) ([]fiber.Map, error) {
 	}
 
 	return serviceableResults, nil
-}
-
-func (t tour) GetByCarIdForName(carId uint) (*models.Tour, error) {
-	qt := query.Tour
-	result, err := qt.Scopes(t.buildGetQuery).Where(qt.CarId.Eq(carId)).First()
-
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (t tour) GetByDriverIdForName(driverId uint) (*models.Tour, error) {
-	qt := query.Tour
-	result, err := qt.Scopes(t.buildGetQuery).Where(qt.CarId.Eq(driverId)).First()
-
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
 }

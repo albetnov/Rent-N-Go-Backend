@@ -8,6 +8,8 @@
             </div>
         </div>
         <ul>
+            <li>CarName: <a href="/admin/cars/{{.car.ID}}"> {{.car.Name}}</a></li>
+            <li>DriverName:<a href="/admin/driver/{{.driver.ID}}"> {{.driver.Name}}</a></li>
             <li>Stock: {{.stock}}</li>
             <li>Price: {{.price}}</li>
             <li>Hold Stock: {{.hold_stock}}</li>
