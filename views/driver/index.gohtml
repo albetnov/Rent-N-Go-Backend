@@ -1,0 +1,35 @@
+<div class="card p-3">
+    <div class="card-title">Manage Driver</div>
+    <div class="card-body">
+        <a href="/admin/driver/create" class="btn btn-primary"><i class="fas fa-user-plus"></i> Create Driver</a>
+        {{template "components/searchbar" .}}
+        {{template "components/error" .}}
+        {{template "components/message" .}}
+        <div class="table-responsive">
+            <table class="table">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{range .Driver}}
+                    <tr>
+                        <td>{{.Name}}</td>
+                        <td>{{.Price}}</td>
+                        <td class="text-center">
+                            <a class="btn btn-sm btn-primary" href="/admin/driver/{{.ID}}"><i class="fas fa-eye"></i></a>
+                            <a class="btn btn-sm btn-info" href="/admin/driver/edit/{{.ID}}"><i class="fas fa-edit"></i></a>
+                            <a class="btn btn-sm btn-danger" href="/admin/driver/delete/{{.ID}}"
+                               onclick="confirm('Are you sure?')"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                {{end}}
+                </tbody>
+            </table>
+            {{template "components/pagination" .}}
+        </div>
+    </div>
+</div>

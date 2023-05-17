@@ -10,6 +10,7 @@ import (
 func ApiRoutes(r fiber.Router) {
 	utils.RegisterWithPrefix(r, AuthRoutes, "/auth")
 	utils.RegisterWithPrefix(r, CarsRoutes, "/cars")
+	utils.RegisterWithPrefix(r, DriverRoutes, "/drivers")
 	utils.RegisterWithPrefix(r, TourRoutes, "/tours")
 
 	r.Use(jwtware.New(jwtware.Config{

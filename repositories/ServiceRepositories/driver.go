@@ -10,7 +10,8 @@ import (
 )
 
 type driver struct {
-	c *fiber.Ctx
+	c  *fiber.Ctx
+	db gen.Dao // Add db field of type gen.Dao
 }
 
 func (d *driver) Ctx(c *fiber.Ctx) *driver {
@@ -55,4 +56,19 @@ func (d driver) CheckAvailability(id uint) bool {
 	total, _ := qo.Scopes(activeOrder).Where(qo.DriverId.Eq(id)).Count()
 
 	return total > 0
+}
+func (d driver) GetAll(c *fiber.Ctx, search string) ([]fiber.Map, error) {
+	qd := query.Driver
+	results, err := qd.Scopes(d.buildGetQuery).Find()
+
+	if err != nil {
+		return nil, err
+	}
+
+	serviceableResults := make([]fiber.Map, len(results))
+	for i, result := range results {
+		serviceableResults[i] = utils.MapToServiceableSingle(c, result, d.buildGenericResult)
+	}
+
+	return serviceableResults, nil
 }
