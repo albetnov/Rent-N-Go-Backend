@@ -10,4 +10,5 @@ func OrderRoutes(r fiber.Router) {
 	r.Get("/", order.History)
 	r.Get("/active", order.HasActive)
 	r.Post("/place", utils.InterceptRequest(new(order.PlaceOrderPayload)), order.Place)
+	r.Post("/cancel/:id<int>", order.CancelOrder)
 }
