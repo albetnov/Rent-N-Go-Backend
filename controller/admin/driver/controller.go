@@ -76,22 +76,20 @@ func Show(c *fiber.Ctx) error {
 
 func Create(c *fiber.Ctx) error {
 	return admin.RenderTemplate(c, "driver/form", "Create",
-		utils.Wrap(fiber.Map{}, nil, utils.Session.Provide(c)).Validation().Get())
+		utils.Wrap(fiber.Map{}, nil, utils.Session.Provide(c)).Message().Validation().Get())
 }
 
 func Store(c *fiber.Ctx) error {
 	payload := utils.GetPayload[DriverPayload](c)
 
 	fileNames, err := utils.SaveMultiFilesFromPayload(c, "pictures", "driver")
-
-	detail := "Driver added successfully!"
-
-	if err != nil {
-		detail = detail + " But, Some photos failed to upload."
-	}
-
+	
 	sess := utils.Session.Provide(c)
-	sess.SetSession("message", detail)
+
+	if err != nil && strings.Contains(err.Error(), utils.NoUploadedFile) {
+		sess.SetSession("message", "Failed to create driver. No photo uploaded")
+		return c.RedirectBack("/admin/driver/create")
+	}
 
 	driver := &models.Driver{
 		Name:  payload.Name,
@@ -108,7 +106,7 @@ func Store(c *fiber.Ctx) error {
 			return utils.SafeThrow(c, err)
 		}
 	}
-
+	sess.SetSession("message", "Driver created successfully")
 	return c.Redirect("/admin/driver")
 }
 
