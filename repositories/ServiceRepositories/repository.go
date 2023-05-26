@@ -12,5 +12,5 @@ var (
 )
 
 func activeOrder(db gen.Dao) gen.Dao {
-	return db.Where(query.Orders.Status.Neq("completed"))
+	return db.Where(query.Orders.Status.Eq("active"))
 }
