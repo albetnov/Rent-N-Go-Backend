@@ -24,7 +24,7 @@ func Index(c *fiber.Ctx) error {
 		total int64 = 0
 	)
 
-	qry := cr.Scopes(ServiceRepositories.Tour.BuildGetQuery)
+	qry := ServiceRepositories.Tour.BuildGetQuery()
 	searchInt, _ := strconv.Atoi(search)
 
 	if search != "" {
