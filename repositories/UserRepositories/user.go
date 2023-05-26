@@ -91,7 +91,7 @@ func (ur userRepository) OptionalCreatePhoto(c *fiber.Ctx, sess utils.SessionSto
 	userPhoto, err := utils.SaveFileFromPayload(c, payload, "user")
 
 	if err != nil {
-		if strings.Contains(err.Error(), utils.NO_UPLOADED_FILE) {
+		if strings.Contains(err.Error(), utils.NoUploadedFile) {
 			return nil
 		}
 
@@ -107,7 +107,7 @@ func (ur userRepository) CreatePhoto(c *fiber.Ctx, sess utils.SessionStore, payl
 	userPhoto, err := utils.SaveFileFromPayload(c, payload, "user")
 
 	if err != nil {
-		if strings.Contains(err.Error(), utils.NO_UPLOADED_FILE) {
+		if strings.Contains(err.Error(), utils.NoUploadedFile) {
 			sess.SetSession("error", "No Uploaded File found.")
 		} else {
 			sess.SetSession("error", utils.GetErrorMessage(err))

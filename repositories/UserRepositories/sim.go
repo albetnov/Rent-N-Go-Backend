@@ -33,7 +33,7 @@ func (s simRepository) OptionalCreate(c *fiber.Ctx, payload string, sess utils.S
 	simFile, err := utils.SaveFileFromPayload(c, payload, utils.AssetPath("sim"))
 
 	if err != nil {
-		if strings.Contains(err.Error(), utils.NO_UPLOADED_FILE) {
+		if strings.Contains(err.Error(), utils.NoUploadedFile) {
 			return nil
 		}
 

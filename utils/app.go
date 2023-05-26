@@ -2,7 +2,6 @@ package utils
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
@@ -18,7 +17,7 @@ import (
 
 var r = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-const NO_UPLOADED_FILE = "there is no uploaded file associated with the given key"
+const NoUploadedFile = "there is no uploaded file associated with the given key"
 
 // GetApp
 // Return the application about boilerplate response in Map.
@@ -201,7 +200,7 @@ func SaveMultiFilesFromPayload(c *fiber.Ctx, payload string, assetDirectory stri
 	files := form.File[payload]
 
 	if len(files) <= 0 {
-		return nil, errors.New(fmt.Sprintf("Invalid. No %s being provided.", payload))
+		return nil, errors.New(NoUploadedFile)
 	}
 
 	fileNames := []string{}

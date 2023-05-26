@@ -85,7 +85,7 @@ func Show(c *fiber.Ctx) error {
 
 func Create(c *fiber.Ctx) error {
 	return admin.RenderTemplate(c, "car/form", "Create",
-		utils.Wrap(fiber.Map{}, nil, utils.Session.Provide(c)).Validation().Get())
+		utils.Wrap(fiber.Map{}, nil, utils.Session.Provide(c)).Message().Validation().Get())
 }
 
 func Store(c *fiber.Ctx) error {
@@ -93,14 +93,12 @@ func Store(c *fiber.Ctx) error {
 
 	fileNames, err := utils.SaveMultiFilesFromPayload(c, "pictures", "car")
 
-	detail := "Car added successfully!"
-
-	if err != nil {
-		detail = detail + " But, Some photos failed to upload."
-	}
-
 	sess := utils.Session.Provide(c)
-	sess.SetSession("message", detail)
+
+	if err != nil && strings.Contains(err.Error(), utils.NoUploadedFile) {
+		sess.SetSession("message", "Failed to create car. No photo uploaded")
+		return c.RedirectBack("/admin/cars/create")
+	}
 
 	car := &models.Cars{
 		Name:    payload.Name,
@@ -121,6 +119,7 @@ func Store(c *fiber.Ctx) error {
 		}
 	}
 
+	sess.SetSession("message", "Car created successfully")
 	return c.Redirect("/admin/cars")
 }
 

@@ -6,6 +6,7 @@ import (
 	"rent-n-go-backend/repositories/ServiceRepositories"
 	"rent-n-go-backend/utils"
 	"strconv"
+	"strings"
 )
 
 func Recommendation(c *fiber.Ctx) error {
@@ -29,7 +30,12 @@ func Index(c *fiber.Ctx) error {
 	filterSeat, _ := strconv.Atoi(c.Query("seats", "0"))
 	filterPrice, _ := strconv.Atoi(c.Query("price", "0"))
 
-	cars, err := ServiceRepositories.Car.Ctx(c).GetAll(c, search, filterSeat, filterPrice)
+	cars, err := ServiceRepositories.Car.Ctx(c).GetAll(
+		c,
+		"%"+strings.ToLower(search)+"%",
+		filterSeat,
+		filterPrice,
+	)
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
