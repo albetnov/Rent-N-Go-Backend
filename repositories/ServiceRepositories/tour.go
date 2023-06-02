@@ -2,7 +2,6 @@ package ServiceRepositories
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gen"
 	"gorm.io/gorm"
 	"rent-n-go-backend/models"
 	"rent-n-go-backend/query"
@@ -20,11 +19,11 @@ func (t *tour) Ctx(c *fiber.Ctx) *tour {
 	return t
 }
 
-func (t tour) BuildGetQuery(db gen.Dao) gen.Dao {
+func (t tour) BuildGetQuery() query.ITourDo {
 	qt := query.Tour
 	qp := query.Pictures
 
-	return db.
+	return qt.
 		Preload(qt.Pictures.On(qp.Associate.Eq(BasicRepositories.Tour))).
 		Preload(qt.Driver).
 		Preload(qt.Driver.Pictures.On(qp.Associate.Eq(BasicRepositories.Driver))).
@@ -53,7 +52,7 @@ func (t tour) buildGenericResult(data *models.Tour, features, pictures []fiber.M
 
 func (t tour) GetById(id uint) (fiber.Map, error) {
 	qt := query.Tour
-	result, err := qt.Scopes(t.BuildGetQuery).Where(qt.ID.Eq(id)).First()
+	result, err := t.BuildGetQuery().Where(qt.ID.Eq(id)).First()
 
 	if err != nil {
 		return nil, err
@@ -72,9 +71,21 @@ func (t tour) CheckStock(id uint) (int64, *models.Tour, error) {
 	return int64(tour.Stock) - total, tour, err
 }
 
-func (t tour) GetTours(c *fiber.Ctx) ([]fiber.Map, error) {
+func (t tour) GetTours(c *fiber.Ctx, search string, price int) ([]fiber.Map, error) {
 	qt := query.Tour
-	results, err := qt.Scopes(t.BuildGetQuery).Find()
+
+	tourQuery := t.BuildGetQuery().
+		Scopes(utils.Paginate(c))
+
+	if search != "" {
+		tourQuery = tourQuery.Where(qt.Name.Like(search)).Or(qt.Desc.Like(search))
+	}
+
+	if price > 0 {
+		tourQuery = tourQuery.Where(qt.Price.Gte(price))
+	}
+
+	results, err := tourQuery.Find()
 
 	if err != nil {
 		return nil, err

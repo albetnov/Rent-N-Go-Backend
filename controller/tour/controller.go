@@ -6,10 +6,39 @@ import (
 	"rent-n-go-backend/repositories/ServiceRepositories"
 	"rent-n-go-backend/utils"
 	"strconv"
+	"strings"
 )
+
+func Index(c *fiber.Ctx) error {
+
+	search := c.Query("search", "")
+	filterPrice, _ := strconv.Atoi(c.Query("price", "0"))
+
+	tour, err := ServiceRepositories.Tour.Ctx(c).GetTours(c, "%"+strings.ToLower(search)+"%", filterPrice)
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error fetching tours",
+			"error":   true,
+		})
+	}
+
+	total, err := query.Tour.Count()
+	if err != nil {
+		return utils.SafeThrow(c, err)
+	}
+
+	res := utils.Wrap(fiber.Map{
+		"data":    tour,
+		"message": "Tours fetched successfully",
+	}, c).WithMeta(total)
+
+	return c.JSON(res.Get())
+}
 
 func Show(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
+
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Invalid ID",
@@ -35,30 +64,6 @@ func Show(c *fiber.Ctx) error {
 		"data":    result,
 		"message": "Tour fetched successfully",
 	})
-}
-
-func Index(c *fiber.Ctx) error {
-	t := ServiceRepositories.Tour
-
-	results, err := t.GetTours(c)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Error fetching tours",
-			"error":   true,
-		})
-	}
-
-	total, err := query.Tour.Count()
-	if err != nil {
-		return utils.SafeThrow(c, err)
-	}
-
-	res := utils.Wrap(fiber.Map{
-		"data":    results,
-		"message": "Tours fetched successfully",
-	}, c).WithMeta(total)
-
-	return c.JSON(res.Get())
 }
 
 func Stocks(c *fiber.Ctx) error {

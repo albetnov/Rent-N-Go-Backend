@@ -24,7 +24,7 @@ func Index(c *fiber.Ctx) error {
 		total int64 = 0
 	)
 
-	qry := cr.Scopes(ServiceRepositories.Tour.BuildGetQuery)
+	qry := ServiceRepositories.Tour.BuildGetQuery()
 	searchInt, _ := strconv.Atoi(search)
 
 	if search != "" {
@@ -79,24 +79,21 @@ func Show(c *fiber.Ctx) error {
 }
 
 func Create(c *fiber.Ctx) error {
-	// Retrieve the car data from the database
 	cars, err := query.Cars.Find()
 	if err != nil {
 		return utils.SafeThrow(c, err)
 	}
 
-	// Retrieve the driver data from the database
 	drivers, err := query.Driver.Find()
 	if err != nil {
 		return utils.SafeThrow(c, err)
 	}
 
-	// Pass the car and driver data to the template
 	return admin.RenderTemplate(c, "tour/form", "Create",
 		utils.Wrap(fiber.Map{
 			"Cars":    cars,
 			"Drivers": drivers,
-		}, nil, utils.Session.Provide(c)).Validation().Get())
+		}, nil, utils.Session.Provide(c)).Message().Validation().Get())
 }
 
 func Store(c *fiber.Ctx) error {
@@ -104,14 +101,12 @@ func Store(c *fiber.Ctx) error {
 
 	fileNames, err := utils.SaveMultiFilesFromPayload(c, "pictures", "tour")
 
-	detail := "Tour added successfully!"
-
-	if err != nil {
-		detail = detail + " But, Some photos failed to upload."
-	}
-
 	sess := utils.Session.Provide(c)
-	sess.SetSession("message", detail)
+
+	if err != nil && strings.Contains(err.Error(), utils.NoUploadedFile) {
+		sess.SetSession("message", "Failed to create tour. No photo uploaded")
+		return c.RedirectBack("/admin/tour/create")
+	}
 
 	tour := &models.Tour{
 		Name:     payload.Name,
@@ -132,6 +127,7 @@ func Store(c *fiber.Ctx) error {
 		}
 	}
 
+	sess.SetSession("message", "Tour created successfully")
 	return c.Redirect("/admin/tours")
 }
 

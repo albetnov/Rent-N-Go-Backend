@@ -6,12 +6,13 @@ import (
 	"rent-n-go-backend/repositories/ServiceRepositories"
 	"rent-n-go-backend/utils"
 	"strconv"
+	"strings"
 )
 
 func Index(c *fiber.Ctx) error {
 	search := c.Query("search", "")
 
-	drivers, err := ServiceRepositories.Driver.Ctx(c).GetAll(c, search)
+	drivers, err := ServiceRepositories.Driver.Ctx(c).GetAll(c, "%"+strings.ToLower(search)+"%")
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
