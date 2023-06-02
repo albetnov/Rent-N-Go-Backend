@@ -77,7 +77,7 @@ func (t tour) GetTours(c *fiber.Ctx, search string, price int) ([]fiber.Map, err
 	tourQuery := t.BuildGetQuery().
 		Scopes(utils.Paginate(c))
 
-	if search != "" {
+	if search != "%%" {
 		tourQuery = tourQuery.Where(qt.Name.Like(search)).Or(qt.Desc.Like(search))
 	}
 
