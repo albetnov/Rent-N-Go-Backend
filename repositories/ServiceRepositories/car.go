@@ -58,7 +58,7 @@ func (c car) GetAll(ctx *fiber.Ctx, search string, seats, price int) ([]fiber.Ma
 	carQuery := c.buildGetQuery().
 		Scopes(utils.Paginate(ctx))
 
-	if search != "" {
+	if search != "%%" {
 		carQuery = carQuery.Where(qc.Name.Like(search)).Or(qc.Desc.Like(search))
 	}
 
