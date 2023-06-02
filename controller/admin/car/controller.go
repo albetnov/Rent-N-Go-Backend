@@ -28,10 +28,10 @@ func Index(c *fiber.Ctx) error {
 	searchInt, _ := strconv.Atoi(search)
 
 	if search != "" {
-		qry = cr.Where(cr.Name.Like(search)).
-			Or(cr.Price.Like(searchInt)).
-			Or(cr.Desc.Like(search)).
-			Or(cr.Stock.Like(searchInt))
+		qry = cr.Where(cr.Name.Like("%" + search + "%")).
+			Or(cr.Price.Eq(searchInt)).
+			Or(cr.Desc.Like("%" + search + "%")).
+			Or(cr.Stock.Eq(searchInt))
 
 		cars, err = qry.Scopes(utils.Paginate(c)).Find()
 		total, _ = qry.Count()
