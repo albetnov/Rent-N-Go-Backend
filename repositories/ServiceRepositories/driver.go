@@ -19,11 +19,11 @@ func (d *driver) Ctx(c *fiber.Ctx) *driver {
 	return d
 }
 
-func (d driver) buildGetQuery(db gen.Dao) gen.Dao {
+func (d driver) buildGetQuery() query.IDriverDo {
 	qd := query.Driver
 	qp := query.Pictures
 
-	return db.Preload(qd.Pictures.On(qp.Associate.Eq(BasicRepositories.Driver)))
+	return qd.Preload(qd.Pictures.On(qp.Associate.Eq(BasicRepositories.Driver)))
 }
 
 func (d driver) buildGenericResult(data *models.Driver, features, pictures []fiber.Map) fiber.Map {
@@ -41,7 +41,7 @@ func (d driver) buildGenericResult(data *models.Driver, features, pictures []fib
 
 func (d driver) GetById(id uint) (fiber.Map, error) {
 	qd := query.Driver
-	result, err := qd.Scopes(d.buildGetQuery).Where(qd.ID.Eq(id)).First()
+	result, err := d.buildGetQuery().Where(qd.ID.Eq(id)).First()
 
 	if err != nil {
 		return nil, err
@@ -57,9 +57,19 @@ func (d driver) CheckAvailability(id uint) bool {
 
 	return total > 0
 }
-func (d driver) GetAll(c *fiber.Ctx, search string) ([]fiber.Map, error) {
+func (d driver) GetAll(c *fiber.Ctx, search string, price int) ([]fiber.Map, error) {
 	qd := query.Driver
-	results, err := qd.Scopes(d.buildGetQuery).Find()
+
+	driverQuery := d.buildGetQuery()
+
+	if search != "%%" {
+		driverQuery = driverQuery.Where(qd.Name.Like(search)).Or(qd.Desc.Like(search))
+	}
+
+	if price > 0 {
+		driverQuery = driverQuery.Where(qd.Price.Gte(price))
+	}
+	results, err := driverQuery.Find()
 
 	if err != nil {
 		return nil, err

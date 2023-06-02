@@ -11,8 +11,9 @@ import (
 
 func Index(c *fiber.Ctx) error {
 	search := c.Query("search", "")
+	filterPrice, _ := strconv.Atoi(c.Query("price", "0"))
 
-	drivers, err := ServiceRepositories.Driver.Ctx(c).GetAll(c, "%"+strings.ToLower(search)+"%")
+	drivers, err := ServiceRepositories.Driver.Ctx(c).GetAll(c, "%"+strings.ToLower(search)+"%", filterPrice)
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{

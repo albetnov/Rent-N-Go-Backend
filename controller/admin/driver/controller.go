@@ -28,9 +28,9 @@ func Index(c *fiber.Ctx) error {
 	searchInt, _ := strconv.Atoi(search)
 
 	if search != "" {
-		qry = cr.Where(cr.Name.Like(search)).
-			Or(cr.Price.Like(searchInt)).
-			Or(cr.Desc.Like(search))
+		qry = cr.Where(cr.Name.Like("%" + search + "%")).
+			Or(cr.Price.Eq(searchInt)).
+			Or(cr.Desc.Like("%" + search + "%"))
 
 		driver, err = qry.Scopes(utils.Paginate(c)).Find()
 		total, _ = qry.Count()
@@ -83,7 +83,7 @@ func Store(c *fiber.Ctx) error {
 	payload := utils.GetPayload[DriverPayload](c)
 
 	fileNames, err := utils.SaveMultiFilesFromPayload(c, "pictures", "driver")
-	
+
 	sess := utils.Session.Provide(c)
 
 	if err != nil && strings.Contains(err.Error(), utils.NoUploadedFile) {
