@@ -83,7 +83,7 @@ func Store(c *fiber.Ctx) error {
 	payload := utils.GetPayload[DriverPayload](c)
 
 	fileNames, err := utils.SaveMultiFilesFromPayload(c, "pictures", "driver")
-	
+
 	sess := utils.Session.Provide(c)
 
 	if err != nil && strings.Contains(err.Error(), utils.NoUploadedFile) {
