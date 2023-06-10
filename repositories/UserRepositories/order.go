@@ -209,38 +209,32 @@ func (o orderRepository) checkDriver(driverId uint) error {
 }
 
 func (o orderRepository) CreateDriverOrder(carId, driverId uint) error {
-	errCh := make(chan error, 2)
-	carCh := make(chan *models.Cars)
 	var wg sync.WaitGroup
+	var driverErr error
+	var car *models.Cars
+	var carErr error
 
 	wg.Add(2)
 
 	go func() {
 		defer wg.Done()
-		result, err := o.checkCar(carId)
-		if err != nil {
-			errCh <- err
-			return
-		}
-		carCh <- result
+		driverErr = o.checkDriver(driverId)
 	}()
 
 	go func() {
 		defer wg.Done()
-		err := o.checkDriver(driverId)
-		if err != nil {
-			errCh <- err
-		}
+		car, carErr = o.checkCar(carId)
 	}()
 
 	wg.Wait()
-	close(errCh)
 
-	if err := <-errCh; err != nil {
-		return err
+	if driverErr != nil {
+		return driverErr
 	}
 
-	car := <-carCh
+	if carErr != nil {
+		return carErr
+	}
 
 	driver, _ := ServiceRepositories.Driver.Ctx(o.c).GetById(driverId)
 
