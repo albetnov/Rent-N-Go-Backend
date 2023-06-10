@@ -136,7 +136,7 @@ func processItem(c *fiber.Ctx, item reflect.Value) ([]fiber.Map, []fiber.Map) {
 	return features, pictures
 }
 
-func MapToServiceableSingle[T comparable](
+func MapToServiceableSingle[T any](
 	c *fiber.Ctx,
 	data T,
 	callback func(data T, features, pictures []fiber.Map) fiber.Map) fiber.Map {
