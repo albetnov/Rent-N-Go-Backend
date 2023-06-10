@@ -33,16 +33,42 @@ func (t tour) BuildGetQuery() query.ITourDo {
 
 func (t tour) buildGenericResult(data *models.Tour, features, pictures []fiber.Map) fiber.Map {
 	totalPrice := data.Price + data.Driver.Price + data.Car.Price
-
+	carStock, _, _ := Car.CheckStock(data.Car.ID)
 	return fiber.Map{
-		"id":         data.ID,
-		"name":       data.Name,
-		"desc":       data.Desc,
-		"price":      totalPrice,
-		"features":   features,
-		"pictures":   pictures,
-		"car":        data.Car,
-		"driver":     data.Driver,
+		"id":       data.ID,
+		"name":     data.Name,
+		"desc":     data.Desc,
+		"price":    totalPrice,
+		"features": features,
+		"pictures": pictures,
+		"car": utils.MapToServiceableSingle(t.c, data.Car, func(data models.Cars, features, pictures []fiber.Map) fiber.Map {
+			return fiber.Map{
+				"id":         data.ID,
+				"name":       data.Name,
+				"stock":      data.Stock,
+				"desc":       data.Desc,
+				"price":      data.Price,
+				"pictures":   pictures,
+				"seats":      data.Seats,
+				"baggages":   data.Baggage,
+				"created_at": data.CreatedAt,
+				"updated_at": data.UpdatedAt,
+				"deleted_at": data.DeletedAt,
+				"hold_stock": carStock,
+			}
+		}),
+		"driver": utils.MapToServiceableSingle(t.c, data.Driver, func(data models.Driver, features, pictures []fiber.Map) fiber.Map {
+			return fiber.Map{
+				"id":         data.ID,
+				"name":       data.Name,
+				"desc":       data.Desc,
+				"price":      data.Price,
+				"pictures":   pictures,
+				"created_at": data.CreatedAt,
+				"updated_at": data.UpdatedAt,
+				"deleted_at": data.DeletedAt,
+			}
+		}),
 		"stock":      data.Stock,
 		"created_at": data.CreatedAt,
 		"updated_at": data.UpdatedAt,
